@@ -17,7 +17,7 @@ export class AuthController {
   // 로그인 정보 확인
   @Post('load')
   @UseGuards(JwtAccessGuard)
-  async loadUser(@User() user: ValidateUserDto) {
+  async loadUser(@User() user: ValidateUserDto): Promise<ValidateUserDto> {
     return user;
   }
 
@@ -26,7 +26,7 @@ export class AuthController {
   async login(
     @User() user: ValidateUserDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<ValidateUserDto> {
     const [
       { token: accessToken, ...accessTokenOption },
       { token: refreshToken, ...refreshTokenOption },
@@ -46,10 +46,9 @@ export class AuthController {
   async refresh(
     @User() user: ValidateUserDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<ValidateUserDto> {
     const { token: accessToken, ...accessTokenOption } =
       await this.authService.getCookieWithAccessToken(user);
-    console.log(accessToken);
     res.cookie('Authentication', accessToken, accessTokenOption);
     return user;
   }

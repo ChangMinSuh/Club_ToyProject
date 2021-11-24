@@ -25,7 +25,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<ValidateUserDto | null> {
     const user = await this.usersRepository.findOne({
       where: { email },
       select: ['email', 'password', 'nickname', 'id'],
@@ -37,13 +40,10 @@ export class AuthService {
     if (!isPasswordComplete) {
       return null;
     }
-    const { password: X_password, ...result } = user;
-    return result;
+    return { userId: user.id, nickname: user.nickname, email: user.email };
   }
 
   async getCookieWithAccessToken(payload: any): Promise<CookieTokenDto> {
-    console.log('hi', process.env.JWT_ACCESS_EXPIRY_TIME);
-    console.log(payload);
     const token = await this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
       expiresIn: Number(process.env.JWT_ACCESS_EXPIRY_TIME),
@@ -70,21 +70,24 @@ export class AuthService {
     };
   }
 
-  async setRefreshTokenInDb(refreshToken: string, userId: number) {
+  async setRefreshTokenInDb(
+    refreshToken: string,
+    userId: number,
+  ): Promise<void> {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.redisManager.set(userId.toString(), hashRefreshToken, {
       ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
     });
   }
 
-  async deleteRefreshTokenInDb(userId: number) {
+  async deleteRefreshTokenInDb(userId: number): Promise<void> {
     await this.redisManager.del(userId.toString());
   }
 
   async getUserIfRefreshTokenMatches(
     refreshToken: string,
     decodedAccessToken: any,
-  ): null | Promise<ValidateUserDto> {
+  ): Promise<ValidateUserDto | null> {
     const { userId, nickname, email } = decodedAccessToken;
     const currentHashedRefreshToken = await this.redisManager.get(userId);
     if (currentHashedRefreshToken === null)
@@ -99,7 +102,7 @@ export class AuthService {
     return { userId, nickname, email };
   }
 
-  async signUp({ email, password, nickname }: SignUpUserDto) {
+  async signUp({ email, password, nickname }: SignUpUserDto): Promise<void> {
     const chkUser = await this.usersRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email })

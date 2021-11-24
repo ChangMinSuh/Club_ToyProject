@@ -22,13 +22,15 @@ export default function ({ $axios, app, store, redirect }) {
 
       try {
         const cookies = await store.dispatch("users/refresh");
-        console.log("(axios)users/refresh");
-        cookies.forEach((cookie) => {
-          app.$cookies.set(cookie);
-          $axios.setHeader("cookie", cookie);
-        });
+        console.log("(axios)users/refresh cookies:", cookies);
+        if (process.server) {
+          cookies.forEach((cookie) => {
+            app.$cookies.set(cookie);
+            $axios.setHeader("cookie", cookie);
+          });
+        }
         console.log("(axios)cookies success");
-        //$axios(originalRequest);
+        $axios(originalRequest);
       } catch (err) {
         Promise.reject(err);
       }
@@ -36,11 +38,11 @@ export default function ({ $axios, app, store, redirect }) {
     return Promise.reject(err);
   });
 
-  $axios.onError((error) => {
-    const code = parseInt(error.response && error.response.status);
-    console.log("(axois)", error);
-    if (code === 400) {
-      redirect("/400");
-    }
-  });
+  // $axios.onError((error) => {
+  //   const code = parseInt(error.response && error.response.status);
+  //   console.log("(axois)", error);
+  //   if (code === 400) {
+  //     redirect("/400");
+  //   }
+  // });
 }
