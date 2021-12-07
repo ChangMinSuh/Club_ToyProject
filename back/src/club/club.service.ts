@@ -4,11 +4,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GetClubChatsDataDto } from 'src/club-chat/dto/get-clubchats-data.dto';
 import { ClubChats } from 'src/entities/clubChats';
 import { Clubs } from 'src/entities/clubs';
 import { Users } from 'src/entities/users';
 import { Repository } from 'typeorm';
-import { SetClubDto } from './dto/set-club.dto';
+import { FindOneClubDto } from './dto/find-one-club.dto';
+import { getClubChatDto } from './dto/get-club-chat.dto';
+import { GetClubDto } from './dto/get-club.dto';
+import { SetClubBodyDto } from './dto/set-club-body.dto';
 
 @Injectable()
 export class ClubService {
@@ -21,11 +25,14 @@ export class ClubService {
     private readonly clubChatsRepository: Repository<ClubChats>,
   ) {}
 
-  findAllClubs() {
-    return this.clubsRepository.find();
+  async findAllClubs(): Promise<GetClubDto[]> {
+    return await this.clubsRepository
+      .createQueryBuilder('clubs')
+      .leftJoinAndSelect('clubs.Owner', 'owner')
+      .getMany();
   }
 
-  async findMyClubs(userId: number) {
+  async findMyClubs({ userId }): Promise<GetClubDto[]> {
     return await this.clubsRepository
       .createQueryBuilder('clubs')
       .leftJoin('clubs.Users', 'users')
@@ -34,7 +41,10 @@ export class ClubService {
       .getMany();
   }
 
-  async setClub({ name, explanation }: SetClubDto, userId: number) {
+  async setClub(
+    userId: number,
+    { name, explanation }: SetClubBodyDto,
+  ): Promise<string> {
     const hasClub = await this.clubsRepository.findOne({ name });
     if (hasClub) {
       throw new ConflictException('동아리 이름이 중복됩니다.');
@@ -54,12 +64,21 @@ export class ClubService {
     return 'success';
   }
 
-  async findOneClub(name: string) {
-    return await this.clubsRepository.findOne({ name });
+  async findOneClub({ name, userId }: FindOneClubDto): Promise<GetClubDto> {
+    const isClubMember = await this.clubsRepository
+      .createQueryBuilder('clubs')
+      .innerJoin('clubs.Users', 'users')
+      .where('users.id = :userId', { userId })
+      .andWhere('clubs.name = :name', { name })
+      .getOne();
+    if (!isClubMember)
+      throw new UnauthorizedException('동아리에 가입되지 않았습니다.');
+
+    return isClubMember;
   }
 
-  async getClubChat(clubName: string) {
-    const club = await this.clubsRepository.findOne({ name: clubName });
+  async getClubChat({ name }: getClubChatDto): Promise<GetClubChatsDataDto[]> {
+    const club = await this.clubsRepository.findOne({ name });
     if (!club) {
       throw new UnauthorizedException('클럽이 존재하지 않습니다.');
     }

@@ -59,7 +59,7 @@ export const actions = {
 
   async signup({ commit }, { email, nickname, password }) {
     try {
-      const res = await this.$axios.$post(
+      const res = await this.$axios.post(
         "/auth/signup",
         {
           email,
@@ -104,7 +104,7 @@ export const actions = {
 
   async logout({ commit }) {
     try {
-      await this.$axios.$post(
+      await this.$axios.post(
         "/auth/logout",
         {},
         {

@@ -34,7 +34,10 @@ export class AuthController {
       this.authService.getCookieWithAccessToken(user),
       this.authService.getCookieWithRefreshToken(),
     ]);
-    await this.authService.setRefreshTokenInDb(refreshToken, user.userId);
+    await this.authService.setRefreshTokenInDb({
+      refreshToken,
+      userId: user.userId,
+    });
 
     res.cookie('Authentication', accessToken, accessTokenOption);
     res.cookie('Refresh', refreshToken, refreshTokenOption);
@@ -59,7 +62,7 @@ export class AuthController {
     @User() user: ValidateUserDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.authService.deleteRefreshTokenInDb(user.userId);
+    await this.authService.deleteRefreshTokenInDb({ userId: user.userId });
     res.clearCookie('Authentication');
     res.clearCookie('Refresh');
     return {
@@ -67,7 +70,6 @@ export class AuthController {
     };
   }
 
-  //test
   @Post('signup')
   async signUp(@Body() body: SignUpUserDto) {
     await this.authService.signUp(body);

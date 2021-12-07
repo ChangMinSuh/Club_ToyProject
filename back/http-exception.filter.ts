@@ -22,6 +22,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error.message === 'jwt expired'
     ) {
       return response.status(status).json({
+        success: false,
+        data: null,
         statusCode: status,
         timestamp: new Date().toISOString(),
         path: request.url,
@@ -31,6 +33,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     response.status(status).json({
+      success: false,
+      data: null,
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,

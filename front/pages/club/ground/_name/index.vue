@@ -36,6 +36,8 @@ import { createNamespacedHelpers } from "vuex";
 const clubsHelper = createNamespacedHelpers("clubs");
 
 export default {
+  middleware: ["isClubMember"],
+
   async asyncData({ store, params }) {
     const clubName = params.name;
     await store.dispatch("clubs/loadOneClubByName", { clubName });

@@ -1,16 +1,13 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClubChats } from 'src/entities/clubChats';
-import { Clubs } from 'src/entities/clubs';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class ClubChatService {
   constructor(
-    @InjectRepository(Clubs)
-    private readonly repositoryClubs: Repository<Clubs>,
     @InjectRepository(ClubChats)
-    private readonly repositoryClubChats: Repository<ClubChats>,
+    private readonly clubChatsRepository: Repository<ClubChats>,
   ) {}
 
   async setClubChat(data) {
@@ -19,7 +16,7 @@ export class ClubChatService {
     clubChat.UserId = data.UserId;
     clubChat.ClubId = data.ClubId;
     const { id, content, createAt, UserId } =
-      await this.repositoryClubChats.save(clubChat);
+      await this.clubChatsRepository.save(clubChat);
     return {
       id,
       content,

@@ -25,20 +25,17 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<ValidateUserDto | null> {
+  async validateUser({ email, password }): Promise<ValidateUserDto | null> {
     const user = await this.usersRepository.findOne({
       where: { email },
       select: ['email', 'password', 'nickname', 'id'],
     });
     if (!user) {
-      return null;
+      throw new UnauthorizedException('Is not correct');
     }
     const isPasswordComplete = await bcrypt.compare(password, user.password);
     if (!isPasswordComplete) {
-      return null;
+      throw new UnauthorizedException('Is not correct');
     }
     return { userId: user.id, nickname: user.nickname, email: user.email };
   }
@@ -70,24 +67,21 @@ export class AuthService {
     };
   }
 
-  async setRefreshTokenInDb(
-    refreshToken: string,
-    userId: number,
-  ): Promise<void> {
+  async setRefreshTokenInDb({ refreshToken, userId }): Promise<void> {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.redisManager.set(userId.toString(), hashRefreshToken, {
       ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
     });
   }
 
-  async deleteRefreshTokenInDb(userId: number): Promise<void> {
+  async deleteRefreshTokenInDb({ userId }): Promise<void> {
     await this.redisManager.del(userId.toString());
   }
 
-  async getUserIfRefreshTokenMatches(
-    refreshToken: string,
-    decodedAccessToken: any,
-  ): Promise<ValidateUserDto | null> {
+  async getUserIfRefreshTokenMatches({
+    refreshToken,
+    decodedAccessToken,
+  }): Promise<ValidateUserDto | null> {
     const { userId, nickname, email } = decodedAccessToken;
     const currentHashedRefreshToken = await this.redisManager.get(userId);
     if (currentHashedRefreshToken === null)
@@ -97,7 +91,8 @@ export class AuthService {
       refreshToken,
       currentHashedRefreshToken,
     );
-    if (!isRefreshTokenCorrect) return null;
+    if (!isRefreshTokenCorrect)
+      throw new UnauthorizedException('refresh token is not compare');
 
     return { userId, nickname, email };
   }

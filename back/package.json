@@ -37,6 +37,7 @@
     "cache-manager": "^3.4.4",
     "cache-manager-ioredis": "^2.1.0",
     "cookie-parser": "^1.4.5",
+    "ioredis-mock": "^5.8.1",
     "mysql2": "^2.3.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
@@ -50,7 +51,7 @@
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
-    "@nestjs/testing": "^8.0.0",
+    "@nestjs/testing": "^8.2.3",
     "@types/cache-manager": "^3.4.2",
     "@types/cache-manager-ioredis": "^2.0.2",
     "@types/cookie-parser": "^1.4.2",
@@ -83,6 +84,9 @@
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
