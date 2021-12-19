@@ -16,7 +16,7 @@
             <v-list-item
               :key="myClub.name"
               nuxt
-              :to="pathJoin('/club/ground/', myClub.name)"
+              :to="pathJoin('/club/ground/', myClub.id)"
             >
               <v-list-item-content>
                 <v-list-item-title>

@@ -1,3 +1,3 @@
 export class getClubChatDto {
-  name: string;
+  clubId: number;
 }

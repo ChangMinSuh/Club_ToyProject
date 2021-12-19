@@ -14,21 +14,7 @@
 </template>
 
 <script>
-import { createNamespacedHelpers } from "vuex";
-
-const usersHelper = createNamespacedHelpers("users");
-
-export default {
-  data() {
-    return {
-      drower: false,
-    };
-  },
-
-  computed: {
-    ...usersHelper.mapState(["me", "AccessTokenExpired"]),
-  },
-};
+export default {};
 </script>
 
 <style></style>

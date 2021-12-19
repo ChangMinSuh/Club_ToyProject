@@ -14,6 +14,7 @@ import { CookieTokenDto } from './dto/cookie-token.dto';
 import { Cache } from 'cache-manager';
 import { SignUpUserDto } from './dto/signUp-user.dto';
 import { ValidateUserDto } from './dto/validate-user';
+import { UserClubsRoleEnum } from 'src/entities/userClubs';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +27,16 @@ export class AuthService {
   ) {}
 
   async validateUser({ email, password }): Promise<ValidateUserDto | null> {
-    const user = await this.usersRepository.findOne({
-      where: { email },
-      select: ['email', 'password', 'nickname', 'id'],
-    });
+    const user = await this.usersRepository
+      .createQueryBuilder('users')
+      .leftJoin('users.UserClubs', 'userClubs', 'userClubs.role = :role', {
+        role: UserClubsRoleEnum.Manager,
+      })
+      .select('users')
+      .addSelect('users.password')
+      .addSelect(['userClubs.ClubId'])
+      .where('users.email = :email', { email })
+      .getOne();
     if (!user) {
       throw new UnauthorizedException('Is not correct');
     }
@@ -37,7 +44,15 @@ export class AuthService {
     if (!isPasswordComplete) {
       throw new UnauthorizedException('Is not correct');
     }
-    return { userId: user.id, nickname: user.nickname, email: user.email };
+    const clubManagers: number[] | null = user?.UserClubs.map(
+      (userClub) => userClub.ClubId,
+    );
+    return {
+      userId: user.id,
+      nickname: user.nickname,
+      email: user.email,
+      clubManagers,
+    };
   }
 
   async getCookieWithAccessToken(payload: any): Promise<CookieTokenDto> {
@@ -94,7 +109,25 @@ export class AuthService {
     if (!isRefreshTokenCorrect)
       throw new UnauthorizedException('refresh token is not compare');
 
-    return { userId, nickname, email };
+    const user = await this.usersRepository
+      .createQueryBuilder('users')
+      .leftJoin('users.UserClubs', 'userClubs', 'userClubs.role = :role', {
+        role: UserClubsRoleEnum.Manager,
+      })
+      .select('users')
+      .addSelect('userClubs.ClubId')
+      .where('users.email = :email', { email })
+      .getOne();
+    const clubManagers: number[] = user?.UserClubs.map(
+      (userClub) => userClub.ClubId,
+    );
+
+    return {
+      userId: user.id,
+      nickname: user.nickname,
+      email: user.email,
+      clubManagers,
+    };
   }
 
   async signUp({ email, password, nickname }: SignUpUserDto): Promise<void> {

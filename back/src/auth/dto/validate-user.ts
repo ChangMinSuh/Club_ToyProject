@@ -9,4 +9,6 @@ export class ValidateUserDto {
 
   @IsString()
   email: string;
+
+  clubManagers: number[] | null;
 }

@@ -1,4 +1,4 @@
 export class FindOneClubDto {
-  name: string;
+  clubId: number;
   userId: number;
 }

@@ -1,7 +1,7 @@
 export default async function ({ store, params, redirect }) {
-  const clubName = params.name;
-  const isClubMember = await store.dispatch("clubs/loadOneClubByName", {
-    clubName,
+  const clubId = params.id;
+  const isClubMember = await store.dispatch("clubs/loadOneClubById", {
+    clubId,
   });
   if (!isClubMember) {
     redirect("/");

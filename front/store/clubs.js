@@ -1,8 +1,10 @@
 export const state = () => ({
   myClubs: [],
+  myAppQuestionAnswers: [],
   allClubs: [],
   onlineClub: null,
   serverRes: null,
+  clubIntroduce: null,
 });
 
 export const getters = {
@@ -29,6 +31,14 @@ export const mutations = {
   setOnlineClub(state, payload) {
     state.onlineClub = payload;
   },
+
+  setClubIntroduce(state, payload) {
+    state.clubIntroduce = payload;
+  },
+
+  setMyAppQuestionAnswers(state, payload) {
+    state.myAppQuestionAnswers = payload;
+  },
 };
 
 export const actions = {
@@ -54,19 +64,25 @@ export const actions = {
     }
   },
 
-  async loadOneClubByName({ commit }, { clubName }) {
+  async loadMyAppQuestionAnswers({ commit }, payload) {
     try {
-      const res = await this.$axios.get(
-        `/clubs/${encodeURIComponent(clubName)}`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await this.$axios.get("/clubs/my/app_question_answers");
+      commit("setMyAppQuestionAnswers", res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  async loadOneClubById({ commit }, { clubId }) {
+    try {
+      const res = await this.$axios.get(`/clubs/${clubId}`, {
+        withCredentials: true,
+      });
       commit("setOnlineClub", res.data);
       return true;
     } catch (err) {
       console.error(err);
-      return false;
+      return null;
     }
   },
 
@@ -79,8 +95,28 @@ export const actions = {
       console.error(err);
     }
   },
+  async getClubIntroduce({ commit }, payload) {
+    try {
+      const res = await this.$axios.get(`/clubs/${payload.id}/introduce`, {
+        withCredentials: true,
+      });
+      const clubIntroduce = {
+        information: payload,
+        introduce: res.data,
+      };
+      commit("setClubIntroduce", clubIntroduce);
+    } catch (err) {
+      console.error(err);
+    }
+  },
 
   setMyClubs({ commit }, payload) {
     commit("setMyClubs", payload);
+  },
+
+  async addUserClubs({ commit }, payload) {
+    await this.$axios.post(`/clubs/${payload.clubId}/users`, {
+      userId: payload.userId,
+    });
   },
 };

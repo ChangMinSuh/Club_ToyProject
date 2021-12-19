@@ -15,14 +15,11 @@ export const mutations = {
 };
 
 export const actions = {
-  async loadClubChats({ state, commit, dispatch }, { clubName }) {
+  async loadClubChats({ state, commit, dispatch }, { clubId }) {
     try {
-      const res = await this.$axios.get(
-        `/clubs/${encodeURIComponent(clubName)}/chats`,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await this.$axios.get(`/clubs/${clubId}/chats`, {
+        withCredentials: true,
+      });
       commit("setClubChats", res.data);
     } catch (err) {
       console.error(err);

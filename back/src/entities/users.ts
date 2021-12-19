@@ -13,6 +13,8 @@ import {
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Clubs } from './clubs';
 import { ClubChats } from './clubChats';
+import { UserClubs } from './userClubs';
+import { ClubAppQuestionAnswers } from './clubAppQuestionAnswers';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ schema: 'sweetipo_nest', name: 'users' })
@@ -44,21 +46,30 @@ export class Users {
   @DeleteDateColumn({ select: false })
   deletedAt: Date;
 
+  @OneToMany(() => UserClubs, (userclub) => userclub.User)
+  UserClubs: UserClubs[];
+
   @OneToMany(() => Clubs, (club) => club.Owner)
   OwnerClubs: Clubs[];
 
   @OneToMany(() => ClubChats, (clubchat) => clubchat.User)
   ClubChats: ClubChats[];
 
+  @OneToMany(
+    () => ClubAppQuestionAnswers,
+    (clubAppQuestionAnswers) => clubAppQuestionAnswers.User,
+  )
+  ClubAppQuestionAnswers: ClubAppQuestionAnswers[];
+
   @ManyToMany(() => Clubs, (club) => club.Users)
   @JoinTable({
     name: 'user_clubs',
     joinColumn: {
-      name: 'UserId',
+      name: 'userId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'ClubId',
+      name: 'clubId',
       referencedColumnName: 'id',
     },
   })

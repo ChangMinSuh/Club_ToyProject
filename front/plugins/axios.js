@@ -1,7 +1,6 @@
 export default function ({ $axios, app, store, redirect }) {
   $axios.onRequest((config) => {
     console.log("(axios)Making request to " + config.url);
-    config.headers.common["Authorization"] = "123";
   });
 
   $axios.onResponse((response) => {
@@ -12,13 +11,12 @@ export default function ({ $axios, app, store, redirect }) {
   $axios.onResponseError(async (err) => {
     const originalRequest = err.config;
     console.log("(axios)Making response error ");
-
+    console.log(err.response.data);
     if (
-      err.response.status === 401 &&
+      err.response?.status === 401 &&
       err.response.data?.accessTokenExpired === true
     ) {
       console.log("(axios)accessTokenExpired");
-
       try {
         const cookies = await store.dispatch("users/refresh");
         console.log("(axios)users/refresh cookies:", cookies);

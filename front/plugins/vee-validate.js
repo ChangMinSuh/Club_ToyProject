@@ -11,6 +11,11 @@ extend("required", {
   message: "This field is required",
 });
 
+extend("required", {
+  ...required,
+  message: "This field is required",
+});
+
 extend("max", {
   validate(value, { max }) {
     const length = value.length;
