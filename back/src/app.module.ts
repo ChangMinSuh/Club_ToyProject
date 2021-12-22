@@ -5,10 +5,15 @@ import { AppService } from './app.service';
 import { LoggerMiddleware } from 'src/middleware/logger.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { ClubModule } from './club/club.module';
-import { ClubChatModule } from './club-chat/club-chat.module';
+import { ClubChatsModule } from './models/club-chats/club-chats.module';
 import * as ormconfig from 'ormconfig';
+import { ClubsModule } from './models/clubs/clubs.module';
+import { ClubPostsModule } from './models/club-posts/club-posts.module';
+import { ClubAppAnswersModule } from './models/club-app-answers/club-app-answers.module';
+import { ClubAppQuestionsModule } from './models/club-app-questions/club-app-questions.module';
+import { ClubIntroducesModule } from './models/club-introduces/club-introduces.module';
+import { UsersModule } from './models/users/users.module';
+import { ClubMembersModule } from './models/club-members/club-members.module';
 
 @Module({
   imports: [
@@ -18,8 +23,13 @@ import * as ormconfig from 'ormconfig';
     TypeOrmModule.forRoot(ormconfig),
     AuthModule,
     UsersModule,
-    ClubModule,
-    ClubChatModule,
+    ClubsModule,
+    ClubChatsModule,
+    ClubPostsModule,
+    ClubAppAnswersModule,
+    ClubAppQuestionsModule,
+    ClubIntroducesModule,
+    ClubMembersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

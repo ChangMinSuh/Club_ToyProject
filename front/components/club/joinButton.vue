@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-btn
-        :disabled="!me || isMyClubs || isSubmitAppQuestionAnswer"
+        :disabled="!me || isMyClubs || isSubmitAppAnswer"
         v-bind="attrs"
         v-on="on"
         >동아리 가입</v-btn
@@ -83,11 +83,7 @@ const usersHelper = createNamespacedHelpers("users");
 export default {
   computed: {
     ...clubSettingsHelper.mapState(["clubAppQuestions"]),
-    ...clubsHelper.mapState([
-      "clubIntroduce",
-      "myClubs",
-      "myAppQuestionAnswers",
-    ]),
+    ...clubsHelper.mapState(["clubIntroduce", "myClubs", "myAppAnswers"]),
     ...usersHelper.mapState(["me"]),
 
     isMyClubs() {
@@ -98,10 +94,9 @@ export default {
         : false;
     },
 
-    isSubmitAppQuestionAnswer() {
-      return this.myAppQuestionAnswers.find(
-        (myAppQuestionAnswer) =>
-          myAppQuestionAnswer.id === this.clubIntroduce?.information?.id
+    isSubmitAppAnswer() {
+      return this.myAppAnswers.find(
+        (myAppAnswer) => myAppAnswer.id === this.clubIntroduce?.information?.id
       )
         ? true
         : false;
@@ -117,18 +112,18 @@ export default {
   }),
 
   methods: {
-    ...clubSettingsHelper.mapActions(["pushClubAppQuestionAnswers"]),
+    ...clubSettingsHelper.mapActions(["pushClubAppAnswers"]),
     async onSubmit() {
       try {
         await this.$refs.form.validate();
-        const clubAppQuestionAnswers = this.answers.map((answer, index) => ({
+        const clubAppAnswers = this.answers.map((answer, index) => ({
           answer,
           answer_type: this.clubAppQuestions[index].answer_type,
           question: this.clubAppQuestions[index].question,
         }));
         const clubId = this.clubIntroduce?.information?.id;
-        await this.pushClubAppQuestionAnswers({
-          clubAppQuestionAnswers,
+        await this.pushClubAppAnswers({
+          clubAppAnswers,
           clubId,
         });
         this.answers = [];

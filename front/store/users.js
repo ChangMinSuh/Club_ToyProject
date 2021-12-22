@@ -20,18 +20,14 @@ export const mutations = {
 export const actions = {
   async loadUser({ state, commit, dispatch }) {
     try {
-      const res = await this.$axios.post(
-        "/auth/load",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await this.$axios.get("/auth", {
+        withCredentials: true,
+      });
       commit("setMe", res.data);
       return null;
     } catch (err) {
       // accessToken 만료
-      return null;
+      console.error(err);
     }
   },
 
@@ -60,7 +56,7 @@ export const actions = {
   async signup({ commit }, { email, nickname, password }) {
     try {
       const res = await this.$axios.post(
-        "/auth/signup",
+        "/users",
         {
           email,
           nickname,

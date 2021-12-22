@@ -49,7 +49,6 @@ export default {
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
-    await store.dispatch("clubs/loadOneClubById", { clubId });
     await store.dispatch("clubChats/loadClubChats", { clubId });
     await store.dispatch("clubSettings/loadClubAppQuestions", { clubId });
     await store.dispatch("clubSettings/findAllUserImpormations", { clubId });

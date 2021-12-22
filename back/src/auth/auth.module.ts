@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from 'src/entities/users';
+import { Users } from 'src/models/users/entities/users.entity';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import * as redisStore from 'cache-manager-ioredis';

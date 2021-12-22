@@ -17,7 +17,7 @@ export default {
     await store.dispatch("clubs/loadAllClubs");
     if (store.state.users.me) {
       await store.dispatch("clubs/loadMyClubs");
-      await store.dispatch("clubs/loadMyAppQuestionAnswers");
+      await store.dispatch("clubs/loadMyAppAnswers");
     }
   },
 };

@@ -14,29 +14,27 @@
         >
       </v-col>
       <v-col cols="3">
-        <v-card-action>
-          <v-container>
-            <v-row>
-              <ClubJoinButton />
-            </v-row>
-            <v-row>
-              <v-btn
-                :disabled="!isMyClubs || !me"
-                nuxt
-                :to="pathJoin('/club/ground/', clubIntroduce.information.id)"
-                >동아리 입장</v-btn
-              >
-            </v-row>
-            <v-row>
-              <v-card-text v-if="!me">
-                <small> 로그인이 필요합니다. </small>
-              </v-card-text>
-              <v-card-text v-if="isSubmitAppQuestionAnswer">
-                <small>동아리 신청중입니다.</small>
-              </v-card-text>
-            </v-row>
-          </v-container>
-        </v-card-action>
+        <v-container>
+          <v-row>
+            <ClubJoinButton />
+          </v-row>
+          <v-row>
+            <v-btn
+              :disabled="!isMyClubs || !me"
+              nuxt
+              :to="pathJoin('/club/ground/', clubIntroduce.information.id)"
+              >동아리 입장</v-btn
+            >
+          </v-row>
+          <v-row>
+            <v-card-text v-if="!me">
+              <small> 로그인이 필요합니다. </small>
+            </v-card-text>
+            <v-card-text v-if="!isMyClubs && isSubmitAppAnswer">
+              <small>동아리 신청중입니다.</small>
+            </v-card-text>
+          </v-row>
+        </v-container>
       </v-col>
     </v-row>
     <v-divider></v-divider>
@@ -56,11 +54,7 @@ const usersHelper = createNamespacedHelpers("users");
 
 export default {
   computed: {
-    ...clubsHelper.mapState([
-      "clubIntroduce",
-      "myClubs",
-      "myAppQuestionAnswers",
-    ]),
+    ...clubsHelper.mapState(["clubIntroduce", "myClubs", "myAppAnswers"]),
 
     ...usersHelper.mapState(["me"]),
 
@@ -72,10 +66,9 @@ export default {
         : false;
     },
 
-    isSubmitAppQuestionAnswer() {
-      return this.myAppQuestionAnswers.find(
-        (myAppQuestionAnswer) =>
-          myAppQuestionAnswer.id === this.clubIntroduce?.information?.id
+    isSubmitAppAnswer() {
+      return this.myAppAnswers.find(
+        (myAppAnswer) => myAppAnswer.id === this.clubIntroduce?.information?.id
       )
         ? true
         : false;

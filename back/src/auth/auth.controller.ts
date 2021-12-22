@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { User } from 'src/common/decorators/user.decorator';
 import { AuthService } from './auth.service';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
@@ -6,20 +6,12 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Response } from 'express';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { ValidateUserDto } from './dto/validate-user';
-import { SignUpUserDto } from './dto/signUp-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
-
-  // 로그인 정보 확인
-  @Post('load')
-  @UseGuards(JwtAccessGuard)
-  async loadUser(@User() user: ValidateUserDto): Promise<ValidateUserDto> {
-    return user;
-  }
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
@@ -70,11 +62,10 @@ export class AuthController {
     };
   }
 
-  @Post('signup')
-  async signUp(@Body() body: SignUpUserDto) {
-    await this.authService.signUp(body);
-    return {
-      message: 'success',
-    };
+  // 로그인 정보 확인
+  @Get()
+  @UseGuards(JwtAccessGuard)
+  async loadUser(@User() user: ValidateUserDto): Promise<ValidateUserDto> {
+    return user;
   }
 }

@@ -136,7 +136,7 @@
                                         가입일
                                       </v-list-item-title>
                                       <v-list-item-subtitle>
-                                        {{ allMemberImpormation.createAt }}
+                                        {{ allMemberImpormation.createdAt }}
                                       </v-list-item-subtitle>
                                     </v-list-item-content>
                                   </v-list-item>
@@ -169,35 +169,33 @@
                                 <v-container>
                                   <v-row
                                     v-for="(
-                                      clubAppQuestionAnswer, index
-                                    ) of allMemberImpormation.ClubAppQuestionAnswers"
+                                      clubAppAnswer, index
+                                    ) of allMemberImpormation.ClubAppAnswers"
                                     :key="index"
                                   >
                                     <v-col cols="12">
                                       <span class="text-h5"
                                         >{{ index + 1 }}.
-                                        {{
-                                          clubAppQuestionAnswer.question
-                                        }}</span
+                                        {{ clubAppAnswer.question }}</span
                                       >
                                     </v-col>
                                     <v-col cols="12">
                                       <v-text-field
                                         v-if="
-                                          clubAppQuestionAnswer.answer_type ===
+                                          clubAppAnswer.answer_type ===
                                           'short_text'
                                         "
                                         readonly
-                                        :value="clubAppQuestionAnswer.answer"
+                                        :value="clubAppAnswer.answer"
                                       />
 
                                       <v-textarea
                                         v-if="
-                                          clubAppQuestionAnswer.answer_type ===
+                                          clubAppAnswer.answer_type ===
                                           'long_text'
                                         "
                                         readonly
-                                        :value="clubAppQuestionAnswer.answer"
+                                        :value="clubAppAnswer.answer"
                                       />
                                     </v-col>
 
@@ -260,33 +258,31 @@
                           <v-container>
                             <v-row
                               v-for="(
-                                clubAppQuestionAnswer, index
-                              ) of allApplicantImpormation.ClubAppQuestionAnswers"
+                                clubAppAnswer, index
+                              ) of allApplicantImpormation.ClubAppAnswers"
                               :key="index"
                             >
                               <v-col cols="12">
                                 <span class="text-h5"
                                   >{{ index + 1 }}.
-                                  {{ clubAppQuestionAnswer.question }}</span
+                                  {{ clubAppAnswer.question }}</span
                                 >
                               </v-col>
                               <v-col cols="12">
                                 <v-text-field
                                   v-if="
-                                    clubAppQuestionAnswer.answer_type ===
-                                    'short_text'
+                                    clubAppAnswer.answer_type === 'short_text'
                                   "
                                   readonly
-                                  :value="clubAppQuestionAnswer.answer"
+                                  :value="clubAppAnswer.answer"
                                 />
 
                                 <v-textarea
                                   v-if="
-                                    clubAppQuestionAnswer.answer_type ===
-                                    'long_text'
+                                    clubAppAnswer.answer_type === 'long_text'
                                   "
                                   readonly
-                                  :value="clubAppQuestionAnswer.answer"
+                                  :value="clubAppAnswer.answer"
                                 />
                               </v-col>
 
@@ -332,7 +328,7 @@
                   ></v-list-item-subtitle>
                   <v-list-item-subtitle
                     v-html="
-                      allApplicantImpormation.ClubAppQuestionAnswers[0].createdAt.slice(
+                      allApplicantImpormation.ClubAppAnswers[0].createdAt.slice(
                         0,
                         10
                       )

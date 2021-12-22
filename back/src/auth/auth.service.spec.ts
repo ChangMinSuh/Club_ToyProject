@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
-import { Users } from 'src/entities/users';
+import { Users } from 'src/models/users/entities/users.entity';
 import { Repository } from 'typeorm';
 import { AuthService } from './auth.service';
 

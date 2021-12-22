@@ -1,6 +1,6 @@
 export const state = () => ({
   myClubs: [],
-  myAppQuestionAnswers: [],
+  myAppAnswers: [],
   allClubs: [],
   onlineClub: null,
   serverRes: null,
@@ -36,8 +36,8 @@ export const mutations = {
     state.clubIntroduce = payload;
   },
 
-  setMyAppQuestionAnswers(state, payload) {
-    state.myAppQuestionAnswers = payload;
+  setMyAppAnswers(state, payload) {
+    state.myAppAnswers = payload;
   },
 };
 
@@ -55,7 +55,7 @@ export const actions = {
 
   async loadMyClubs({ state, commit, dispatch }) {
     try {
-      const res = await this.$axios.get("/clubs/my", {
+      const res = await this.$axios.get("/clubs/me", {
         withCredentials: true,
       });
       commit("setMyClubs", res?.data);
@@ -64,10 +64,10 @@ export const actions = {
     }
   },
 
-  async loadMyAppQuestionAnswers({ commit }, payload) {
+  async loadMyAppAnswers({ commit }, payload) {
     try {
-      const res = await this.$axios.get("/clubs/my/app_question_answers");
-      commit("setMyAppQuestionAnswers", res.data);
+      const res = await this.$axios.get("/clubs/me/app/answers");
+      commit("setMyAppAnswers", res.data);
     } catch (err) {
       console.error(err);
     }
@@ -115,7 +115,7 @@ export const actions = {
   },
 
   async addUserClubs({ commit }, payload) {
-    await this.$axios.post(`/clubs/${payload.clubId}/users`, {
+    await this.$axios.post(`/clubs/${payload.clubId}/members`, {
       userId: payload.userId,
     });
   },

@@ -56,6 +56,7 @@ export default {
   proxy: {
     "/auth": { target: "http://localhost:8000", changeOrigin: true },
     "/clubs": { target: "http://localhost:8000", changeOrigin: true },
+    "/users": { target: "http://localhost:8000", changeOrigin: true },
   },
 
   io: {

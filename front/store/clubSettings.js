@@ -40,7 +40,7 @@ export const actions = {
   async loadClubAppQuestions({ commit }, payload) {
     try {
       const res = await this.$axios.get(
-        `/clubs/${payload.clubId}/app_question`
+        `/clubs/${payload.clubId}/app/questions`
       );
       commit("setClubAppQuestions", res.data);
     } catch (err) {
@@ -51,7 +51,7 @@ export const actions = {
   async pushClubAppQuestions({ commit }, payload) {
     try {
       const res = await this.$axios.post(
-        `/clubs/${payload.clubId}/app_question`,
+        `/clubs/${payload.clubId}/app/questions`,
         {
           question: payload.question,
           answer_type: payload.answer_type,
@@ -66,7 +66,7 @@ export const actions = {
   async updateClubAppQuestions({ commit }, payload) {
     try {
       const res = await this.$axios.patch(
-        `/clubs/${payload.clubId}/app_question/${payload.clubAppQuestionId}`,
+        `/clubs/${payload.clubId}/app/questions/${payload.clubAppQuestionId}`,
         {
           question: payload.question,
         }
@@ -79,7 +79,7 @@ export const actions = {
   async removeClubAppQuestions({ commit }, payload) {
     try {
       await this.$axios.delete(
-        `/clubs/${payload.clubId}/app_question/${payload.clubAppQuestionId}`
+        `/clubs/${payload.clubId}/app/questions/${payload.clubAppQuestionId}`
       );
       commit("removeClubAppQuestions", payload);
     } catch (err) {
@@ -89,7 +89,7 @@ export const actions = {
 
   async findAllUserImpormations({ commit }, payload) {
     try {
-      const res = await this.$axios.get(`/clubs/${payload.clubId}/users`);
+      const res = await this.$axios.get(`/clubs/${payload.clubId}/members`);
       commit("setAllMemberImpormations", res.data);
     } catch (err) {
       console.error(err);
@@ -98,19 +98,18 @@ export const actions = {
 
   async findAllApplicantImpormations({ commit }, payload) {
     try {
-      const res = await this.$axios.get(
-        `/clubs/${payload.clubId}/app_question_answers`
-      );
+      const res = await this.$axios.get(`/clubs/${payload.clubId}/app/answers`);
       commit("setAllApplicantImpormations", res.data);
     } catch (err) {
       console.error(err);
     }
   },
 
-  async pushClubAppQuestionAnswers({ commit }, payload) {
+  async pushClubAppAnswers({ commit }, payload) {
     try {
-      await this.$axios.post(`/clubs/${payload.clubId}/app_question_answers`, {
-        clubAppQuestionAnswers: payload.clubAppQuestionAnswers,
+      console.log(payload);
+      await this.$axios.post(`/clubs/${payload.clubId}/app/answers`, {
+        clubAppAnswers: payload.clubAppAnswers,
       });
     } catch (err) {
       console.error(err);

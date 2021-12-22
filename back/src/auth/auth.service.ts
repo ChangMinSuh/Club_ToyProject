@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from 'src/entities/users';
+import { Users } from 'src/models/users/entities/users.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -14,7 +14,7 @@ import { CookieTokenDto } from './dto/cookie-token.dto';
 import { Cache } from 'cache-manager';
 import { SignUpUserDto } from './dto/signUp-user.dto';
 import { ValidateUserDto } from './dto/validate-user';
-import { UserClubsRoleEnum } from 'src/entities/userClubs';
+import { ClubMembersRoleEnum } from 'src/models/club-members/entities/club-members.entity';
 
 @Injectable()
 export class AuthService {
@@ -29,23 +29,29 @@ export class AuthService {
   async validateUser({ email, password }): Promise<ValidateUserDto | null> {
     const user = await this.usersRepository
       .createQueryBuilder('users')
-      .leftJoin('users.UserClubs', 'userClubs', 'userClubs.role = :role', {
-        role: UserClubsRoleEnum.Manager,
-      })
+      .leftJoin(
+        'users.ClubMembers',
+        'clubMembers',
+        'clubMembers.role = :role',
+        {
+          role: ClubMembersRoleEnum.Manager,
+        },
+      )
       .select('users')
       .addSelect('users.password')
-      .addSelect(['userClubs.ClubId'])
+      .addSelect(['clubMembers.ClubId'])
       .where('users.email = :email', { email })
       .getOne();
     if (!user) {
       throw new UnauthorizedException('Is not correct');
     }
+    console.log(user);
     const isPasswordComplete = await bcrypt.compare(password, user.password);
     if (!isPasswordComplete) {
       throw new UnauthorizedException('Is not correct');
     }
-    const clubManagers: number[] | null = user?.UserClubs.map(
-      (userClub) => userClub.ClubId,
+    const clubManagers: number[] | null = user?.ClubMembers.map(
+      (clubMember) => clubMember.ClubId,
     );
     return {
       userId: user.id,
@@ -111,15 +117,20 @@ export class AuthService {
 
     const user = await this.usersRepository
       .createQueryBuilder('users')
-      .leftJoin('users.UserClubs', 'userClubs', 'userClubs.role = :role', {
-        role: UserClubsRoleEnum.Manager,
-      })
+      .leftJoin(
+        'users.ClubMembers',
+        'clubMembers',
+        'clubMembers.role = :role',
+        {
+          role: ClubMembersRoleEnum.Manager,
+        },
+      )
       .select('users')
-      .addSelect('userClubs.ClubId')
+      .addSelect('clubMembers.ClubId')
       .where('users.email = :email', { email })
       .getOne();
-    const clubManagers: number[] = user?.UserClubs.map(
-      (userClub) => userClub.ClubId,
+    const clubManagers: number[] = user?.ClubMembers.map(
+      (clubMember) => clubMember.ClubId,
     );
 
     return {
@@ -128,20 +139,5 @@ export class AuthService {
       email: user.email,
       clubManagers,
     };
-  }
-
-  async signUp({ email, password, nickname }: SignUpUserDto): Promise<void> {
-    const chkUser = await this.usersRepository
-      .createQueryBuilder('user')
-      .where('user.email = :email', { email })
-      .getOne();
-    if (chkUser) throw new ConflictException('This email exists.');
-
-    const hashPassword = await bcrypt.hash(password, 12);
-    const newUser = new Users();
-    newUser.email = email;
-    newUser.password = hashPassword;
-    newUser.nickname = nickname;
-    await this.usersRepository.save(newUser);
   }
 }

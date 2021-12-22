@@ -64,6 +64,7 @@ export default {
     ...clubSettingsHelper.mapActions(["loadClubAppQuestions"]),
 
     async showClubIntroduce(allClub) {
+      console.log("allclub:", allClub);
       await this.getClubIntroduce(allClub);
       await this.loadClubAppQuestions({
         clubId: this.clubIntroduce?.information?.id,
