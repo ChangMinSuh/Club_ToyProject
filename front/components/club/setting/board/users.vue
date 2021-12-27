@@ -80,7 +80,7 @@
           <v-container fluid>
             <v-row>
               <v-col
-                v-for="(allMemberImpormation, index) of allMemberImpormations"
+                v-for="(allMember, index) of allMembers"
                 :key="index"
                 cols="4"
               >
@@ -116,7 +116,7 @@
                                         이름
                                       </v-list-item-title>
                                       <v-list-item-subtitle>
-                                        {{ allMemberImpormation.nickname }}
+                                        {{ allMember.User.nickname }}
                                       </v-list-item-subtitle>
                                     </v-list-item-content>
                                   </v-list-item>
@@ -126,7 +126,7 @@
                                         이메일
                                       </v-list-item-title>
                                       <v-list-item-subtitle>
-                                        {{ allMemberImpormation.email }}
+                                        {{ allMember.User.email }}
                                       </v-list-item-subtitle>
                                     </v-list-item-content>
                                   </v-list-item>
@@ -136,7 +136,7 @@
                                         가입일
                                       </v-list-item-title>
                                       <v-list-item-subtitle>
-                                        {{ allMemberImpormation.createdAt }}
+                                        {{ allMember.createdAt }}
                                       </v-list-item-subtitle>
                                     </v-list-item-content>
                                   </v-list-item>
@@ -146,7 +146,7 @@
                                         직책
                                       </v-list-item-title>
                                       <v-list-item-subtitle>
-                                        {{ allMemberImpormation.role }}
+                                        {{ allMember.role }}
                                       </v-list-item-subtitle>
                                     </v-list-item-content>
 
@@ -155,57 +155,13 @@
                                         등급
                                       </v-list-item-title>
                                       <v-list-item-subtitle>
-                                        {{ allMemberImpormation.grade }}
+                                        {{ allMember.grade }}
                                       </v-list-item-subtitle>
                                     </v-list-item-content>
                                   </v-list-item>
                                 </v-list>
                               </v-card-text>
                               <v-divider></v-divider>
-                              <v-card-title>
-                                <span class="headline">지원서</span>
-                              </v-card-title>
-                              <v-card-text>
-                                <v-container>
-                                  <v-row
-                                    v-for="(
-                                      clubAppAnswer, index
-                                    ) of allMemberImpormation.ClubAppAnswers"
-                                    :key="index"
-                                  >
-                                    <v-col cols="12">
-                                      <span class="text-h5"
-                                        >{{ index + 1 }}.
-                                        {{ clubAppAnswer.question }}</span
-                                      >
-                                    </v-col>
-                                    <v-col cols="12">
-                                      <v-text-field
-                                        v-if="
-                                          clubAppAnswer.answer_type ===
-                                          'short_text'
-                                        "
-                                        readonly
-                                        :value="clubAppAnswer.answer"
-                                      />
-
-                                      <v-textarea
-                                        v-if="
-                                          clubAppAnswer.answer_type ===
-                                          'long_text'
-                                        "
-                                        readonly
-                                        :value="clubAppAnswer.answer"
-                                      />
-                                    </v-col>
-
-                                    <!--checkbox와 radio-group은 나중에 구현 -->
-                                  </v-row>
-                                </v-container>
-                              </v-card-text>
-                              <v-card-actions>
-                                <v-spacer></v-spacer>
-                              </v-card-actions>
                             </v-card>
                           </v-dialog>
                         </v-layout>
@@ -213,10 +169,13 @@
 
                       <v-list-item-content>
                         <v-list-item-title
-                          v-html="allMemberImpormation.nickname"
+                          v-html="allMember.User.nickname"
                         ></v-list-item-title>
                         <v-list-item-subtitle
-                          v-html="allMemberImpormation.email"
+                          v-html="allMember.User.email"
+                        ></v-list-item-subtitle>
+                        <v-list-item-subtitle
+                          v-html="allMember.role"
                         ></v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -231,11 +190,7 @@
         <v-expansion-panel-header> 지원 현황 </v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-list three-line>
-            <template
-              v-for="(
-                allApplicantImpormation, index
-              ) in allApplicantImpormations"
-            >
+            <template v-for="(allAppAnswer, index) in allAppAnswers">
               <v-list-item :key="index">
                 <v-list-item-avatar>
                   <v-layout row justify-center>
@@ -259,7 +214,7 @@
                             <v-row
                               v-for="(
                                 clubAppAnswer, index
-                              ) of allApplicantImpormation.ClubAppAnswers"
+                              ) of allAppAnswer.ClubAppAnswerItems"
                               :key="index"
                             >
                               <v-col cols="12">
@@ -309,7 +264,7 @@
                             color="blue darken-1"
                             text
                             @click.native="
-                              acceptApp(allApplicantImpormation.id)
+                              acceptApp(allAppAnswer.User.id, allAppAnswer.id)
                             "
                             >수락하기</v-btn
                           >
@@ -321,18 +276,13 @@
 
                 <v-list-item-content>
                   <v-list-item-title
-                    v-html="allApplicantImpormation.nickname"
+                    v-html="allAppAnswer.User.nickname"
                   ></v-list-item-title>
                   <v-list-item-subtitle
-                    v-html="allApplicantImpormation.email"
+                    v-html="allAppAnswer.User.email"
                   ></v-list-item-subtitle>
                   <v-list-item-subtitle
-                    v-html="
-                      allApplicantImpormation.ClubAppAnswers[0].createdAt.slice(
-                        0,
-                        10
-                      )
-                    "
+                    v-html="allAppAnswer.createdAt"
                   ></v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
@@ -363,8 +313,8 @@ export default {
     ...clubsHelper.mapState(["onlineClub"]),
     ...clubSettingsHelper.mapState([
       "clubAppQuestions",
-      "allMemberImpormations",
-      "allApplicantImpormations",
+      "allMembers",
+      "allAppAnswers",
     ]),
   },
   methods: {
@@ -396,10 +346,14 @@ export default {
       }
     },
 
-    async acceptApp(userId) {
+    async acceptApp(userId, clubAppAnswerId) {
       try {
         if (confirm("정말 수락하시겠습니까?")) {
-          await this.addUserClubs({ clubId: this.onlineClub.id, userId });
+          await this.addUserClubs({
+            clubId: this.onlineClub.id,
+            userId,
+            clubAppAnswerId,
+          });
           alert("회원이 되었습니다.");
           this.dialog = false;
         }

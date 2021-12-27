@@ -1,27 +1,14 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  UpdateDateColumn,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Index,
-  ManyToMany,
-  JoinTable,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Clubs } from '../../clubs/entities/clubs.entity';
 import { ClubChats } from '../../club-chats/entities/club-chats';
 import { ClubMembers } from '../../club-members/entities/club-members.entity';
 import { ClubAppAnswers } from '../../club-app-answers/entities/club-app-answers.entity';
+import { CoreEntity } from '../../../common/entities/core.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ name: 'users' })
-export class Users {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-  id: number;
-
+export class Users extends CoreEntity {
   @IsEmail()
   @IsNotEmpty()
   @Column('varchar', { name: 'email', unique: true, length: 60 })
@@ -36,12 +23,6 @@ export class Users {
   @IsNotEmpty()
   @Column('varchar', { name: 'nickname', length: 20 })
   nickname: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @DeleteDateColumn({ select: false })
   deletedAt: Date;

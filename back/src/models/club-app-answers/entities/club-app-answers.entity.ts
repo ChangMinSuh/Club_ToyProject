@@ -1,47 +1,38 @@
-import { ClubAppQuestionTypeEnum } from '../../club-app-questions/entities/club-app-questions.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Clubs } from '../../clubs/entities/clubs.entity';
 import { Users } from '../../users/entities/users.entity';
+import { ClubAppAnswerItems } from './club-app-answers-item.entity';
+import { CoreEntity } from '../../../common/entities/core.entity';
+import { IsString, IsNotEmpty } from 'class-validator';
+
+export enum ClubAppAnswerStatusEnum {
+  Waiting = 'waiting',
+  Failed = 'failed',
+  Passed = 'passed',
+}
 
 @Entity({ name: 'club_app_answers' })
-export class ClubAppAnswers {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-  id: number;
-
+export class ClubAppAnswers extends CoreEntity {
   @Column('number', { name: 'clubId' })
   ClubId: number;
 
   @Column('number', { name: 'userId' })
   UserId: number;
 
-  @Column('varchar', { name: 'question' })
-  question: string;
-
-  @Column('boolean', { name: 'isFailed', default: false })
-  isFailed?: boolean;
-
+  @IsString()
+  @IsNotEmpty()
   @Column('enum', {
-    name: 'answer_type',
-    enum: ClubAppQuestionTypeEnum,
-    default: ClubAppQuestionTypeEnum.ShortText,
+    name: 'status',
+    enum: ClubAppAnswerStatusEnum,
+    default: ClubAppAnswerStatusEnum.Waiting,
   })
-  answer_type: ClubAppQuestionTypeEnum;
+  status: ClubAppAnswerStatusEnum;
 
-  @Column('varchar', { name: 'answer' })
-  answer: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @OneToMany(
+    () => ClubAppAnswerItems,
+    (clubAppAnswerItems) => clubAppAnswerItems.ClubAppAnswer,
+  )
+  ClubAppAnswerItems: ClubAppAnswerItems[];
 
   @ManyToOne(() => Users, (user) => user.ClubAppAnswers)
   User: Users;

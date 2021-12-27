@@ -14,6 +14,8 @@ import { ClubAppQuestionsModule } from './models/club-app-questions/club-app-que
 import { ClubIntroducesModule } from './models/club-introduces/club-introduces.module';
 import { UsersModule } from './models/users/users.module';
 import { ClubMembersModule } from './models/club-members/club-members.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
 
 @Module({
   imports: [
@@ -32,7 +34,13 @@ import { ClubMembersModule } from './models/club-members/club-members.module';
     ClubMembersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SuccessResponseInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

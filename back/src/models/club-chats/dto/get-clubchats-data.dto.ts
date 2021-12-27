@@ -5,7 +5,7 @@ import { ClubChats } from '../entities/club-chats';
 export class GetClubChatsDataDto extends PickType(ClubChats, [
   'id',
   'content',
-  'createAt',
+  'createdAt',
   'UserId',
 ] as const) {
   User?: Users;

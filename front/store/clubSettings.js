@@ -1,7 +1,7 @@
 export const state = () => ({
   clubAppQuestions: [], //지원서 질문
-  allMemberImpormations: [], // 동아리 멤버
-  allApplicantImpormations: [], // 지원서
+  allMembers: [], // 동아리 멤버
+  allAppAnswers: [], // 지원서
 });
 
 export const getters = {};
@@ -29,11 +29,11 @@ export const mutations = {
     if (removeIndex > 0) state.clubAppQuestions.splice(removeIndex, 1);
   },
 
-  setAllMemberImpormations(state, payload) {
-    state.allMemberImpormations = payload;
+  setAllMembers(state, payload) {
+    state.allMembers = payload;
   },
-  setAllApplicantImpormations(state, payload) {
-    state.allApplicantImpormations = payload;
+  setAllAppAnswers(state, payload) {
+    state.allAppAnswers = payload;
   },
 };
 export const actions = {
@@ -87,19 +87,24 @@ export const actions = {
     }
   },
 
-  async findAllUserImpormations({ commit }, payload) {
+  async findAllMembers({ commit }, payload) {
     try {
       const res = await this.$axios.get(`/clubs/${payload.clubId}/members`);
-      commit("setAllMemberImpormations", res.data);
+      commit("setAllMembers", res.data);
     } catch (err) {
       console.error(err);
     }
   },
 
-  async findAllApplicantImpormations({ commit }, payload) {
+  async findAllAppAnswers({ commit }, payload) {
     try {
-      const res = await this.$axios.get(`/clubs/${payload.clubId}/app/answers`);
-      commit("setAllApplicantImpormations", res.data);
+      const res = await this.$axios.get(
+        `/clubs/${payload.clubId}/app/answers`,
+        {
+          params: { status: payload.status },
+        }
+      );
+      commit("setAllAppAnswers", res.data);
     } catch (err) {
       console.error(err);
     }
@@ -109,7 +114,7 @@ export const actions = {
     try {
       console.log(payload);
       await this.$axios.post(`/clubs/${payload.clubId}/app/answers`, {
-        clubAppAnswers: payload.clubAppAnswers,
+        clubAppAnswerItems: payload.clubAppAnswerItems,
       });
     } catch (err) {
       console.error(err);

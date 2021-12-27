@@ -75,9 +75,7 @@ export const actions = {
 
   async loadOneClubById({ commit }, { clubId }) {
     try {
-      const res = await this.$axios.get(`/clubs/${clubId}`, {
-        withCredentials: true,
-      });
+      const res = await this.$axios.get(`/clubs/${clubId}`);
       commit("setOnlineClub", res.data);
       return true;
     } catch (err) {
@@ -101,7 +99,7 @@ export const actions = {
         withCredentials: true,
       });
       const clubIntroduce = {
-        information: payload,
+        Club: payload,
         introduce: res.data,
       };
       commit("setClubIntroduce", clubIntroduce);
@@ -117,6 +115,7 @@ export const actions = {
   async addUserClubs({ commit }, payload) {
     await this.$axios.post(`/clubs/${payload.clubId}/members`, {
       userId: payload.userId,
+      clubAppAnswerId: payload.clubAppAnswerId,
     });
   },
 };

@@ -1,50 +1,57 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { Users } from '../users/entities/users.entity';
-import { CreateClubAppAnswerBodyDto } from './dto/create-club-app-answer-body.dto';
-import { ClubAppAnswers } from './entities/club-app-answers.entity';
+import { ClubAppAnswerItems } from './entities/club-app-answers-item.entity';
+import {
+  ClubAppAnswers,
+  ClubAppAnswerStatusEnum,
+} from './entities/club-app-answers.entity';
 
 @Injectable()
 export class ClubAppAnswersService {
   constructor(
+    private readonly connection: Connection,
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
     @InjectRepository(ClubAppAnswers)
     private readonly clubAppAnswersRepository: Repository<ClubAppAnswers>,
+    @InjectRepository(ClubAppAnswerItems)
+    private readonly clubAppAnswerItemsRepository: Repository<ClubAppAnswerItems>,
   ) {}
 
-  async create(
-    clubId: number,
-    userId: number,
-    body: CreateClubAppAnswerBodyDto,
-  ): Promise<string> {
-    const saveData = body.clubAppAnswers.map(
-      ({ question, answer, answer_type }) => ({
-        ClubId: clubId,
-        UserId: userId,
-        question,
-        answer,
-        answer_type,
+  async createAppAnswer(clubId: number, userId: number, body): Promise<void> {
+    const clubAppAnswer = new ClubAppAnswers();
+    clubAppAnswer.ClubId = clubId;
+    clubAppAnswer.UserId = userId;
+
+    const clubAppAnswerItems = body.clubAppAnswerItems.map(
+      (clubAppAnswerItem) => ({
+        ClubAppAnswer: clubAppAnswer,
+        ...clubAppAnswerItem,
       }),
     );
-    await this.clubAppAnswersRepository.save(saveData);
-    return 'success';
+
+    await this.connection.transaction(async (manager) => {
+      await manager.getRepository(ClubAppAnswers).save(clubAppAnswer);
+      await manager.getRepository(ClubAppAnswerItems).save(clubAppAnswerItems);
+    });
+    return;
   }
 
-  // 고칠 필요가 있음. user 많아지면 감당 못할듯..
-  async findAllAppAnswersNotMembers(clubId: number) {
-    const result = await this.usersRepository
-      .createQueryBuilder('users')
-      .innerJoinAndSelect(
-        'users.ClubAppAnswers',
-        'clubAppAnswers',
-        'clubAppAnswers.ClubId = :clubId And clubAppAnswers.isFailed = :isFailed',
-        { clubId, isFailed: false },
-      )
-      .leftJoin('users.ClubMembers', 'clubMembers')
-      .where('clubMembers.ClubId != :clubId', { clubId })
-      .getMany();
+  async findAllAppAnswers(
+    clubId: number,
+    status: ClubAppAnswerStatusEnum,
+  ): Promise<ClubAppAnswers[]> {
+    const result = status
+      ? await this.clubAppAnswersRepository.find({
+          where: { status, ClubId: clubId },
+          relations: ['ClubAppAnswerItems', 'User'],
+        })
+      : await this.clubAppAnswersRepository.find({
+          where: { ClubId: clubId },
+          relations: ['ClubAppAnswerItems', 'User'],
+        });
     return result;
   }
 }

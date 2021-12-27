@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Users } from '../users/entities/users.entity';
 import { ClubChats } from './entities/club-chats';
 
 @Injectable()
@@ -10,18 +11,13 @@ export class ClubChatsService {
     private readonly clubChatsRepository: Repository<ClubChats>,
   ) {}
 
-  async setClubChat(data) {
+  async setClubChat(user: Users, data) {
     const clubChat = new ClubChats();
     clubChat.content = data.content;
-    clubChat.UserId = data.UserId;
+    clubChat.UserId = data.user.id;
     clubChat.ClubId = data.ClubId;
-    const { id, content, createAt, UserId } =
-      await this.clubChatsRepository.save(clubChat);
-    return {
-      id,
-      content,
-      createAt,
-      UserId,
-    };
+    clubChat.User = user;
+    const result = await this.clubChatsRepository.save(clubChat);
+    return result;
   }
 }

@@ -5,8 +5,8 @@ import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Response } from 'express';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
-import { ValidateUserDto } from './dto/validate-user';
 import { ApiTags } from '@nestjs/swagger';
+import { Users } from 'src/models/users/entities/users.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -16,21 +16,26 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthGuard)
   async login(
-    @User() user: ValidateUserDto,
+    @User() user: Users,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<ValidateUserDto> {
+  ): Promise<Users> {
     const [
       { token: accessToken, ...accessTokenOption },
       { token: refreshToken, ...refreshTokenOption },
     ] = await Promise.all([
-      this.authService.getCookieWithAccessToken(user),
+      this.authService.getCookieWithAccessToken({ id: user.id }),
       this.authService.getCookieWithRefreshToken(),
     ]);
-    await this.authService.setRefreshTokenInDb({
-      refreshToken,
-      userId: user.userId,
-    });
 
+    await this.authService.setRefreshTokenInDb(refreshToken, user.id);
+    try {
+      await this.authService.setUserInDb(user);
+    } catch (err) {
+      await this.authService.deleteRefreshTokenInDb(user.id);
+      throw new Error(err);
+    }
+
+    // redis 실패했을 떄 어떻게 할지 작성
     res.cookie('Authentication', accessToken, accessTokenOption);
     res.cookie('Refresh', refreshToken, refreshTokenOption);
     return user;
@@ -39,9 +44,9 @@ export class AuthController {
   @Post('refresh')
   @UseGuards(JwtRefreshGuard)
   async refresh(
-    @User() user: ValidateUserDto,
+    @User() user: Users,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<ValidateUserDto> {
+  ): Promise<Users> {
     const { token: accessToken, ...accessTokenOption } =
       await this.authService.getCookieWithAccessToken(user);
     res.cookie('Authentication', accessToken, accessTokenOption);
@@ -50,22 +55,17 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAccessGuard)
-  async logout(
-    @User() user: ValidateUserDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    await this.authService.deleteRefreshTokenInDb({ userId: user.userId });
+  async logout(@User() user: Users, @Res({ passthrough: true }) res: Response) {
+    await this.authService.deleteRefreshTokenInDb(user.id);
     res.clearCookie('Authentication');
     res.clearCookie('Refresh');
-    return {
-      message: 'success',
-    };
+    return;
   }
 
   // 로그인 정보 확인
   @Get()
   @UseGuards(JwtAccessGuard)
-  async loadUser(@User() user: ValidateUserDto): Promise<ValidateUserDto> {
+  async loadUser(@User() user: Users): Promise<Users> {
     return user;
   }
 }

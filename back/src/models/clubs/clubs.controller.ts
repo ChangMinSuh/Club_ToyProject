@@ -1,22 +1,23 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ValidateUserDto } from 'src/auth/dto/validate-user';
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
-import { GetClubChatsDataDto } from 'src/models/club-chats/dto/get-clubchats-data.dto';
 import { User } from 'src/common/decorators/user.decorator';
 import { ClubsService } from './clubs.service';
-import { GetClubDto } from './dto/get-club.dto';
-import { SetClubBodyDto } from './dto/set-club-body.dto';
+import { CreateClubBody } from './dtos/create-club.dto';
+import { Clubs } from './entities/clubs.entity';
+import { ClubChats } from '../club-chats/entities/club-chats';
+import { Users } from '../users/entities/users.entity';
+import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
+import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
+import { ClubMembersRoleEnum } from '../club-members/entities/club-members.entity';
 
 @ApiTags('clubs')
 @Controller('clubs')
@@ -26,51 +27,49 @@ export class ClubsController {
   @ApiOperation({ summary: '클럽 만들기' })
   @UseGuards(JwtAccessGuard)
   @Post()
-  async setClub(
-    @Body() body: SetClubBodyDto,
-    @User() { userId }: ValidateUserDto,
-  ): Promise<string> {
-    return await this.clubsService.setClub(userId, body);
+  async createClub(
+    @User() user: Users,
+    @Body() body: CreateClubBody,
+  ): Promise<void> {
+    await this.clubsService.createClub(user.id, body);
+    return;
   }
 
   @ApiOperation({ summary: '모든 클럽 가져오기' })
   @Get()
-  async findAll(): Promise<GetClubDto[]> {
+  async findAllClubs(): Promise<Clubs[]> {
     return await this.clubsService.findAllClubs();
   }
 
   @ApiOperation({ summary: '내 클럽 모두 가져오기' })
   @UseGuards(JwtAccessGuard)
   @Get('me')
-  async findMyClubs(
-    @User() { userId }: ValidateUserDto,
-  ): Promise<GetClubDto[]> {
-    return await this.clubsService.findMyClubs({ userId });
+  async findMyClubs(@User() user: Users): Promise<Clubs[]> {
+    return await this.clubsService.findMyClubs(user.id);
   }
 
-  @ApiOperation({ summary: '내 클럽에 지원서 포함하여 모두 가져오기' })
+  @ApiOperation({ summary: '대기중 지원서 모두 가져오기' })
   @UseGuards(JwtAccessGuard)
   @Get('me/app/answers')
-  async findMyAppAnswers(@User() { userId }: ValidateUserDto) {
-    return await this.clubsService.findMyAppAnswers(userId);
+  async findMyAppAnswers(@User() user: Users) {
+    return await this.clubsService.findMyWatingAppAnswers(user.id);
   }
 
   @ApiOperation({ summary: '클럽 정보 가져오기' })
-  @UseGuards(JwtAccessGuard)
+  @ClubRoles(ClubMembersRoleEnum.Manager, ClubMembersRoleEnum.User)
+  @UseGuards(JwtAccessGuard, ClubRolesGuard)
   @Get(':clubId')
-  findOne(
-    @User() { userId }: ValidateUserDto,
-    @Param('clubId', ParseIntPipe) clubId: number,
-  ): Promise<GetClubDto> {
-    return this.clubsService.findOneClub({ clubId, userId });
+  findOneClub(@Param('clubId', ParseIntPipe) clubId: number): Promise<Clubs> {
+    return this.clubsService.findOneClub(clubId);
   }
 
   @ApiOperation({ summary: '클럽 채팅 가져오기' })
-  @UseGuards(JwtAccessGuard)
+  @ClubRoles(ClubMembersRoleEnum.Manager, ClubMembersRoleEnum.User)
+  @UseGuards(JwtAccessGuard, ClubRolesGuard)
   @Get(':clubId/chats')
   getClubChat(
     @Param('clubId', ParseIntPipe) clubId: number,
-  ): Promise<GetClubChatsDataDto[]> {
-    return this.clubsService.getClubChat({ clubId });
+  ): Promise<ClubChats[]> {
+    return this.clubsService.getClubChat(clubId);
   }
 }

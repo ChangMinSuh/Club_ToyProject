@@ -24,21 +24,25 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return response.status(status).json({
         success: false,
         data: null,
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        message: error.message,
-        accessTokenExpired: true,
+        error: {
+          statusCode: status,
+          timestamp: new Date().toISOString(),
+          path: request.url,
+          message: error.message,
+          accessTokenExpired: true,
+        },
       });
     }
 
     response.status(status).json({
       success: false,
       data: null,
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message: error.message,
+      error: {
+        statusCode: status,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        message: error.message,
+      },
     });
   }
 }

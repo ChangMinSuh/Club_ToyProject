@@ -6,10 +6,17 @@ import { ClubAppAnswers } from './entities/club-app-answers.entity';
 import { ClubAppQuestions } from '../club-app-questions/entities/club-app-questions.entity';
 import { Users } from '../users/entities/users.entity';
 import { Clubs } from '../clubs/entities/clubs.entity';
+import { ClubAppAnswerItems } from './entities/club-app-answers-item.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ClubAppAnswers, ClubAppQuestions, Users, Clubs]),
+    TypeOrmModule.forFeature([
+      ClubAppAnswers,
+      ClubAppAnswerItems,
+      ClubAppQuestions,
+      Users,
+      Clubs,
+    ]),
   ],
   controllers: [ClubAppAnswersController],
   providers: [ClubAppAnswersService],

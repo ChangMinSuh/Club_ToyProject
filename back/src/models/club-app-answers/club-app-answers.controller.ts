@@ -6,14 +6,21 @@ import {
   Param,
   UseGuards,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateUserDto } from 'src/auth/dto/validate-user';
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
+import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
 import { User } from 'src/common/decorators/user.decorator';
-import { UserClubsManagerGuard } from '../clubs/guard/user-clubs.guard';
+import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
+import { ClubMembersRoleEnum } from '../club-members/entities/club-members.entity';
+import { Users } from '../users/entities/users.entity';
 import { ClubAppAnswersService } from './club-app-answers.service';
-import { CreateClubAppAnswerBodyDto } from './dto/create-club-app-answer-body.dto';
+import {
+  ClubAppAnswers,
+  ClubAppAnswerStatusEnum,
+} from './entities/club-app-answers.entity';
 
 @ApiTags('클럽 지원서 답변')
 @Controller('clubs/:clubId/app/answers')
@@ -23,21 +30,24 @@ export class ClubAppAnswersController {
   @ApiOperation({ summary: '클럽 지원서 저장하기' })
   @UseGuards(JwtAccessGuard)
   @Post()
-  create(
+  createAppAnswer(
     @Param('clubId', ParseIntPipe) clubId: number,
-    @User() { userId }: ValidateUserDto,
-    @Body() body: CreateClubAppAnswerBodyDto,
-  ) {
-    return this.clubAppAnswersService.create(clubId, userId, body);
+    @User() user: Users,
+    @Body() body,
+  ): Promise<void> {
+    return this.clubAppAnswersService.createAppAnswer(clubId, user.id, body);
   }
 
-  // Users를 반환하지만, Club에 지원한 사람이기 때문에 여기에 남겨놨다.
   @ApiOperation({
-    summary: '미가입자 유저들을 클럽 지원서와 함께 모두 가져오기',
+    summary: '클럽지원서 모두 가져오기',
   })
-  @UseGuards(JwtAccessGuard, UserClubsManagerGuard)
+  @ClubRoles(ClubMembersRoleEnum.Manager)
+  @UseGuards(JwtAccessGuard, ClubRolesGuard)
   @Get()
-  findAllAppAnswersNotMembers(@Param('clubId', ParseIntPipe) clubId: number) {
-    return this.clubAppAnswersService.findAllAppAnswersNotMembers(clubId);
+  findAllAppAnswersNotMembers(
+    @Param('clubId', ParseIntPipe) clubId: number,
+    @Query('status') status: ClubAppAnswerStatusEnum,
+  ): Promise<ClubAppAnswers[]> {
+    return this.clubAppAnswersService.findAllAppAnswers(clubId, status);
   }
 }

@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-btn
-        :disabled="!me || isMyClubs || isSubmitAppAnswer"
+        :disabled="!me || isMyClubs || isWaitingAppAnswer"
         v-bind="attrs"
         v-on="on"
         >동아리 가입</v-btn
@@ -13,7 +13,7 @@
         <v-form @submit.prevent="onSubmit">
           <v-card-title>
             <span class="text-h5"
-              >{{ clubIntroduce.information.name }} 가입 신청서
+              >{{ clubIntroduce.Club.name }} 가입 신청서
             </span>
           </v-card-title>
           <v-card-text>
@@ -88,18 +88,16 @@ export default {
 
     isMyClubs() {
       return this.myClubs.find(
-        (myClub) => myClub.id === this.clubIntroduce?.information?.id
+        (myClub) => myClub.id === this.clubIntroduce?.Club?.id
       )
         ? true
         : false;
     },
 
-    isSubmitAppAnswer() {
+    isWaitingAppAnswer() {
       return this.myAppAnswers.find(
-        (myAppAnswer) => myAppAnswer.id === this.clubIntroduce?.information?.id
-      )
-        ? true
-        : false;
+        (myAppAnswer) => myAppAnswer.ClubId === this.clubIntroduce?.Club?.id
+      );
     },
   },
   components: {
@@ -116,14 +114,14 @@ export default {
     async onSubmit() {
       try {
         await this.$refs.form.validate();
-        const clubAppAnswers = this.answers.map((answer, index) => ({
+        const clubAppAnswerItems = this.answers.map((answer, index) => ({
           answer,
           answer_type: this.clubAppQuestions[index].answer_type,
           question: this.clubAppQuestions[index].question,
         }));
-        const clubId = this.clubIntroduce?.information?.id;
+        const clubId = this.clubIntroduce?.Club?.id;
         await this.pushClubAppAnswers({
-          clubAppAnswers,
+          clubAppAnswerItems,
           clubId,
         });
         this.answers = [];

@@ -1,28 +1,15 @@
 import { Clubs } from '../../clubs/entities/clubs.entity';
 import { Users } from '../../users/entities/users.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { CoreEntity } from '../../../common/entities/core.entity';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 @Entity({ name: 'club_chats' })
-export class ClubChats {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-  id: number;
-
+export class ClubChats extends CoreEntity {
+  @IsNotEmpty()
+  @IsString()
   @Column('text', { name: 'content' })
   content: string;
-
-  @CreateDateColumn()
-  createAt: Date;
-
-  @UpdateDateColumn()
-  updateAt: Date;
 
   @Column('int', { name: 'userId', nullable: true })
   UserId: number | null;

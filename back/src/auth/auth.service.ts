@@ -12,9 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { CookieTokenDto } from './dto/cookie-token.dto';
 import { Cache } from 'cache-manager';
-import { SignUpUserDto } from './dto/signUp-user.dto';
-import { ValidateUserDto } from './dto/validate-user';
-import { ClubMembersRoleEnum } from 'src/models/club-members/entities/club-members.entity';
+import { ValidateUserReturn } from './dto/validate-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,20 +24,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser({ email, password }): Promise<ValidateUserDto | null> {
+  async validateUser({ email, password }): Promise<ValidateUserReturn> {
     const user = await this.usersRepository
       .createQueryBuilder('users')
-      .leftJoin(
-        'users.ClubMembers',
-        'clubMembers',
-        'clubMembers.role = :role',
-        {
-          role: ClubMembersRoleEnum.Manager,
-        },
-      )
       .select('users')
       .addSelect('users.password')
-      .addSelect(['clubMembers.ClubId'])
+      .leftJoin('users.ClubMembers', 'clubMembers')
+      .addSelect(['clubMembers.ClubId', 'clubMembers.role'])
       .where('users.email = :email', { email })
       .getOne();
     if (!user) {
@@ -50,15 +41,10 @@ export class AuthService {
     if (!isPasswordComplete) {
       throw new UnauthorizedException('Is not correct');
     }
-    const clubManagers: number[] | null = user?.ClubMembers.map(
-      (clubMember) => clubMember.ClubId,
-    );
-    return {
-      userId: user.id,
-      nickname: user.nickname,
-      email: user.email,
-      clubManagers,
-    };
+
+    const { password: _password, ...result } = user;
+
+    return result;
   }
 
   async getCookieWithAccessToken(payload: any): Promise<CookieTokenDto> {
@@ -88,23 +74,39 @@ export class AuthService {
     };
   }
 
-  async setRefreshTokenInDb({ refreshToken, userId }): Promise<void> {
+  async setRefreshTokenInDb(refreshToken, userId: number): Promise<void> {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
-    await this.redisManager.set(userId.toString(), hashRefreshToken, {
+    await this.redisManager.set(`user:refresh:${userId}`, hashRefreshToken, {
       ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
     });
   }
 
-  async deleteRefreshTokenInDb({ userId }): Promise<void> {
-    await this.redisManager.del(userId.toString());
+  async deleteRefreshTokenInDb(userId: number): Promise<void> {
+    await this.redisManager.del(`user:refresh:${userId}`);
+  }
+
+  async setUserInDb(user: Users): Promise<void> {
+    await this.redisManager.set(`user:${user.id}`, user, {
+      ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
+    });
+    this.redisManager
+      .get(`user:${user.id}`)
+      .then((data) => console.log('redis에 있는 user:', data));
+  }
+
+  async getUserInDb(userId: number): Promise<Users> {
+    const result = await this.redisManager.get<Users>(`user:${userId}`);
+    return result;
   }
 
   async getUserIfRefreshTokenMatches({
     refreshToken,
     decodedAccessToken,
-  }): Promise<ValidateUserDto | null> {
-    const { userId, nickname, email } = decodedAccessToken;
-    const currentHashedRefreshToken = await this.redisManager.get(userId);
+  }): Promise<Users> {
+    const { id } = decodedAccessToken;
+    const currentHashedRefreshToken = await this.redisManager.get(
+      `user:refresh:${id}`,
+    );
     if (currentHashedRefreshToken === null)
       throw new UnauthorizedException('refresh token is not in db');
 
@@ -115,29 +117,8 @@ export class AuthService {
     if (!isRefreshTokenCorrect)
       throw new UnauthorizedException('refresh token is not compare');
 
-    const user = await this.usersRepository
-      .createQueryBuilder('users')
-      .leftJoin(
-        'users.ClubMembers',
-        'clubMembers',
-        'clubMembers.role = :role',
-        {
-          role: ClubMembersRoleEnum.Manager,
-        },
-      )
-      .select('users')
-      .addSelect('clubMembers.ClubId')
-      .where('users.email = :email', { email })
-      .getOne();
-    const clubManagers: number[] = user?.ClubMembers.map(
-      (clubMember) => clubMember.ClubId,
-    );
+    const result = await this.redisManager.get<Users>(`user:${id}`);
 
-    return {
-      userId: user.id,
-      nickname: user.nickname,
-      email: user.email,
-      clubManagers,
-    };
+    return result;
   }
 }

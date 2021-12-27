@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Clubs } from '../../clubs/entities/clubs.entity';
 import { Users } from '../../users/entities/users.entity';
+import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 
 export enum ClubMembersRoleEnum {
   User = 'user',
@@ -22,6 +23,8 @@ export class ClubMembers {
   @Column('int', { primary: true, name: 'clubId' })
   ClubId: number;
 
+  @IsString()
+  @IsNotEmpty()
   @Column('enum', {
     enum: ClubMembersRoleEnum,
     name: 'role',
@@ -29,6 +32,8 @@ export class ClubMembers {
   })
   role: ClubMembersRoleEnum;
 
+  @IsNotEmpty()
+  @IsNumber()
   @Column('int', { name: 'grade', default: 0 })
   grade: number;
 

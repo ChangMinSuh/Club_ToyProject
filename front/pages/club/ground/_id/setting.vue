@@ -51,9 +51,10 @@ export default {
     const clubId = Number(params.id);
     await store.dispatch("clubChats/loadClubChats", { clubId });
     await store.dispatch("clubSettings/loadClubAppQuestions", { clubId });
-    await store.dispatch("clubSettings/findAllUserImpormations", { clubId });
-    await store.dispatch("clubSettings/findAllApplicantImpormations", {
+    await store.dispatch("clubSettings/findAllMembers", { clubId });
+    await store.dispatch("clubSettings/findAllAppAnswers", {
       clubId,
+      status: "waiting",
     });
     return {
       mainUrl: `/club/ground/${clubId}`,

@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateClubIntroduceDto } from './dto/create-club-introduce.dto';
-import { UpdateClubIntroduceDto } from './dto/update-club-introduce.dto';
+import { CreateIntroduceBody } from './dtos/create-introduce.dto';
+import { UpdateIntroduceBody } from './dtos/update-introduce.dto';
 import { ClubIntroduces } from './entities/club-introduces.entity';
 
 @Injectable()
@@ -12,26 +12,51 @@ export class ClubIntroducesService {
     private readonly clubIntroducesRepository: Repository<ClubIntroduces>,
   ) {}
 
-  async createIntroduce(clubId: number, body) {
+  async createIntroduce(
+    clubId: number,
+    body: CreateIntroduceBody,
+  ): Promise<void> {
     const clubIntroduces = new ClubIntroduces();
     clubIntroduces.ClubId = clubId;
     clubIntroduces.longExplanation = body.longExplanation;
     await this.clubIntroducesRepository.save(clubIntroduces);
-    return 'success';
+    return;
   }
 
-  async findIntroduce(clubId: number) {
+  async findIntroduce(clubId: number): Promise<ClubIntroduces> {
     const result = await this.clubIntroducesRepository.findOne({
       where: { ClubId: clubId },
     });
     return result;
   }
 
-  update(id: number, updateClubIntroduceDto: UpdateClubIntroduceDto) {
-    return `This action updates a #${id} clubIntroduce`;
+  async updateIntroduce(
+    clubId: number,
+    body: UpdateIntroduceBody,
+  ): Promise<void> {
+    const introduce = await this.clubIntroducesRepository.findOne({
+      where: { ClubId: clubId },
+    });
+
+    if (!introduce) {
+      throw new ConflictException('설명문이 존재하지 않습니다.');
+    }
+
+    introduce.longExplanation = body.longExplanation;
+    await this.clubIntroducesRepository.save(introduce);
+    return;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} clubIntroduce`;
+  async removeIntroduce(clubId: number): Promise<void> {
+    const introduce = await this.clubIntroducesRepository.findOne({
+      where: { ClubId: clubId },
+    });
+
+    if (!introduce) {
+      throw new ConflictException('설명문이 존재하지 않습니다.');
+    }
+
+    await this.clubIntroducesRepository.remove(introduce);
+    return;
   }
 }

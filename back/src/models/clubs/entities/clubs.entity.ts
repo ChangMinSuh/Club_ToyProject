@@ -19,27 +19,20 @@ import { ClubMembers } from '../../club-members/entities/club-members.entity';
 import { ClubAppAnswers } from '../../club-app-answers/entities/club-app-answers.entity';
 import { ClubAppQuestions } from '../../club-app-questions/entities/club-app-questions.entity';
 import { ClubChats } from '../../club-chats/entities/club-chats';
+import { CoreEntity } from '../../../common/entities/core.entity';
 
 @Index('name', ['name'], { unique: true })
 @Entity({ name: 'clubs' })
-export class Clubs {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-  id: number;
-
+export class Clubs extends CoreEntity {
   @IsString()
   @IsNotEmpty()
   @Column('varchar', { name: 'name', unique: true, length: 30 })
   name: string;
 
   @IsString()
+  @IsNotEmpty()
   @Column('varchar', { name: 'explanation', length: 100 })
   explanation: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @DeleteDateColumn({ select: false })
   deletedAt: Date;

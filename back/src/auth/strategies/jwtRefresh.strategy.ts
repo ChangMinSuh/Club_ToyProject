@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { AuthService } from '../auth.service';
-import { ValidateUserDto } from '../dto/validate-user';
+import { Users } from 'src/models/users/entities/users.entity';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -25,7 +25,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(req: Request, payload: any): Promise<ValidateUserDto> {
+  async validate(req: Request, payload: any): Promise<Users> {
     const { Authentication: accessToken, Refresh: refreshToken } = req.cookies;
 
     const decodedAccessToken = this.jwtService.decode(accessToken);

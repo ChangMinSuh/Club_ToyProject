@@ -67,7 +67,7 @@ export default {
       console.log("allclub:", allClub);
       await this.getClubIntroduce(allClub);
       await this.loadClubAppQuestions({
-        clubId: this.clubIntroduce?.information?.id,
+        clubId: this.clubIntroduce?.Club?.id,
       });
     },
   },

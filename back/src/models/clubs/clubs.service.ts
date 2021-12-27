@@ -8,20 +8,18 @@ import { GetClubChatsDataDto } from 'src/models/club-chats/dto/get-clubchats-dat
 import { ClubIntroduces } from 'src/models/club-introduces/entities/club-introduces.entity';
 import { Clubs } from './entities/clubs.entity';
 import { Connection, Repository } from 'typeorm';
-import { GetClubAppQuestionsDto } from './dto/get-club-app-questions.dto';
-import { FindOneClubDto } from './dto/find-one-club.dto';
-import { getClubChatDto } from './dto/get-club-chat.dto';
-import { GetClubDto } from './dto/get-club.dto';
-import { SetClubBodyDto } from './dto/set-club-body.dto';
-import { SetClubAppQuestionBodyDto } from './dto/set-club-app-question-body.dto';
 import {
   ClubMembers,
   ClubMembersRoleEnum,
 } from 'src/models/club-members/entities/club-members.entity';
 import { ClubChats } from '../club-chats/entities/club-chats';
 import { ClubAppQuestions } from '../club-app-questions/entities/club-app-questions.entity';
-import { ClubAppAnswers } from '../club-app-answers/entities/club-app-answers.entity';
 import { Users } from '../users/entities/users.entity';
+import { CreateClubBody } from './dtos/create-club.dto';
+import {
+  ClubAppAnswers,
+  ClubAppAnswerStatusEnum,
+} from '../club-app-answers/entities/club-app-answers.entity';
 
 @Injectable()
 export class ClubsService {
@@ -35,50 +33,14 @@ export class ClubsService {
     private readonly clubMembersRepository: Repository<ClubMembers>,
     @InjectRepository(ClubChats)
     private readonly clubChatsRepository: Repository<ClubChats>,
-    @InjectRepository(ClubIntroduces)
-    private readonly clubIntroducesRepository: Repository<ClubChats>,
-    @InjectRepository(ClubAppQuestions)
-    private readonly clubAppQuestionsRepository: Repository<ClubAppQuestions>,
     @InjectRepository(ClubAppAnswers)
     private readonly clubAppAnswersRepository: Repository<ClubAppAnswers>,
   ) {}
 
-  async findAllClubs(): Promise<GetClubDto[]> {
-    return await this.clubsRepository
-      .createQueryBuilder('clubs')
-      .leftJoinAndSelect('clubs.Owner', 'owner')
-      .getMany();
-  }
-
-  async findMyClubs({ userId }): Promise<GetClubDto[]> {
-    const result = await this.clubsRepository
-      .createQueryBuilder('clubs')
-      .leftJoin('clubs.ClubMembers', 'clubMembers')
-      .where('clubMembers.UserId = :userId', { userId })
-      .leftJoinAndSelect('clubs.Owner', 'owner')
-      .getMany();
-    console.log(result);
-    return result;
-  }
-
-  async findMyAppAnswers(userId: number) {
-    const result = await this.clubsRepository
-      .createQueryBuilder('clubs')
-      .innerJoinAndSelect(
-        'clubs.ClubAppAnswers',
-        'clubAppAnswers',
-        'clubAppAnswers.UserId = :userId AND clubAppAnswers.isFailed = :isFailed',
-        { userId, isFailed: false },
-      )
-      .getMany();
-    console.log(result);
-    return result;
-  }
-
-  async setClub(
+  async createClub(
     userId: number,
-    { name, explanation }: SetClubBodyDto,
-  ): Promise<string> {
+    { name, explanation }: CreateClubBody,
+  ): Promise<void> {
     const hasClub = await this.clubsRepository.findOne({ name });
     if (hasClub) {
       throw new ConflictException('동아리 이름이 중복됩니다.');
@@ -103,65 +65,51 @@ export class ClubsService {
       await manager.getRepository(Clubs).save(club);
       await manager.getRepository(ClubMembers).save(clubMembers);
     });
-
-    return 'success';
   }
 
-  async findOneClub({ clubId, userId }: FindOneClubDto): Promise<GetClubDto> {
-    const oneClub = await this.clubsRepository
+  async findAllClubs(): Promise<Clubs[]> {
+    const result = await this.clubsRepository.find({ relations: ['Owner'] });
+    return result;
+  }
+
+  async findMyClubs(userId: number): Promise<Clubs[]> {
+    const result = await this.clubsRepository
       .createQueryBuilder('clubs')
-      .innerJoin('clubs.ClubMembers', 'clubMembers')
+      .leftJoin('clubs.ClubMembers', 'clubMembers')
       .where('clubMembers.UserId = :userId', { userId })
-      .andWhere('clubs.id = :clubId', { clubId })
-      .getOne();
-    if (!oneClub)
-      throw new UnauthorizedException('동아리에 가입되지 않았습니다.');
-
-    return oneClub;
+      .leftJoinAndSelect('clubs.Owner', 'owner')
+      .getMany();
+    return result;
   }
 
-  async getClubChat({
-    clubId,
-  }: getClubChatDto): Promise<GetClubChatsDataDto[]> {
+  // 일부만 반환.
+  async findMyWatingAppAnswers(userId: number): Promise<ClubAppAnswers[]> {
+    const result = await this.clubAppAnswersRepository.find({
+      where: { UserId: userId, status: ClubAppAnswerStatusEnum.Waiting },
+    });
+    console.log(result);
+    return result;
+  }
+
+  async findOneClub(clubId: number): Promise<Clubs> {
+    const result = this.clubsRepository.findOne({
+      where: { id: clubId },
+      relations: ['Owner'],
+    });
+    return result;
+  }
+
+  async getClubChat(clubId: number): Promise<ClubChats[]> {
     const club = await this.clubsRepository.findOne({ id: clubId });
     if (!club) {
       throw new UnauthorizedException('클럽이 존재하지 않습니다.');
     }
 
-    return await this.clubChatsRepository
-      .createQueryBuilder('clubChats')
-      .leftJoin('clubChats.User', 'user')
-      .select([
-        'clubChats.id',
-        'clubChats.content',
-        'clubChats.createAt',
-        'clubChats.UserId',
-      ])
-      .addSelect('user.nickname')
-      .where('clubChats.clubId = :clubId', { clubId })
-      .getMany();
-  }
-
-  async getAppQuestions({ clubId }): Promise<GetClubAppQuestionsDto[]> {
-    const result = await this.clubAppQuestionsRepository.find({
+    const result = await this.clubChatsRepository.find({
       where: { ClubId: clubId },
+      relations: ['User'],
     });
-    return result;
-  }
 
-  async findAllNewAppQuestionAnswers(clubId: number) {
-    const result = await this.usersRepository
-      .createQueryBuilder('users')
-      .innerJoinAndSelect(
-        'users.ClubAppQuestionAnswers',
-        'clubAppQuestionAnswers',
-        'clubAppQuestionAnswers.ClubId = :clubId',
-        { clubId },
-      )
-      .where('clubAppQuestionAnswers.isFailed = :isFailed', { isFailed: false })
-      .leftJoin('users.ClubMembers', 'clubMembers')
-      .andWhere('clubMembers.ClubId IS NULL')
-      .getMany();
     return result;
   }
 }

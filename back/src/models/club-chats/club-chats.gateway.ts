@@ -13,6 +13,7 @@ import { Server, Socket } from 'socket.io';
 import { ValidateUserDto } from 'src/auth/dto/validate-user';
 import { JwtAccessWsGuard } from 'src/auth/guards/jwt-access-ws.guard';
 import { UserWs } from 'src/common/decorators/user-ws.decorator';
+import { Users } from '../users/entities/users.entity';
 import { ClubChatsService } from './club-chats.service';
 import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 
@@ -41,14 +42,10 @@ export class ClubChatsGateway
   async sendChat(
     @MessageBody() data: SetClubChatsDataDto,
     @ConnectedSocket() socket: Socket,
-    @UserWs() { userId, nickname }: ValidateUserDto,
+    @UserWs() user: Users,
   ) {
-    console.log(userId);
-    const chatData = await this.clubChatService.setClubChat({
-      UserId: userId,
-      ...data,
-    });
-    this.server.emit('chat', { ...chatData, User: { nickname } });
+    const chatData = await this.clubChatService.setClubChat(user, data);
+    this.server.emit('chat', chatData);
     return data;
   }
 

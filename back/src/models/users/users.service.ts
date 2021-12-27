@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './entities/users.entity';
 import * as bcrypt from 'bcrypt';
+import { CreateUserBody } from './dtos/create-user.dto';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -10,7 +12,11 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  async createUser({ email, password, nickname }) {
+  async createUser({
+    email,
+    password,
+    nickname,
+  }: CreateUserBody): Promise<void> {
     const chkUser = await this.usersRepository.findOne({ email });
     if (chkUser) throw new ConflictException('This email exists.');
 
@@ -21,6 +27,6 @@ export class UsersService {
     newUser.password = hashPassword;
     newUser.nickname = nickname;
     await this.usersRepository.save(newUser);
-    return 'success';
+    return;
   }
 }

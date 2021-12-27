@@ -1,12 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  UpdateDateColumn,
-  CreateDateColumn,
-  ManyToOne,
-} from 'typeorm';
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { Clubs } from '../../clubs/entities/clubs.entity';
+import { CoreEntity } from '../../../common/entities/core.entity';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export enum ClubAppQuestionTypeEnum {
   ShortText = 'short_text',
@@ -16,13 +11,14 @@ export enum ClubAppQuestionTypeEnum {
 }
 
 @Entity({ name: 'club_app_questions' })
-export class ClubAppQuestions {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
-  id: number;
-
+export class ClubAppQuestions extends CoreEntity {
+  @IsString()
+  @IsNotEmpty()
   @Column('varchar', { name: 'question', length: 2000 })
   question: string;
 
+  @IsString()
+  @IsNotEmpty()
   @Column('enum', {
     name: 'answer_type',
     enum: ClubAppQuestionTypeEnum,
@@ -32,12 +28,6 @@ export class ClubAppQuestions {
 
   @Column('number', { name: 'clubId' })
   ClubId: number;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 
   @ManyToOne(() => Clubs, (club) => club.ClubAppQuestions)
   Club: Clubs;

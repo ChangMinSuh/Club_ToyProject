@@ -28,13 +28,15 @@
                   <v-avatar
                     color="blue"
                     x-small
-                    v-if="me.userId !== clubChat.UserId"
+                    v-if="clubChat.User && me.id !== clubChat.User.id"
                   >
                     <span class="white--text text-h5">{{
-                      clubChat.User.nickname.slice(0, 2)
+                      userIcon(clubChat)
                     }}</span>
                   </v-avatar>
-                  <v-spacer v-if="me.userId === clubChat.UserId" />
+                  <v-spacer
+                    v-if="clubChat.User && me.id === clubChat.User.id"
+                  />
                   <v-chip> {{ clubChat.content }}</v-chip>
                 </v-row>
               </v-container>
@@ -120,7 +122,12 @@ export default {
       this.inputChat = "";
     },
 
-    newLine() {},
+    userIcon(clubChat) {
+      if (!clubChat.User) {
+        return "(??)";
+      }
+      return clubChat.User.nickname.slice(0, 2);
+    },
   },
 };
 </script>

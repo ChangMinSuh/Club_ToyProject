@@ -1,7 +1,12 @@
 export default async function ({ store, params, redirect }) {
   const clubId = Number(params.id);
+  const clubMembers = store.state.users.me?.ClubMembers;
+  if (!clubMembers) redirect("/");
 
-  if (!store.state.users.me?.clubManagers.includes(clubId)) {
+  const isManager =
+    clubMembers.find(({ ClubId }) => ClubId === clubId).role === "manager";
+
+  if (!isManager) {
     redirect("/");
   }
 }

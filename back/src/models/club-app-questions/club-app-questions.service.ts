@@ -1,6 +1,8 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { CreateAppQuestionBody } from './dtos/create-app-question.dto';
+import { UpdateAppQuestionBody } from './dtos/update-app-question.dto';
 import { ClubAppQuestions } from './entities/club-app-questions.entity';
 
 @Injectable()
@@ -10,7 +12,10 @@ export class ClubAppQuestionsService {
     private readonly clubAppQuestionsRepository: Repository<ClubAppQuestions>,
   ) {}
 
-  async createAppQuestion(clubId: number, body) {
+  async createAppQuestion(
+    clubId: number,
+    body: CreateAppQuestionBody,
+  ): Promise<ClubAppQuestions> {
     const clubAppQuestions = new ClubAppQuestions();
     clubAppQuestions.question = body.question;
     clubAppQuestions.answer_type = body.answer_type;
@@ -19,14 +24,18 @@ export class ClubAppQuestionsService {
     return result;
   }
 
-  async findAppQuestions(clubId: number) {
+  async findAppQuestions(clubId: number): Promise<ClubAppQuestions[]> {
     const result = await this.clubAppQuestionsRepository.find({
       where: { ClubId: clubId },
     });
     return result;
   }
 
-  async updateAppQuestion(clubId: number, clubAppQuestionId: number, body) {
+  async updateAppQuestion(
+    clubId: number,
+    clubAppQuestionId: number,
+    body: UpdateAppQuestionBody,
+  ): Promise<ClubAppQuestions> {
     const appQuestion = await this.clubAppQuestionsRepository.findOne({
       id: clubAppQuestionId,
       ClubId: clubId,
@@ -44,7 +53,7 @@ export class ClubAppQuestionsService {
   async removeAppQuestion(
     clubId: number,
     clubAppQuestionId: number,
-  ): Promise<string> {
+  ): Promise<void> {
     const appQuestion = await this.clubAppQuestionsRepository.findOne({
       id: clubAppQuestionId,
       ClubId: clubId,
@@ -55,6 +64,6 @@ export class ClubAppQuestionsService {
     }
 
     await this.clubAppQuestionsRepository.remove(appQuestion);
-    return 'success';
+    return;
   }
 }

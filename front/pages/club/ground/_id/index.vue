@@ -50,9 +50,12 @@ export default {
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
     await store.dispatch("clubChats/loadClubChats", { clubId });
-    console.log(store.state.users.me?.clubManagers.includes(clubId));
+    console.log(store.state.users.me?.ClubMembers);
     return {
-      isManager: store.state.users.me?.clubManagers.includes(clubId),
+      isManager:
+        store.state.users.me?.ClubMembers.find(
+          ({ ClubId }) => ClubId === clubId
+        ).role === "manager",
     };
   },
   computed: {
