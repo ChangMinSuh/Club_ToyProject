@@ -28,14 +28,20 @@
                   <v-avatar
                     color="blue"
                     x-small
-                    v-if="clubChat.User && me.id !== clubChat.User.id"
+                    v-if="
+                      clubChat.ClubMember &&
+                      myClubMember.id !== clubChat.ClubMember.id
+                    "
                   >
                     <span class="white--text text-h5">{{
                       userIcon(clubChat)
                     }}</span>
                   </v-avatar>
                   <v-spacer
-                    v-if="clubChat.User && me.id === clubChat.User.id"
+                    v-if="
+                      clubChat.ClubMember &&
+                      myClubMember.id === clubChat.ClubMember.id
+                    "
                   />
                   <v-chip> {{ clubChat.content }}</v-chip>
                 </v-row>
@@ -88,7 +94,7 @@ export default {
 
   computed: {
     ...usersHelper.mapState(["me"]),
-    ...clubsHelper.mapState(["onlineClub"]),
+    ...clubsHelper.mapState(["onlineClub", "myClubMember"]),
     ...clubChatsHelper.mapState(["clubChats"]),
   },
 
@@ -117,16 +123,17 @@ export default {
       await this.socket.emit("chat", {
         content: this.inputChat.trim(),
         ClubId: this.onlineClub.id,
+        ClubMember: this.myClubMember,
         clubName: this.onlineClub.name,
       });
       this.inputChat = "";
     },
 
     userIcon(clubChat) {
-      if (!clubChat.User) {
+      if (!clubChat.ClubMember) {
         return "(??)";
       }
-      return clubChat.User.nickname.slice(0, 2);
+      return clubChat.Members.nickname.slice(0, 2);
     },
   },
 };

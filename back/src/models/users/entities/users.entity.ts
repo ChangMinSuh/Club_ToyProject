@@ -5,6 +5,7 @@ import { ClubChats } from '../../club-chats/entities/club-chats';
 import { ClubMembers } from '../../club-members/entities/club-members.entity';
 import { ClubAppAnswers } from '../../club-app-answers/entities/club-app-answers.entity';
 import { CoreEntity } from '../../../common/entities/core.entity';
+import { ClubPosts } from '../../club-posts/entities/club-posts.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ name: 'users' })
@@ -32,9 +33,6 @@ export class Users extends CoreEntity {
 
   @OneToMany(() => Clubs, (club) => club.Owner)
   OwnerClubs: Clubs[];
-
-  @OneToMany(() => ClubChats, (clubchat) => clubchat.User)
-  ClubChats: ClubChats[];
 
   @OneToMany(() => ClubAppAnswers, (ClubAppAnswers) => ClubAppAnswers.User)
   ClubAppAnswers: ClubAppAnswers[];

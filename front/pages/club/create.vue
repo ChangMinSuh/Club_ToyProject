@@ -19,6 +19,14 @@
               :error-messages="errors"
             />
           </validation-provider>
+          <v-divider />
+          <validation-provider rules="max:20" v-slot="{ errors }">
+            <v-text-field
+              v-model="nickname"
+              label="nickname in club"
+              :error-messages="errors"
+            />
+          </validation-provider>
           <v-btn type="submit" :disabled="invalid"> create </v-btn>
         </form>
       </validation-observer>
@@ -34,6 +42,11 @@ const usersHelper = createNamespacedHelpers("users");
 const clubsHelper = createNamespacedHelpers("clubs");
 
 export default {
+  asyncData({ store }) {
+    return {
+      nickname: store.state.users.me?.nickname,
+    };
+  },
   data() {
     return {
       name: "",
@@ -58,6 +71,7 @@ export default {
         await this.createClubs({
           name: this.name,
           explanation: this.explanation,
+          nickname: this.nickname,
         });
         if (!!this.serverRes && this.serverRes.status >= 400) {
           alert(this.serverRes.message);

@@ -1,5 +1,6 @@
 export const state = () => ({
   myClubs: [],
+  myClubMember: null,
   myAppAnswers: [],
   allClubs: [],
   onlineClub: null,
@@ -20,6 +21,9 @@ export const getters = {
 export const mutations = {
   setMyClubs(state, payload) {
     state.myClubs = payload;
+  },
+  setMyClubMember(state, payload) {
+    state.myClubMember = payload;
   },
   setAllClub(state, payload) {
     state.allClubs = payload;
@@ -42,6 +46,13 @@ export const mutations = {
 };
 
 export const actions = {
+  async loadMyClubMember({ commit, rootState }, payload) {
+    const myClubMember = rootState.users.me?.ClubMembers?.find((clubMember) => {
+      return clubMember.ClubId === payload.clubId;
+    });
+    commit("setMyClubMember", myClubMember);
+  },
+
   async loadAllClubs({ state, commit, dispatch }) {
     try {
       const res = await this.$axios.get("/clubs", {

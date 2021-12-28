@@ -39,7 +39,7 @@ export class ClubsService {
 
   async createClub(
     userId: number,
-    { name, explanation }: CreateClubBody,
+    { name, explanation, nickname }: CreateClubBody,
   ): Promise<void> {
     const hasClub = await this.clubsRepository.findOne({ name });
     if (hasClub) {
@@ -59,6 +59,7 @@ export class ClubsService {
     const clubMembers = new ClubMembers();
     clubMembers.UserId = userId;
     clubMembers.role = ClubMembersRoleEnum.Manager;
+    clubMembers.nickname = nickname;
     clubMembers.Club = club;
 
     await this.connection.transaction(async (manager) => {
@@ -107,7 +108,7 @@ export class ClubsService {
 
     const result = await this.clubChatsRepository.find({
       where: { ClubId: clubId },
-      relations: ['User'],
+      relations: ['ClubMember'],
     });
 
     return result;

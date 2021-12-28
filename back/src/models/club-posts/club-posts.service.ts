@@ -1,26 +1,62 @@
 import { Injectable } from '@nestjs/common';
-import { CreateClubPostDto } from './dto/create-club-post.dto';
-import { UpdateClubPostDto } from './dto/update-club-post.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreatePostBody } from './dto/create-post.dto';
+import { UpdatePostBody } from './dto/update-post.dto';
+import { ClubPosts } from './entities/club-posts.entity';
 
 @Injectable()
 export class ClubPostsService {
-  create(createClubPostDto: CreateClubPostDto) {
-    return 'This action adds a new clubPost';
+  constructor(
+    @InjectRepository(ClubPosts)
+    private readonly clubPostsRepository: Repository<ClubPosts>,
+  ) {}
+
+  async createPost(
+    clubId: number,
+    clubMemberId: number,
+    body: CreatePostBody,
+  ): Promise<void> {
+    const clubPost = new ClubPosts();
+    clubPost.title = body.title;
+    clubPost.content = body.content;
+    clubPost.ClubId = clubId;
+    clubPost.ClubMemberId = clubMemberId;
+    await this.clubPostsRepository.save(clubPost);
+    return;
   }
 
-  findAll() {
-    return `This action returns all clubPosts`;
+  async findAllPosts(clubId: number): Promise<ClubPosts[]> {
+    const result = await this.clubPostsRepository.find({
+      where: { ClubId: clubId },
+      relations: ['ClubMember'],
+    });
+    return result;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} clubPost`;
+  async findPost(postId: number): Promise<ClubPosts> {
+    const result = await this.clubPostsRepository.findOne({
+      where: { id: postId },
+      relations: ['ClubMember'],
+    });
+    return result;
   }
 
-  update(id: number, updateClubPostDto: UpdateClubPostDto) {
-    return `This action updates a #${id} clubPost`;
+  async updatePost(postId: number, body: UpdatePostBody): Promise<void> {
+    const clubPost = await this.clubPostsRepository.findOne({
+      where: { id: postId },
+    });
+    clubPost.title = body.title;
+    clubPost.content = body.content;
+    await this.clubPostsRepository.save(clubPost);
+    return;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} clubPost`;
+  async removePost(postId: number): Promise<void> {
+    const clubPost = await this.clubPostsRepository.findOne({
+      where: { id: postId },
+    });
+    await this.clubPostsRepository.remove(clubPost);
+    return;
   }
 }

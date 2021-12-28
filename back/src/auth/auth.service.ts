@@ -29,8 +29,7 @@ export class AuthService {
       .createQueryBuilder('users')
       .select('users')
       .addSelect('users.password')
-      .leftJoin('users.ClubMembers', 'clubMembers')
-      .addSelect(['clubMembers.ClubId', 'clubMembers.role'])
+      .leftJoinAndSelect('users.ClubMembers', 'clubMembers')
       .where('users.email = :email', { email })
       .getOne();
     if (!user) {

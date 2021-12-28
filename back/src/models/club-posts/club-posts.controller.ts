@@ -6,40 +6,63 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
+import { ClubMember } from 'src/common/decorators/club-member.decorator';
+import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
+import { User } from 'src/common/decorators/user.decorator';
+import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
+import {
+  ClubMembers,
+  ClubMembersRoleEnum,
+} from '../club-members/entities/club-members.entity';
+import { Users } from '../users/entities/users.entity';
 import { ClubPostsService } from './club-posts.service';
-import { CreateClubPostDto } from './dto/create-club-post.dto';
-import { UpdateClubPostDto } from './dto/update-club-post.dto';
+import { CreatePostBody } from './dto/create-post.dto';
+import { UpdatePostBody } from './dto/update-post.dto';
+import { ClubPosts } from './entities/club-posts.entity';
 
-@Controller('club-posts')
+@ApiTags('club_posts')
+@ClubRoles(ClubMembersRoleEnum.Manager, ClubMembersRoleEnum.User)
+@UseGuards(JwtAccessGuard, ClubRolesGuard)
+@Controller('clubs/:clubId/posts')
 export class ClubPostsController {
   constructor(private readonly clubPostsService: ClubPostsService) {}
 
   @Post()
-  create(@Body() createClubPostDto: CreateClubPostDto) {
-    return this.clubPostsService.create(createClubPostDto);
+  createPost(
+    @ClubMember() clubMember: ClubMembers,
+    @Param('clubId', ParseIntPipe) clubId: number,
+    @Body() body: CreatePostBody,
+  ): Promise<void> {
+    return this.clubPostsService.createPost(clubId, clubMember.id, body);
   }
 
   @Get()
-  findAll() {
-    return this.clubPostsService.findAll();
+  findAllPosts(
+    @Param('clubId', ParseIntPipe) clubId: number,
+  ): Promise<ClubPosts[]> {
+    return this.clubPostsService.findAllPosts(clubId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.clubPostsService.findOne(+id);
+  @Get(':postId')
+  findOne(@Param('postId', ParseIntPipe) postId: number) {
+    return this.clubPostsService.findPost(postId);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateClubPostDto: UpdateClubPostDto,
+  @Patch(':postId')
+  updatePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() body: UpdatePostBody,
   ) {
-    return this.clubPostsService.update(+id, updateClubPostDto);
+    return this.clubPostsService.updatePost(postId, body);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.clubPostsService.remove(+id);
+  @Delete(':postId')
+  removePost(@Param('postId', ParseIntPipe) postId: number): Promise<void> {
+    return this.clubPostsService.removePost(postId);
   }
 }

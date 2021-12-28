@@ -53,18 +53,16 @@ export class ClubMembersService {
   }
 
   async findAllMembers(clubId: number): Promise<ClubMembers[]> {
-    const result = await this.clubMembersRepository
-      .createQueryBuilder('clubMembers')
-      .select([
-        'clubMembers.role',
-        'clubMembers.grade',
-        'clubMembers.createdAt',
-        'clubMembers.updatedAt',
-      ])
-      .where('clubMembers.ClubId = :clubId', { clubId })
-      .leftJoin('clubMembers.User', 'user')
-      .addSelect(['user.id', 'user.email', 'user.nickname'])
-      .getMany();
+    const result = await this.clubMembersRepository.find({
+      where: { ClubId: clubId },
+    });
+    return result;
+  }
+
+  async findMember(clubMemberId: number): Promise<ClubMembers> {
+    const result = await this.clubMembersRepository.findOne({
+      where: { id: clubMemberId },
+    });
     return result;
   }
 }

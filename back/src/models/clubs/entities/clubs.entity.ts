@@ -20,6 +20,7 @@ import { ClubAppAnswers } from '../../club-app-answers/entities/club-app-answers
 import { ClubAppQuestions } from '../../club-app-questions/entities/club-app-questions.entity';
 import { ClubChats } from '../../club-chats/entities/club-chats';
 import { CoreEntity } from '../../../common/entities/core.entity';
+import { ClubPosts } from '../../club-posts/entities/club-posts.entity';
 
 @Index('name', ['name'], { unique: true })
 @Entity({ name: 'clubs' })
@@ -51,6 +52,9 @@ export class Clubs extends CoreEntity {
 
   @OneToMany(() => ClubAppAnswers, (clubAppAnswers) => clubAppAnswers.Club)
   ClubAppAnswers: ClubAppAnswers[];
+
+  @OneToMany(() => ClubPosts, (clubPost) => clubPost.Club)
+  ClubPosts: ClubPosts[];
 
   @ManyToOne(() => Users, (user) => user.OwnerClubs)
   Owner: Users;

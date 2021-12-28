@@ -4,6 +4,7 @@ import { ClubChats } from '../entities/club-chats';
 export class SetClubChatsDataDto extends PickType(ClubChats, [
   'content',
   'ClubId',
+  'ClubMemberId',
 ]) {
   clubName: string;
 }

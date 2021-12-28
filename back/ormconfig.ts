@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import { ClubPosts } from './src/models/club-posts/entities/club-posts.entity';
 import { ClubAppAnswerItems } from './src/models/club-app-answers/entities/club-app-answers-item.entity';
 import { ClubAppAnswers } from './src/models/club-app-answers/entities/club-app-answers.entity';
 import { ClubAppQuestions } from './src/models/club-app-questions/entities/club-app-questions.entity';
@@ -26,6 +27,7 @@ const config: TypeOrmModuleOptions = {
     ClubAppAnswers,
     ClubAppAnswerItems,
     ClubAppQuestions,
+    ClubPosts,
   ],
   migrations: [__dirname + '/src/migrations/*.ts'],
   cli: { migrationsDir: 'src/migrations' },

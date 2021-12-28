@@ -1,14 +1,16 @@
 import {
   Entity,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { Clubs } from '../../clubs/entities/clubs.entity';
 import { Users } from '../../users/entities/users.entity';
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, MaxLength } from 'class-validator';
+import { CoreEntity } from '../../../common/entities/core.entity';
+import { ClubChats } from '../../club-chats/entities/club-chats';
+import { ClubPosts } from '../../club-posts/entities/club-posts.entity';
 
 export enum ClubMembersRoleEnum {
   User = 'user',
@@ -16,12 +18,12 @@ export enum ClubMembersRoleEnum {
 }
 
 @Entity({ name: 'club_members' })
-export class ClubMembers {
-  @Column('int', { primary: true, name: 'userId' })
-  UserId: number;
-
-  @Column('int', { primary: true, name: 'clubId' })
-  ClubId: number;
+export class ClubMembers extends CoreEntity {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(20)
+  @Column('varchar', { name: 'nickname', length: 20 })
+  nickname: string;
 
   @IsString()
   @IsNotEmpty()
@@ -37,18 +39,24 @@ export class ClubMembers {
   @Column('int', { name: 'grade', default: 0 })
   grade: number;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @Column('int', { name: 'userId' })
+  UserId: number;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @Column('int', { name: 'clubId' })
+  ClubId: number;
 
   @DeleteDateColumn()
   deletedAt: Date;
 
-  @ManyToOne(() => Users, (user) => user.ClubChats)
+  @OneToMany(() => ClubPosts, (clubPost) => clubPost.ClubMember)
+  ClubPosts: ClubPosts[];
+
+  @OneToMany(() => ClubChats, (clubChat) => clubChat.ClubMember)
+  ClubChats: ClubChats[];
+
+  @ManyToOne(() => Users, (user) => user.ClubMembers)
   User: Users;
 
-  @ManyToOne(() => Clubs, (club) => club.ClubChats)
+  @ManyToOne(() => Clubs, (club) => club.ClubMembers)
   Club: Clubs;
 }

@@ -20,9 +20,7 @@ export const mutations = {
 export const actions = {
   async loadUser({ state, commit, dispatch }) {
     try {
-      const res = await this.$axios.get("/auth", {
-        withCredentials: true,
-      });
+      const res = await this.$axios.get("/auth");
       commit("setMe", res.data);
       return null;
     } catch (err) {
@@ -91,8 +89,9 @@ export const actions = {
       console.log(res);
       commit("setMe", res.data);
     } catch (err) {
+      console.log(err.response);
       commit("setServerRes", {
-        message: err.response.data.message,
+        message: err.response.data.error.message,
         status: err.response.status,
       });
     }

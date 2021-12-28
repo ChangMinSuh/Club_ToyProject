@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
+import { ClubMember } from 'src/common/decorators/club-member.decorator';
 import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
 import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
 import { ClubMembersService } from './club-members.service';
@@ -44,5 +45,23 @@ export class ClubMembersController {
     @Param('clubId', ParseIntPipe) clubId: number,
   ): Promise<ClubMembers[]> {
     return this.clubMembersService.findAllMembers(clubId);
+  }
+
+  @ApiOperation({ summary: '내 클럽 멤버 정보 가져오기' })
+  @ClubRoles(ClubMembersRoleEnum.Manager, ClubMembersRoleEnum.User)
+  @UseGuards(JwtAccessGuard, ClubRolesGuard)
+  @Get('me')
+  findMyMember(@ClubMember() clubMember: ClubMembers): ClubMembers {
+    return clubMember;
+  }
+
+  @ApiOperation({ summary: '클럽 멤버 정보 가져오기' })
+  @ClubRoles(ClubMembersRoleEnum.Manager, ClubMembersRoleEnum.User)
+  @UseGuards(JwtAccessGuard, ClubRolesGuard)
+  @Get(':clubMemberId')
+  findMember(
+    @Param('clubMemberId', ParseIntPipe) clubMemberId: number,
+  ): Promise<ClubMembers> {
+    return this.clubMembersService.findMember(clubMemberId);
   }
 }

@@ -6,7 +6,7 @@ export class GetClubChatsDataDto extends PickType(ClubChats, [
   'id',
   'content',
   'createdAt',
-  'UserId',
+  'ClubMemberId',
 ] as const) {
   User?: Users;
 }

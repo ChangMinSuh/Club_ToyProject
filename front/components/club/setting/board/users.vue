@@ -116,17 +116,7 @@
                                         이름
                                       </v-list-item-title>
                                       <v-list-item-subtitle>
-                                        {{ allMember.User.nickname }}
-                                      </v-list-item-subtitle>
-                                    </v-list-item-content>
-                                  </v-list-item>
-                                  <v-list-item>
-                                    <v-list-item-content>
-                                      <v-list-item-title>
-                                        이메일
-                                      </v-list-item-title>
-                                      <v-list-item-subtitle>
-                                        {{ allMember.User.email }}
+                                        {{ allMember.nickname }}
                                       </v-list-item-subtitle>
                                     </v-list-item-content>
                                   </v-list-item>
@@ -169,11 +159,9 @@
 
                       <v-list-item-content>
                         <v-list-item-title
-                          v-html="allMember.User.nickname"
+                          v-html="allMember.nickname"
                         ></v-list-item-title>
-                        <v-list-item-subtitle
-                          v-html="allMember.User.email"
-                        ></v-list-item-subtitle>
+
                         <v-list-item-subtitle
                           v-html="allMember.role"
                         ></v-list-item-subtitle>
@@ -278,9 +266,6 @@
                   <v-list-item-title
                     v-html="allAppAnswer.User.nickname"
                   ></v-list-item-title>
-                  <v-list-item-subtitle
-                    v-html="allAppAnswer.User.email"
-                  ></v-list-item-subtitle>
                   <v-list-item-subtitle
                     v-html="allAppAnswer.createdAt"
                   ></v-list-item-subtitle>
