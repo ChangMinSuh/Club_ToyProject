@@ -115,6 +115,7 @@ export const actions = {
       console.log(payload);
       await this.$axios.post(`/clubs/${payload.clubId}/app/answers`, {
         clubAppAnswerItems: payload.clubAppAnswerItems,
+        nickname: payload.nickname,
       });
     } catch (err) {
       console.error(err);

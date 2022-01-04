@@ -8,7 +8,7 @@
         <v-expansion-panel-content>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <ClubSettingBoardAddQuestionButton v-if="isQuestionChange" />
+            <ClubBoardSettingAddQuestionButton v-if="isQuestionChange" />
             <v-btn
               v-if="!isQuestionChange"
               @click="isQuestionChange = !isQuestionChange"
@@ -195,7 +195,9 @@
                       </template>
                       <v-card>
                         <v-card-title>
-                          <span class="headline">동아리 지원서</span>
+                          <span class="headline"
+                            >{{ allAppAnswer.nickname }}의 동아리 지원서</span
+                          >
                         </v-card-title>
                         <v-card-text>
                           <v-container>
@@ -252,7 +254,11 @@
                             color="blue darken-1"
                             text
                             @click.native="
-                              acceptApp(allAppAnswer.User.id, allAppAnswer.id)
+                              acceptApp(
+                                allAppAnswer.UserId,
+                                allAppAnswer.id,
+                                allAppAnswer.nickname
+                              )
                             "
                             >수락하기</v-btn
                           >
@@ -264,7 +270,7 @@
 
                 <v-list-item-content>
                   <v-list-item-title
-                    v-html="allAppAnswer.User.nickname"
+                    v-html="allAppAnswer.nickname"
                   ></v-list-item-title>
                   <v-list-item-subtitle
                     v-html="allAppAnswer.createdAt"
@@ -331,13 +337,14 @@ export default {
       }
     },
 
-    async acceptApp(userId, clubAppAnswerId) {
+    async acceptApp(userId, clubAppAnswerId, nickname) {
       try {
         if (confirm("정말 수락하시겠습니까?")) {
           await this.addUserClubs({
             clubId: this.onlineClub.id,
             userId,
             clubAppAnswerId,
+            nickname,
           });
           alert("회원이 되었습니다.");
           this.dialog = false;

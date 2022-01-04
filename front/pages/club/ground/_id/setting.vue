@@ -28,7 +28,7 @@
 
           <v-col>
             <v-card min-height="70vh" rounded="lg">
-              <ClubSettingBoardUsers />
+              <ClubBoardSettingUsers />
             </v-card>
           </v-col>
         </v-row>

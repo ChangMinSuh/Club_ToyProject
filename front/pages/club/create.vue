@@ -67,7 +67,6 @@ export default {
     async onSubmit() {
       try {
         await this.$refs.form.validate();
-        await this.loadUser();
         await this.createClubs({
           name: this.name,
           explanation: this.explanation,

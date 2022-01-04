@@ -9,7 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ValidateUserDto } from 'src/auth/dto/validate-user';
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
 import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
 import { User } from 'src/common/decorators/user.decorator';
@@ -17,6 +16,7 @@ import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
 import { ClubMembersRoleEnum } from '../club-members/entities/club-members.entity';
 import { Users } from '../users/entities/users.entity';
 import { ClubAppAnswersService } from './club-app-answers.service';
+import { CreateAppAnswersBody } from './dto/create-app-answer.dto';
 import {
   ClubAppAnswers,
   ClubAppAnswerStatusEnum,
@@ -33,7 +33,7 @@ export class ClubAppAnswersController {
   createAppAnswer(
     @Param('clubId', ParseIntPipe) clubId: number,
     @User() user: Users,
-    @Body() body,
+    @Body() body: CreateAppAnswersBody,
   ): Promise<void> {
     return this.clubAppAnswersService.createAppAnswer(clubId, user.id, body);
   }

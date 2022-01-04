@@ -10,25 +10,22 @@
         <v-row>
           <v-col cols="2">
             <v-card rounded="lg">
-              <v-list color="transparent">
-                <v-list-item v-for="n in 5" :key="n" link>
-                  <v-list-item-content>
-                    <v-list-item-title> List Item {{ n }} </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider v-if="isManager" />
-                <v-list-item v-if="isManager" nuxt append to="setting">
-                  <v-list-item-content>
-                    <v-list-item-title> 동아리 관리 </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
+              <ClubSidebar />
             </v-card>
           </v-col>
 
           <v-col>
             <v-card min-height="70vh" rounded="lg">
-              <!--  -->
+              <v-card-text>
+                {{ onlineClub.name }}
+              </v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">g</v-col>
+                  <v-col cols="6">g</v-col>
+                  <v-col cols="6">g</v-col>
+                </v-row>
+              </v-container>
             </v-card>
           </v-col>
         </v-row>
@@ -51,21 +48,13 @@ export default {
     const clubId = Number(params.id);
     await store.dispatch("clubChats/loadClubChats", { clubId });
     console.log(store.state.users.me?.ClubMembers);
-    return {
-      isManager:
-        store.state.users.me?.ClubMembers.find(
-          ({ ClubId }) => ClubId === clubId
-        ).role === "manager",
-    };
   },
   computed: {
     ...clubsHelper.mapState(["onlineClub"]),
     ...usersHelper.mapState(["me"]),
   },
 
-  data: () => ({
-    links: ["Dashboard", "Messages", "Profile", "Updates"],
-  }),
+  data: () => ({}),
 };
 </script>
 

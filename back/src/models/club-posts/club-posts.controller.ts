@@ -13,13 +13,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
 import { ClubMember } from 'src/common/decorators/club-member.decorator';
 import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
-import { User } from 'src/common/decorators/user.decorator';
 import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
 import {
   ClubMembers,
   ClubMembersRoleEnum,
 } from '../club-members/entities/club-members.entity';
-import { Users } from '../users/entities/users.entity';
 import { ClubPostsService } from './club-posts.service';
 import { CreatePostBody } from './dto/create-post.dto';
 import { UpdatePostBody } from './dto/update-post.dto';

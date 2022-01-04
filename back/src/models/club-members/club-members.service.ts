@@ -25,16 +25,18 @@ export class ClubMembersService {
     clubId: number,
     userId: number,
     clubAppAnswerId: number,
+    nickname: string,
   ): Promise<void> {
     const isMember = await this.clubMembersRepository.findOne({
       where: { UserId: userId, ClubId: clubId },
     });
-    if (!isMember)
+    if (isMember)
       throw new UnauthorizedException('이미 가입되어 있는 회원입니다.');
 
     const clubMembers = new ClubMembers();
     clubMembers.UserId = userId;
     clubMembers.ClubId = clubId;
+    clubMembers.nickname = nickname;
 
     const clubAppAnswers = await this.clubAppAnswersRepository.findOne({
       where: { id: clubAppAnswerId },

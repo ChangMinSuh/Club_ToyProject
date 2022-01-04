@@ -21,6 +21,11 @@ export class ClubAppAnswers extends CoreEntity {
 
   @IsString()
   @IsNotEmpty()
+  @Column('varchar', { name: 'nickname', length: 20 })
+  nickname: string;
+
+  @IsString()
+  @IsNotEmpty()
   @Column('enum', {
     name: 'status',
     enum: ClubAppAnswerStatusEnum,

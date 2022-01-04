@@ -19,6 +19,27 @@
           <v-card-text>
             {{ answers }}
             <v-container>
+              <v-row>
+                <v-col cols="12">
+                  <span class="text-h5"
+                    >0. 동아리에서 사용할 닉네임을 적어주세요.</span
+                  >
+                </v-col>
+                <v-col cols="12">
+                  <validation-provider
+                    rules="required|max:20"
+                    v-slot="{ errors }"
+                  >
+                    <v-text-field
+                      v-model="nickname"
+                      label="question*"
+                      required
+                      counter="20"
+                      :error-messages="errors"
+                    />
+                  </validation-provider>
+                </v-col>
+              </v-row>
               <v-row
                 v-for="(clubAppQuestion, index) of clubAppQuestions"
                 :key="index"
@@ -107,10 +128,12 @@ export default {
   data: () => ({
     dialog: false,
     answers: [],
+    nickname: "",
   }),
 
   methods: {
     ...clubSettingsHelper.mapActions(["pushClubAppAnswers"]),
+
     async onSubmit() {
       try {
         await this.$refs.form.validate();
@@ -121,6 +144,7 @@ export default {
         }));
         const clubId = this.clubIntroduce?.Club?.id;
         await this.pushClubAppAnswers({
+          nickname: this.nickname,
           clubAppAnswerItems,
           clubId,
         });

@@ -1,4 +1,4 @@
-import { IsNumber } from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
 
 export class CreateMemberBody {
   @IsNumber()
@@ -6,4 +6,7 @@ export class CreateMemberBody {
 
   @IsNumber()
   clubAppAnswerId: number;
+
+  @IsString()
+  nickname: string;
 }

@@ -16,6 +16,8 @@ export const getters = {
   allClubsLength: (state) => state.allClubs.length,
   allClubsPart: (state) => (page, MaxClubInPage) =>
     state.allClubs.slice((page - 1) * MaxClubInPage, page * MaxClubInPage),
+
+  clubId: (state) => state.onlineClub.id,
 };
 
 export const mutations = {
@@ -127,6 +129,7 @@ export const actions = {
     await this.$axios.post(`/clubs/${payload.clubId}/members`, {
       userId: payload.userId,
       clubAppAnswerId: payload.clubAppAnswerId,
+      nickname: payload.nickname,
     });
   },
 };

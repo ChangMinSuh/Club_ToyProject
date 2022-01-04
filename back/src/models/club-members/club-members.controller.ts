@@ -28,12 +28,13 @@ export class ClubMembersController {
   @Post()
   createMember(
     @Param('clubId', ParseIntPipe) clubId: number,
-    @Body() { userId, clubAppAnswerId }: CreateMemberBody,
+    @Body() { userId, clubAppAnswerId, nickname }: CreateMemberBody,
   ): Promise<void> {
     return this.clubMembersService.createMemberAndUpdateAppAnswer(
       clubId,
       userId,
       clubAppAnswerId,
+      nickname,
     );
   }
 

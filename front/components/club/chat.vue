@@ -133,7 +133,7 @@ export default {
       if (!clubChat.ClubMember) {
         return "(??)";
       }
-      return clubChat.Members.nickname.slice(0, 2);
+      return clubChat.ClubMember.nickname.slice(0, 2);
     },
   },
 };

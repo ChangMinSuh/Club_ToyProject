@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import { Users } from '../users/entities/users.entity';
+import { CreateAppAnswersBody } from './dto/create-app-answer.dto';
 import { ClubAppAnswerItems } from './entities/club-app-answers-item.entity';
 import {
   ClubAppAnswers,
@@ -20,10 +21,15 @@ export class ClubAppAnswersService {
     private readonly clubAppAnswerItemsRepository: Repository<ClubAppAnswerItems>,
   ) {}
 
-  async createAppAnswer(clubId: number, userId: number, body): Promise<void> {
+  async createAppAnswer(
+    clubId: number,
+    userId: number,
+    body: CreateAppAnswersBody,
+  ): Promise<void> {
     const clubAppAnswer = new ClubAppAnswers();
     clubAppAnswer.ClubId = clubId;
     clubAppAnswer.UserId = userId;
+    clubAppAnswer.nickname = body.nickname;
 
     const clubAppAnswerItems = body.clubAppAnswerItems.map(
       (clubAppAnswerItem) => ({
