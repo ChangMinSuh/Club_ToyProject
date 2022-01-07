@@ -1,9 +1,10 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { getConnectionToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Clubs } from 'src/models/clubs/entities/clubs.entity';
 import { Users } from 'src/models/users/entities/users.entity';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
+import { ClubAppAnswers } from '../club-app-answers/entities/club-app-answers.entity';
 import { ClubChats } from '../club-chats/entities/club-chats';
 import { ClubsService } from './clubs.service';
 
@@ -20,20 +21,28 @@ const mockRepository = () => ({
     getOne: jest.fn(),
   }),
   findOne: jest.fn(),
+  find: jest.fn(),
   save: jest.fn(),
+});
+const mockConnection = () => ({
+  transaction: jest.fn(),
 });
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
+type MockConnection = Partial<Record<keyof Connection, jest.Mock>>;
 
 describe('ClubsService', () => {
   let service: ClubsService;
+  let connection: MockConnection;
   let clubsRepository: MockRepository<Clubs>;
   let usersRepository: MockRepository<Users>;
   let clubChatsRepository: MockRepository<ClubChats>;
+  let clubAppAnswersRepository: MockRepository<ClubAppAnswers>;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ClubsService,
+        { provide: getConnectionToken(), useValue: mockConnection() },
         {
           provide: getRepositoryToken(Clubs),
           useValue: mockRepository(),
@@ -46,101 +55,66 @@ describe('ClubsService', () => {
           provide: getRepositoryToken(ClubChats),
           useValue: mockRepository(),
         },
+        {
+          provide: getRepositoryToken(ClubAppAnswers),
+          useValue: mockRepository(),
+        },
       ],
     }).compile();
 
     service = module.get<ClubsService>(ClubsService);
+    connection = module.get(getConnectionToken());
     clubsRepository = module.get(getRepositoryToken(Clubs));
     usersRepository = module.get(getRepositoryToken(Users));
     clubChatsRepository = module.get(getRepositoryToken(ClubChats));
+    clubAppAnswersRepository = module.get(getRepositoryToken(ClubAppAnswers));
   });
+
+  const ClubTmp = {
+    id: 3,
+    name: '축구하자',
+    explanation: '하하하하',
+    createdAt: '2021-11-05T06:02:15.996Z',
+    updatedAt: '2021-11-05T06:02:15.996Z',
+    Owner: {
+      id: 7,
+      email: 'timssuh@naver.com',
+      nickname: '123',
+      createdAt: '2021-11-04T09:33:58.449Z',
+      updatedAt: '2021-11-04T09:33:58.449Z',
+    },
+  };
+
+  const UserTmp = {
+    id: 1,
+    email: 'timssuh@naver.com',
+    password: '123',
+    nickname: '생각생각',
+  };
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('findAllClubs', () => {
-    it('should find all clubs', async () => {
-      const allClubs = [
-        {
-          id: 3,
-          name: '축구하자',
-          explanation: '하하하하',
-          createdAt: '2021-11-05T06:02:15.996Z',
-          updatedAt: '2021-11-05T06:02:15.996Z',
-          Owner: {
-            id: 7,
-            email: 'timssuh@naver.com',
-            nickname: '123',
-            createdAt: '2021-11-04T09:33:58.449Z',
-            updatedAt: '2021-11-04T09:33:58.449Z',
-          },
-        },
-      ];
-      const mockGetMany = clubsRepository
-        .createQueryBuilder()
-        .leftJoinAndSelect().getMany;
-      mockGetMany.mockResolvedValue(allClubs);
-      const result = await service.findAllClubs();
-      expect(mockGetMany).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(allClubs);
-    });
-  });
-
-  describe('findMyClubs', () => {
-    const findMyClubsArgs = {
-      userId: 7,
-    };
-
-    it('should return my clubs', async () => {
-      const allClubs = [
-        {
-          id: 3,
-          name: '축구하자',
-          explanation: '하하하하',
-          createdAt: '2021-11-05T06:02:15.996Z',
-          updatedAt: '2021-11-05T06:02:15.996Z',
-          Owner: {
-            id: 7,
-            email: 'timssuh@naver.com',
-            nickname: '123',
-            createdAt: '2021-11-04T09:33:58.449Z',
-            updatedAt: '2021-11-04T09:33:58.449Z',
-          },
-        },
-      ];
-      const mockGetMany = clubsRepository
-        .createQueryBuilder()
-        .leftJoin()
-        .where()
-        .leftJoinAndSelect().getMany;
-      mockGetMany.mockResolvedValue(allClubs);
-
-      const result = await service.findMyClubs(findMyClubsArgs);
-
-      expect(mockGetMany).toHaveBeenCalledTimes(1);
-
-      expect(result).toEqual(allClubs);
-    });
-  });
-
-  describe('setClub', () => {
-    const setClubArgs = {
-      userId: 7,
+  describe('createClub', () => {
+    const createClubArgs = {
+      userId: 1,
       body: {
-        name: '배구하자',
-        explanation: '하키하키하',
+        name: '축구하자',
+        explanation: '풋살도',
+        nickname: '생각생각',
       },
     };
 
-    it('The club name overlaps', async () => {
-      clubsRepository.findOne.mockResolvedValue(setClubArgs);
+    it('club name is exist', async () => {
+      clubsRepository.findOne.mockResolvedValue(ClubTmp);
       try {
-        await service.setClub(setClubArgs.userId, setClubArgs.body);
+        await service.createClub(createClubArgs.userId, createClubArgs.body);
+        expect(clubsRepository.findOne).toBeUndefined();
       } catch (error) {
-        expect(clubsRepository.findOne).toHaveBeenCalledTimes(1);
+        expect(clubsRepository.findOne).toHaveBeenCalled();
         expect(clubsRepository.findOne).toHaveBeenCalledWith({
-          name: setClubArgs.body.name,
+          name: createClubArgs.body.name,
         });
 
         expect(error).toBeInstanceOf(ConflictException);
@@ -150,97 +124,124 @@ describe('ClubsService', () => {
 
     it('user does not exist', async () => {
       clubsRepository.findOne.mockResolvedValue(undefined);
-      usersRepository.findOne.mockResolvedValue({ userId: 7 });
+      usersRepository.findOne.mockResolvedValue(undefined);
       try {
-        await service.setClub(setClubArgs.userId, setClubArgs.body);
+        await service.createClub(createClubArgs.userId, createClubArgs.body);
+        expect(usersRepository.findOne).toEqual(UserTmp);
       } catch (error) {
         expect(clubsRepository.findOne).toHaveBeenCalledTimes(1);
         expect(clubsRepository.findOne).toHaveBeenCalledWith({
-          name: setClubArgs.body.name,
+          name: createClubArgs.body.name,
         });
 
         expect(usersRepository.findOne).toHaveBeenCalledTimes(1);
-        expect(usersRepository.findOne).toHaveBeenCalledWith(
-          expect.any(Object),
-        );
-
-        expect(error).toBeInstanceOf(UnauthorizedException);
+        expect(usersRepository.findOne).toHaveBeenCalledWith({
+          id: createClubArgs.userId,
+        });
+        expect(error).toBeInstanceOf(ConflictException);
         expect(error.message).toBe('존재하지 않는 사용자입니다.');
       }
     });
 
-    it('should return a club', async () => {
+    it('should create club', async () => {
+      const mockedManager = {
+        getRepository: jest.fn().mockReturnValue({
+          save: jest.fn(),
+        }),
+      };
       clubsRepository.findOne.mockResolvedValue(undefined);
-      usersRepository.findOne.mockResolvedValue({ userId: 7 });
-      clubsRepository.save.mockResolvedValue(setClubArgs);
-
-      const result = await service.setClub(
-        setClubArgs.userId,
-        setClubArgs.body,
-      );
-
-      expect(usersRepository.findOne).toHaveBeenCalledTimes(1);
-      expect(usersRepository.findOne).toHaveBeenCalledWith({
-        id: setClubArgs.userId,
+      usersRepository.findOne.mockResolvedValue(UserTmp);
+      connection.transaction.mockImplementation((cb) => {
+        cb(mockedManager);
       });
 
-      expect(clubsRepository.save).toHaveBeenCalledTimes(1);
-      expect(clubsRepository.save).toHaveBeenCalledWith(expect.any(Object));
+      await service.createClub(createClubArgs.userId, createClubArgs.body);
 
-      expect(result).toBe('success');
+      expect(clubsRepository.findOne).toHaveBeenCalled();
+      expect(clubsRepository.findOne).toHaveBeenCalledWith({
+        name: createClubArgs.body.name,
+      });
+
+      expect(usersRepository.findOne).toHaveBeenCalled();
+      expect(usersRepository.findOne).toHaveBeenCalledWith({
+        id: createClubArgs.userId,
+      });
+
+      expect(connection.transaction).toHaveBeenCalled();
+      expect(mockedManager.getRepository).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('findAllClubs', () => {
+    it('should find all clubs', async () => {
+      clubsRepository.find.mockResolvedValue([ClubTmp]);
+
+      const result = await service.findAllClubs();
+
+      expect(clubsRepository.find).toHaveBeenCalledTimes(1);
+
+      expect(result).toEqual([ClubTmp]);
+    });
+  });
+
+  describe('findMyClubs', () => {
+    const findMyClubsArgs = {
+      userId: 7,
+    };
+
+    it('should return my clubs', async () => {
+      const mockGetMany = clubsRepository
+        .createQueryBuilder()
+        .leftJoin()
+        .where()
+        .leftJoinAndSelect().getMany;
+      mockGetMany.mockResolvedValue([ClubTmp]);
+
+      const result = await service.findMyClubs(findMyClubsArgs.userId);
+
+      expect(mockGetMany).toHaveBeenCalledTimes(1);
+
+      expect(result).toEqual([ClubTmp]);
+    });
+  });
+
+  describe('findMyWatingAppAnswers', () => {
+    const findMyWatingAppAnswersArgs = {
+      userId: 1,
+    };
+
+    it('should return myWatingAppAnswers', async () => {
+      clubAppAnswersRepository.find.mockResolvedValue({
+        ClubId: 3,
+        UserId: 1,
+        status: 'waiting',
+      });
+
+      const result = await service.findMyWatingAppAnswers(
+        findMyWatingAppAnswersArgs.userId,
+      );
+
+      expect(clubAppAnswersRepository.find).toHaveBeenCalledTimes(1);
+
+      expect(result).toEqual({
+        ClubId: 3,
+        UserId: 1,
+        status: 'waiting',
+      });
     });
   });
 
   describe('findOneClub', () => {
     const findOneClubArgs = {
       clubId: 3,
-      userId: 7,
     };
-
-    it('not part of the club', async () => {
-      const mockGetOne = clubsRepository
-        .createQueryBuilder()
-        .innerJoin()
-        .where()
-        .andWhere().getOne;
-      mockGetOne.mockResolvedValue(undefined);
-      try {
-        service.findOneClub(findOneClubArgs);
-      } catch (error) {
-        expect(mockGetOne).toHaveBeenCalledTimes(1);
-
-        expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(error.message).toBe('동아리에 가입되지 않았습니다.');
-      }
-    });
-
     it('should return a club', async () => {
-      const oneClub = {
-        id: 3,
-        name: '축구하자',
-        explanation: '하하하하',
-        createdAt: '2021-11-05T06:02:15.996Z',
-        updatedAt: '2021-11-05T06:02:15.996Z',
-        Owner: {
-          id: 7,
-          email: 'timssuh@naver.com',
-          nickname: '123',
-          createdAt: '2021-11-04T09:33:58.449Z',
-          updatedAt: '2021-11-04T09:33:58.449Z',
-        },
-      };
-      const mockGetOne = clubsRepository
-        .createQueryBuilder()
-        .innerJoin()
-        .where()
-        .andWhere().getOne;
-      mockGetOne.mockResolvedValue(oneClub);
+      clubsRepository.findOne.mockResolvedValue(ClubTmp);
+      const result = await service.findOneClub(findOneClubArgs.clubId);
 
-      const result = await service.findOneClub(findOneClubArgs);
+      expect(clubsRepository.findOne).toHaveBeenCalledTimes(1);
 
-      expect(mockGetOne).toHaveBeenCalledTimes(1);
-
-      expect(result).toEqual(oneClub);
+      expect(result).toEqual(ClubTmp);
     });
   });
 
@@ -252,11 +253,11 @@ describe('ClubsService', () => {
     it('club does not exist', async () => {
       clubsRepository.findOne.mockResolvedValue(undefined);
       try {
-        await service.getClubChat(getClubChatArgs);
+        await service.getClubChat(getClubChatArgs.clubId);
       } catch (error) {
         expect(clubsRepository.findOne).toHaveBeenCalledTimes(1);
 
-        expect(error).toBeInstanceOf(UnauthorizedException);
+        expect(error).toBeInstanceOf(ConflictException);
         expect(error.message).toBe('클럽이 존재하지 않습니다.');
       }
     });
@@ -282,24 +283,15 @@ describe('ClubsService', () => {
           },
         },
       ];
-      const mockGetMeny = clubChatsRepository
-        .createQueryBuilder()
-        .leftJoin()
-        .select()
-        .addSelect()
-        .where().getMany;
+      clubsRepository.findOne.mockResolvedValue(ClubTmp);
+      clubChatsRepository.find.mockResolvedValue(clubChats);
 
-      clubsRepository.findOne.mockResolvedValue({ id: 1 });
-      mockGetMeny.mockResolvedValue(clubChats);
-
-      const result = await service.getClubChat(getClubChatArgs);
-
-      expect(clubsRepository.findOne).toHaveBeenCalledTimes(1);
-      expect(clubsRepository.findOne).toHaveBeenCalledWith({
-        name: '축구하자',
+      const result = await service.getClubChat(getClubChatArgs.clubId);
+      expect(clubChatsRepository.find).toHaveBeenCalledTimes(1);
+      expect(clubChatsRepository.find).toHaveBeenCalledWith({
+        where: { ClubId: getClubChatArgs.clubId },
+        relations: ['ClubMember'],
       });
-
-      expect(mockGetMeny).toHaveBeenCalledTimes(1);
 
       expect(result).toEqual(clubChats);
     });

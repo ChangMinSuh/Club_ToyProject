@@ -1,11 +1,9 @@
 import { Entity, Column, DeleteDateColumn, Index, OneToMany } from 'typeorm';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Clubs } from '../../clubs/entities/clubs.entity';
-import { ClubChats } from '../../club-chats/entities/club-chats';
 import { ClubMembers } from '../../club-members/entities/club-members.entity';
 import { ClubAppAnswers } from '../../club-app-answers/entities/club-app-answers.entity';
 import { CoreEntity } from '../../../common/entities/core.entity';
-import { ClubPosts } from '../../club-posts/entities/club-posts.entity';
 
 @Index('email', ['email'], { unique: true })
 @Entity({ name: 'users' })
@@ -26,7 +24,7 @@ export class Users extends CoreEntity {
   nickname: string;
 
   @DeleteDateColumn({ select: false })
-  deletedAt: Date;
+  deletedAt: Date | null;
 
   @OneToMany(() => ClubMembers, (clubMembers) => clubMembers.User)
   ClubMembers: ClubMembers[];

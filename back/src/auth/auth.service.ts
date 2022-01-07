@@ -88,9 +88,6 @@ export class AuthService {
     await this.redisManager.set(`user:${user.id}`, user, {
       ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
     });
-    this.redisManager
-      .get(`user:${user.id}`)
-      .then((data) => console.log('redis에 있는 user:', data));
   }
 
   async getUserInDb(userId: number): Promise<Users> {

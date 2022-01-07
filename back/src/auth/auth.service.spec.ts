@@ -13,6 +13,9 @@ import { AuthService } from './auth.service';
 
 const mockRepository = () => ({
   createQueryBuilder: jest.fn().mockReturnValue({
+    select: jest.fn().mockReturnThis(),
+    addSelect: jest.fn().mockReturnThis(),
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     getOne: jest.fn(),
   }),
@@ -75,7 +78,13 @@ describe('AuthService', () => {
     };
 
     it('email is not correct', async () => {
-      usersRepository.findOne.mockResolvedValue(undefined);
+      const mockGetOne = usersRepository
+        .createQueryBuilder()
+        .select()
+        .addSelect()
+        .leftJoinAndSelect()
+        .where().getOne;
+      mockGetOne.mockResolvedValue(undefined);
       try {
         await service.validateUser(validateUserArgs);
       } catch (error) {
@@ -88,7 +97,13 @@ describe('AuthService', () => {
       const user = {
         password: 'wrong password',
       };
-      usersRepository.findOne.mockResolvedValue(user);
+      const mockGetOne = usersRepository
+        .createQueryBuilder()
+        .select()
+        .addSelect()
+        .leftJoinAndSelect()
+        .where().getOne;
+      mockGetOne.mockResolvedValue(user);
       try {
         await service.validateUser(validateUserArgs);
       } catch (error) {
@@ -105,12 +120,18 @@ describe('AuthService', () => {
         password:
           '$2b$12$Y5bCFj3TuffgF8ip26m86.dK9Vt9FtdXUC0b8SDp/YFWH65uMMVMS',
       };
-      usersRepository.findOne.mockResolvedValue(user);
+      const mockGetOne = usersRepository
+        .createQueryBuilder()
+        .select()
+        .addSelect()
+        .leftJoinAndSelect()
+        .where().getOne;
+      mockGetOne.mockResolvedValue(user);
 
       const result = await service.validateUser(validateUserArgs);
 
       expect(result).toEqual({
-        userId: user.id,
+        id: user.id,
         nickname: user.nickname,
         email: user.email,
       });
@@ -119,11 +140,9 @@ describe('AuthService', () => {
 
   describe('getCookieWithAccessToken', () => {
     const getCookieWithAccessTokenArgs = {
-      payload: {
-        userId: '7',
-        nickname: '123',
-        email: 'timssuh@naver.com',
-      },
+      userId: '7',
+      nickname: '123',
+      email: 'timssuh@naver.com',
     };
 
     it('should be return access token', async () => {
@@ -165,15 +184,18 @@ describe('AuthService', () => {
 
   describe('setRefreshTokenInDb', () => {
     const setRefreshTokenInDbArgs = {
+      userId: 7,
       refreshToken: 'refresh_token',
-      userId: '7',
     };
     it('should be set refresh token in redis', async () => {
-      await service.setRefreshTokenInDb(setRefreshTokenInDbArgs);
+      await service.setRefreshTokenInDb(
+        setRefreshTokenInDbArgs.refreshToken,
+        setRefreshTokenInDbArgs.userId,
+      );
 
       expect(redisManager.set).toHaveBeenCalledTimes(1);
       expect(redisManager.set).toHaveBeenCalledWith(
-        setRefreshTokenInDbArgs.userId.toString(),
+        `user:refresh:${setRefreshTokenInDbArgs.userId}`,
         expect.any(String),
         expect.any(Object),
       );
@@ -182,15 +204,55 @@ describe('AuthService', () => {
 
   describe('deleteRefreshTokenInDb', () => {
     const deleteRefreshTokenInDbArgs = {
-      userId: '7',
+      userId: 7,
     };
     it('should be set refresh token in redis', async () => {
-      await service.deleteRefreshTokenInDb(deleteRefreshTokenInDbArgs);
+      await service.deleteRefreshTokenInDb(deleteRefreshTokenInDbArgs.userId);
 
       expect(redisManager.del).toHaveBeenCalledTimes(1);
       expect(redisManager.del).toHaveBeenCalledWith(
-        deleteRefreshTokenInDbArgs.userId.toString(),
+        `user:refresh:${deleteRefreshTokenInDbArgs.userId}`,
       );
+    });
+  });
+
+  describe('setUserInDb', () => {
+    const setUserInDbArgs = new Users();
+    setUserInDbArgs.id = 1;
+
+    it('should be success setUserInDb', async () => {
+      redisManager.set.mockResolvedValue(null);
+
+      await service.setUserInDb(setUserInDbArgs);
+
+      expect(redisManager.set).toHaveBeenCalled();
+      expect(redisManager.set).toHaveBeenCalledWith(
+        `user:${setUserInDbArgs.id}`,
+        setUserInDbArgs,
+        expect.any(Object),
+      );
+    });
+  });
+
+  describe('getUserInDb', () => {
+    const getUserInDbArgs = {
+      userId: 1,
+    };
+
+    it('should be get user in db', async () => {
+      redisManager.get.mockResolvedValue({
+        email: 'timssuh@naver.com',
+      });
+      const result = await service.getUserInDb(getUserInDbArgs.userId);
+
+      expect(redisManager.get).toHaveBeenCalled();
+      expect(redisManager.get).toHaveBeenCalledWith(
+        `user:${getUserInDbArgs.userId}`,
+      );
+
+      expect(result).toEqual({
+        email: 'timssuh@naver.com',
+      });
     });
   });
 
@@ -233,47 +295,11 @@ describe('AuthService', () => {
         '$2b$10$tC2msSkFVeE3w.6nbm9.YefrvapgywLu26zuzF4dFv8BxwEuM1L7O',
       );
 
-      const result = await service.getUserIfRefreshTokenMatches(
+      await service.getUserIfRefreshTokenMatches(
         getUserIfRefreshTokenMatchesArgs,
       );
 
-      expect(redisManager.get).toHaveBeenCalledTimes(1);
-      expect(redisManager.get).toHaveBeenCalledWith(expect.any(Number));
-
-      expect(result).toEqual(
-        getUserIfRefreshTokenMatchesArgs.decodedAccessToken,
-      );
-    });
-  });
-  describe('signUp', () => {
-    const signUpArgs = {
-      email: 'abc@naver.com',
-      password: '123',
-      nickname: '신규',
-    };
-
-    it('email is exist', async () => {
-      const mockGetOne = usersRepository.createQueryBuilder().where().getOne;
-      mockGetOne.mockResolvedValue(signUpArgs);
-
-      try {
-        await service.signUp(signUpArgs);
-      } catch (error) {
-        expect(error).toBeInstanceOf(ConflictException);
-        expect(error.message).toBe('This email exists.');
-      }
-    });
-
-    it('should be success signUp', async () => {
-      const mockGetOne = usersRepository.createQueryBuilder().where().getOne;
-      mockGetOne.mockResolvedValue(null);
-
-      await service.signUp(signUpArgs);
-
-      expect(mockGetOne).toHaveBeenCalledTimes(1);
-
-      expect(usersRepository.save).toHaveBeenCalledTimes(1);
-      expect(usersRepository.save).toHaveBeenCalledWith(expect.any(Object));
+      expect(redisManager.get).toHaveBeenCalledTimes(2);
     });
   });
 });

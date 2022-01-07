@@ -4,8 +4,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GetClubChatsDataDto } from 'src/models/club-chats/dto/get-clubchats-data.dto';
-import { ClubIntroduces } from 'src/models/club-introduces/entities/club-introduces.entity';
 import { Clubs } from './entities/clubs.entity';
 import { Connection, Repository } from 'typeorm';
 import {
@@ -13,7 +11,6 @@ import {
   ClubMembersRoleEnum,
 } from 'src/models/club-members/entities/club-members.entity';
 import { ClubChats } from '../club-chats/entities/club-chats';
-import { ClubAppQuestions } from '../club-app-questions/entities/club-app-questions.entity';
 import { Users } from '../users/entities/users.entity';
 import { CreateClubBody } from './dtos/create-club.dto';
 import {
@@ -29,8 +26,6 @@ export class ClubsService {
     private readonly clubsRepository: Repository<Clubs>,
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
-    @InjectRepository(ClubMembers)
-    private readonly clubMembersRepository: Repository<ClubMembers>,
     @InjectRepository(ClubChats)
     private readonly clubChatsRepository: Repository<ClubChats>,
     @InjectRepository(ClubAppAnswers)
@@ -48,7 +43,7 @@ export class ClubsService {
 
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
-      throw new UnauthorizedException('존재하지 않는 사용자입니다.');
+      throw new ConflictException('존재하지 않는 사용자입니다.');
     }
 
     const club = new Clubs();
@@ -88,7 +83,6 @@ export class ClubsService {
     const result = await this.clubAppAnswersRepository.find({
       where: { UserId: userId, status: ClubAppAnswerStatusEnum.Waiting },
     });
-    console.log(result);
     return result;
   }
 
@@ -103,7 +97,7 @@ export class ClubsService {
   async getClubChat(clubId: number): Promise<ClubChats[]> {
     const club = await this.clubsRepository.findOne({ id: clubId });
     if (!club) {
-      throw new UnauthorizedException('클럽이 존재하지 않습니다.');
+      throw new ConflictException('클럽이 존재하지 않습니다.');
     }
 
     const result = await this.clubChatsRepository.find({

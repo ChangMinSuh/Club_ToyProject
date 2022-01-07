@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
-import { Users } from '../users/entities/users.entity';
 import { CreateAppAnswersBody } from './dto/create-app-answer.dto';
 import { ClubAppAnswerItems } from './entities/club-app-answers-item.entity';
 import {
@@ -13,12 +12,8 @@ import {
 export class ClubAppAnswersService {
   constructor(
     private readonly connection: Connection,
-    @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>,
     @InjectRepository(ClubAppAnswers)
     private readonly clubAppAnswersRepository: Repository<ClubAppAnswers>,
-    @InjectRepository(ClubAppAnswerItems)
-    private readonly clubAppAnswerItemsRepository: Repository<ClubAppAnswerItems>,
   ) {}
 
   async createAppAnswer(

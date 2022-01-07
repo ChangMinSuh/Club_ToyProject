@@ -20,8 +20,8 @@ export class ClubAppQuestions extends CoreEntity {
   @IsString()
   @IsNotEmpty()
   @Column('enum', {
-    name: 'answer_type',
     enum: ClubAppQuestionTypeEnum,
+    name: 'answer_type',
     default: ClubAppQuestionTypeEnum.ShortText,
   })
   answer_type: ClubAppQuestionTypeEnum;

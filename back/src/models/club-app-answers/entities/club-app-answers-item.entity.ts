@@ -14,9 +14,8 @@ export class ClubAppAnswerItems extends CoreEntity {
   @IsString()
   @IsNotEmpty()
   @Column('enum', {
-    name: 'answer_type',
     enum: ClubAppQuestionTypeEnum,
-    default: ClubAppQuestionTypeEnum.ShortText,
+    name: 'answer_type',
   })
   answer_type: ClubAppQuestionTypeEnum;
 
