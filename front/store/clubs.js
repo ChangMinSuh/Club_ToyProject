@@ -57,7 +57,7 @@ export const actions = {
 
   async loadAllClubs({ state, commit, dispatch }) {
     try {
-      const res = await this.$axios.get("/clubs", {
+      const res = await this.$axios.$get("/clubs", {
         withCredentials: true,
       });
       commit("setAllClub", res?.data);
@@ -68,7 +68,7 @@ export const actions = {
 
   async loadMyClubs({ state, commit, dispatch }) {
     try {
-      const res = await this.$axios.get("/clubs/me", {
+      const res = await this.$axios.$get("/clubs/me", {
         withCredentials: true,
       });
       commit("setMyClubs", res?.data);
@@ -79,7 +79,7 @@ export const actions = {
 
   async loadMyAppAnswers({ commit }, payload) {
     try {
-      const res = await this.$axios.get("/clubs/me/app/answers");
+      const res = await this.$axios.$get("/clubs/me/app/answers");
       commit("setMyAppAnswers", res.data);
     } catch (err) {
       console.error(err);
@@ -88,7 +88,7 @@ export const actions = {
 
   async loadOneClubById({ commit }, { clubId }) {
     try {
-      const res = await this.$axios.get(`/clubs/${clubId}`);
+      const res = await this.$axios.$get(`/clubs/${clubId}`);
       commit("setOnlineClub", res.data);
       return true;
     } catch (err) {
@@ -99,7 +99,7 @@ export const actions = {
 
   async createClubs({ state, commit, dispatch }, payload) {
     try {
-      const res = await this.$axios.post("/clubs", payload, {
+      const res = await this.$axios.$post("/clubs", payload, {
         withCredentials: true,
       });
     } catch (err) {
@@ -108,7 +108,7 @@ export const actions = {
   },
   async getClubIntroduce({ commit }, payload) {
     try {
-      const res = await this.$axios.get(`/clubs/${payload.id}/introduce`, {
+      const res = await this.$axios.$get(`/clubs/${payload.id}/introduce`, {
         withCredentials: true,
       });
       const clubIntroduce = {
@@ -126,7 +126,7 @@ export const actions = {
   },
 
   async addUserClubs({ commit }, payload) {
-    await this.$axios.post(`/clubs/${payload.clubId}/members`, {
+    await this.$axios.$post(`/clubs/${payload.clubId}/members`, {
       userId: payload.userId,
       clubAppAnswerId: payload.clubAppAnswerId,
       nickname: payload.nickname,

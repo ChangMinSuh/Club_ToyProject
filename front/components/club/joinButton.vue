@@ -149,6 +149,7 @@ export default {
           clubId,
         });
         this.answers = [];
+        this.$nuxt.refresh();
       } catch (err) {
         console.error(err);
       }

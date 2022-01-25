@@ -10,18 +10,14 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ValidateUserDto } from 'src/auth/dto/validate-user';
 import { JwtAccessWsGuard } from 'src/auth/guards/jwt-access-ws.guard';
-import { UserWs } from 'src/common/decorators/user-ws.decorator';
-import { ClubMembers } from '../club-members/entities/club-members.entity';
-import { Users } from '../users/entities/users.entity';
 import { ClubChatsService } from './club-chats.service';
 import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 
 @WebSocketGateway(80, {
   namespace: /\/clubChat-.+/,
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'http://localhost:4000',
     credentials: true,
   },
 })

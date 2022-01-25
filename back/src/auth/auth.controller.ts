@@ -35,7 +35,7 @@ export class AuthController {
       throw new Error(err);
     }
 
-    // redis 실패했을 떄 어떻게 할지 작성
+    // redis 실패했을 때 어떻게 할지 작성
     res.cookie('Authentication', accessToken, accessTokenOption);
     res.cookie('Refresh', refreshToken, refreshTokenOption);
     return user;
@@ -56,7 +56,10 @@ export class AuthController {
   @Post('logout')
   @UseGuards(JwtAccessGuard)
   async logout(@User() user: Users, @Res({ passthrough: true }) res: Response) {
-    await this.authService.deleteRefreshTokenInDb(user.id);
+    await Promise.all([
+      this.authService.deleteRefreshTokenInDb(user.id),
+      this.authService.deleteUserInDb(user.id),
+    ]);
     res.clearCookie('Authentication');
     res.clearCookie('Refresh');
     return;

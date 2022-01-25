@@ -3,7 +3,6 @@ import {
   Injectable,
   CACHE_MANAGER,
   UnauthorizedException,
-  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/models/users/entities/users.entity';
@@ -93,6 +92,10 @@ export class AuthService {
   async getUserInDb(userId: number): Promise<Users> {
     const result = await this.redisManager.get<Users>(`user:${userId}`);
     return result;
+  }
+
+  async deleteUserInDb(userId: number) {
+    await this.redisManager.del(`user:${userId}`);
   }
 
   async getUserIfRefreshTokenMatches({

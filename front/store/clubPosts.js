@@ -20,7 +20,7 @@ export const mutations = {
 export const actions = {
   async loadAllPosts({ commit }, payload) {
     try {
-      const res = await this.$axios.get(`clubs/${payload.clubId}/posts`);
+      const res = await this.$axios.$get(`clubs/${payload.clubId}/posts`);
       commit("setAllPosts", res.data);
     } catch (err) {
       console.error(err);
@@ -29,7 +29,7 @@ export const actions = {
 
   async loadOnePost({ commit }, payload) {
     try {
-      const res = await this.$axios.get(
+      const res = await this.$axios.$get(
         `clubs/${payload.clubId}/posts/${payload.postId}`
       );
       commit("setOnePost", res.data);
@@ -40,7 +40,7 @@ export const actions = {
 
   async pushPost({ commit }, payload) {
     try {
-      await this.$axios.post(`clubs/${payload.clubId}/posts`, {
+      await this.$axios.$post(`clubs/${payload.clubId}/posts`, {
         title: payload.title,
         content: payload.content,
       });
@@ -51,7 +51,7 @@ export const actions = {
 
   async updatePost({}, payload) {
     try {
-      await this.$axios.patch(
+      await this.$axios.$patch(
         `clubs/${payload.clubId}/posts/${payload.postId}`,
         {
           title: payload.title,
@@ -65,7 +65,7 @@ export const actions = {
 
   async removePost({}, payload) {
     try {
-      await this.$axios.delete(
+      await this.$axios.$delete(
         `clubs/${payload.clubId}/posts/${payload.postId}`
       );
     } catch (err) {

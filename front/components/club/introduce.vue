@@ -38,7 +38,7 @@
     <v-divider></v-divider>
     <v-row>
       <v-card-text>
-        {{ clubIntroduce.introduce.longExplanation }}
+        <!-- {{ clubIntroduce.introduce.longExplanation }} -->
       </v-card-text>
     </v-row>
   </v-container>

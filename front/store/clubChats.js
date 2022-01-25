@@ -17,7 +17,7 @@ export const mutations = {
 export const actions = {
   async loadClubChats({ state, commit, dispatch }, { clubId }) {
     try {
-      const res = await this.$axios.get(`/clubs/${clubId}/chats`, {
+      const res = await this.$axios.$get(`/clubs/${clubId}/chats`, {
         withCredentials: true,
       });
       commit("setClubChats", res.data);

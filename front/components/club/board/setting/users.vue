@@ -247,7 +247,7 @@
                           <v-btn
                             color="blue darken-1"
                             text
-                            @click.native="rejectApp"
+                            @click.native="rejectApp(allAppAnswer.id)"
                             >거절하기</v-btn
                           >
                           <v-btn
@@ -314,7 +314,7 @@ export default {
       "removeClubAppQuestions",
     ]),
     ...clubsHelper.mapActions(["addUserClubs"]),
-
+    ...clubSettingsHelper.mapActions(["updateClubAppAnswerStatus"]),
     async updateBtn() {
       this.isUpdatingQuestion = true;
     },
@@ -330,8 +330,18 @@ export default {
       }
     },
 
-    async rejectApp() {
+    async rejectApp(clubAppAnswerId) {
       try {
+        if (confirm("정말 거절하시겠습니까?")) {
+          await this.updateClubAppAnswerStatus({
+            clubId: this.onlineClub.id,
+            clubAppAnswerId,
+            status: "failed",
+          });
+          alert("회원이 되었습니다.");
+          this.dialog = false;
+          this.$nuxt.refresh();
+        }
       } catch (err) {
         console.error(err);
       }
@@ -348,6 +358,7 @@ export default {
           });
           alert("회원이 되었습니다.");
           this.dialog = false;
+          this.$nuxt.refresh();
         }
       } catch (err) {
         console.error(err);

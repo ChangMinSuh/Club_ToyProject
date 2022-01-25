@@ -39,7 +39,7 @@ export const mutations = {
 export const actions = {
   async loadClubAppQuestions({ commit }, payload) {
     try {
-      const res = await this.$axios.get(
+      const res = await this.$axios.$get(
         `/clubs/${payload.clubId}/app/questions`
       );
       commit("setClubAppQuestions", res.data);
@@ -50,7 +50,7 @@ export const actions = {
 
   async pushClubAppQuestions({ commit }, payload) {
     try {
-      const res = await this.$axios.post(
+      const res = await this.$axios.$post(
         `/clubs/${payload.clubId}/app/questions`,
         {
           question: payload.question,
@@ -65,7 +65,7 @@ export const actions = {
 
   async updateClubAppQuestions({ commit }, payload) {
     try {
-      const res = await this.$axios.patch(
+      const res = await this.$axios.$patch(
         `/clubs/${payload.clubId}/app/questions/${payload.clubAppQuestionId}`,
         {
           question: payload.question,
@@ -78,7 +78,7 @@ export const actions = {
   },
   async removeClubAppQuestions({ commit }, payload) {
     try {
-      await this.$axios.delete(
+      await this.$axios.$delete(
         `/clubs/${payload.clubId}/app/questions/${payload.clubAppQuestionId}`
       );
       commit("removeClubAppQuestions", payload);
@@ -89,7 +89,7 @@ export const actions = {
 
   async findAllMembers({ commit }, payload) {
     try {
-      const res = await this.$axios.get(`/clubs/${payload.clubId}/members`);
+      const res = await this.$axios.$get(`/clubs/${payload.clubId}/members`);
       commit("setAllMembers", res.data);
     } catch (err) {
       console.error(err);
@@ -98,7 +98,7 @@ export const actions = {
 
   async findAllAppAnswers({ commit }, payload) {
     try {
-      const res = await this.$axios.get(
+      const res = await this.$axios.$get(
         `/clubs/${payload.clubId}/app/answers`,
         {
           params: { status: payload.status },
@@ -113,10 +113,24 @@ export const actions = {
   async pushClubAppAnswers({ commit }, payload) {
     try {
       console.log(payload);
-      await this.$axios.post(`/clubs/${payload.clubId}/app/answers`, {
+      await this.$axios.$post(`/clubs/${payload.clubId}/app/answers`, {
         clubAppAnswerItems: payload.clubAppAnswerItems,
         nickname: payload.nickname,
       });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  async updateClubAppAnswerStatus({ commit }, payload) {
+    try {
+      const res = await this.$axios.$patch(
+        `/clubs/${payload.clubId}/app/answers/${payload.clubAppAnswerId}/status`,
+        {
+          status: payload.status,
+        }
+      );
+      commit("updateClubAppQuestions", res.data);
     } catch (err) {
       console.error(err);
     }

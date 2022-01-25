@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClubIntroduces } from 'src/models/club-introduces/entities/club-introduces.entity';
 import { Clubs } from 'src/models/clubs/entities/clubs.entity';
@@ -9,6 +9,7 @@ import { ClubsService } from './clubs.service';
 import { ClubChats } from '../club-chats/entities/club-chats';
 import { ClubAppQuestions } from '../club-app-questions/entities/club-app-questions.entity';
 import { ClubAppAnswers } from '../club-app-answers/entities/club-app-answers.entity';
+import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
   imports: [
@@ -21,6 +22,12 @@ import { ClubAppAnswers } from '../club-app-answers/entities/club-app-answers.en
       ClubAppQuestions,
       ClubAppAnswers,
     ]),
+    CacheModule.register({
+      store: redisStore,
+      host: process.env.REDIS_HOST,
+      port: process.env.REDIS_PORT,
+      password: process.env.REDIS_PASSWORD,
+    }),
   ],
   controllers: [ClubsController],
   providers: [ClubsService],

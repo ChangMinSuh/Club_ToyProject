@@ -1,7 +1,8 @@
 import {
+  CACHE_MANAGER,
   ConflictException,
+  Inject,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Clubs } from './entities/clubs.entity';
@@ -17,11 +18,13 @@ import {
   ClubAppAnswers,
   ClubAppAnswerStatusEnum,
 } from '../club-app-answers/entities/club-app-answers.entity';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ClubsService {
   constructor(
-    private readonly connection: Connection,
+    @Inject(CACHE_MANAGER)
+    private readonly redisManager: Cache,
     @InjectRepository(Clubs)
     private readonly clubsRepository: Repository<Clubs>,
     @InjectRepository(Users)
@@ -30,6 +33,7 @@ export class ClubsService {
     private readonly clubChatsRepository: Repository<ClubChats>,
     @InjectRepository(ClubAppAnswers)
     private readonly clubAppAnswersRepository: Repository<ClubAppAnswers>,
+    private readonly connection: Connection,
   ) {}
 
   async createClub(
@@ -61,6 +65,13 @@ export class ClubsService {
       await manager.getRepository(Clubs).save(club);
       await manager.getRepository(ClubMembers).save(clubMembers);
     });
+    // redis 업데이트
+    const userInRedis = await this.redisManager.get<Users>(`user:${userId}`);
+    userInRedis.ClubMembers.push(clubMembers);
+    await this.redisManager.set(`user:${userId}`, userInRedis, {
+      ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
+    });
+    return;
   }
 
   async findAllClubs(): Promise<Clubs[]> {

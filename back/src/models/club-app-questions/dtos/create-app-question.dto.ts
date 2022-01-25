@@ -4,4 +4,4 @@ import { ClubAppQuestions } from '../entities/club-app-questions.entity';
 export class CreateAppQuestionBody extends PickType(ClubAppQuestions, [
   'question',
   'answer_type',
-]) {}
+] as const) {}

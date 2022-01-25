@@ -137,6 +137,7 @@ export default {
     async logoutBtn() {
       await this.logout();
       this.setMyClubs([]);
+      this.$router.go(0);
     },
   },
 };

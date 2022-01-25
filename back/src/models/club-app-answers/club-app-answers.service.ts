@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
-import { CreateAppAnswersBody } from './dto/create-app-answer.dto';
+import { CreateAppAnswerBody } from './dto/create-app-answer.dto';
+import { UpdateAppAnswerStatusBody } from './dto/update-app-answer-status.dto';
 import { ClubAppAnswerItems } from './entities/club-app-answers-item.entity';
 import {
   ClubAppAnswers,
@@ -19,7 +20,7 @@ export class ClubAppAnswersService {
   async createAppAnswer(
     clubId: number,
     userId: number,
-    body: CreateAppAnswersBody,
+    body: CreateAppAnswerBody,
   ): Promise<void> {
     const clubAppAnswer = new ClubAppAnswers();
     clubAppAnswer.ClubId = clubId;
@@ -54,5 +55,18 @@ export class ClubAppAnswersService {
           relations: ['ClubAppAnswerItems', 'User'],
         });
     return result;
+  }
+
+  async updateAppAnswerStatus(
+    clubAppAnswerId: number,
+    body: UpdateAppAnswerStatusBody,
+  ): Promise<void> {
+    const clubAppAnswer = await this.clubAppAnswersRepository.findOne(
+      clubAppAnswerId,
+    );
+    clubAppAnswer.status = body.status;
+
+    await this.clubAppAnswersRepository.save(clubAppAnswer);
+    return;
   }
 }

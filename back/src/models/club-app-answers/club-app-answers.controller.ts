@@ -7,6 +7,7 @@ import {
   UseGuards,
   ParseIntPipe,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
@@ -16,7 +17,8 @@ import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
 import { ClubMembersRoleEnum } from '../club-members/entities/club-members.entity';
 import { Users } from '../users/entities/users.entity';
 import { ClubAppAnswersService } from './club-app-answers.service';
-import { CreateAppAnswersBody } from './dto/create-app-answer.dto';
+import { CreateAppAnswerBody } from './dto/create-app-answer.dto';
+import { UpdateAppAnswerStatusBody } from './dto/update-app-answer-status.dto';
 import {
   ClubAppAnswers,
   ClubAppAnswerStatusEnum,
@@ -33,7 +35,7 @@ export class ClubAppAnswersController {
   createAppAnswer(
     @Param('clubId', ParseIntPipe) clubId: number,
     @User() user: Users,
-    @Body() body: CreateAppAnswersBody,
+    @Body() body: CreateAppAnswerBody,
   ): Promise<void> {
     return this.clubAppAnswersService.createAppAnswer(clubId, user.id, body);
   }
@@ -49,5 +51,21 @@ export class ClubAppAnswersController {
     @Query('status') status: ClubAppAnswerStatusEnum,
   ): Promise<ClubAppAnswers[]> {
     return this.clubAppAnswersService.findAllAppAnswers(clubId, status);
+  }
+
+  @ApiOperation({
+    summary: '클럽 지원서 상태 업데이트',
+  })
+  @ClubRoles(ClubMembersRoleEnum.Manager)
+  @UseGuards(JwtAccessGuard, ClubRolesGuard)
+  @Patch(':clubAppAnswerId/status')
+  updateAppAnswerStatus(
+    @Param('clubAppAnswerId', ParseIntPipe) clubAppAnswerId: number,
+    @Body() body: UpdateAppAnswerStatusBody,
+  ): Promise<void> {
+    return this.clubAppAnswersService.updateAppAnswerStatus(
+      clubAppAnswerId,
+      body,
+    );
   }
 }

@@ -20,7 +20,7 @@ export const mutations = {
 export const actions = {
   async loadUser({ state, commit, dispatch }) {
     try {
-      const res = await this.$axios.get("/auth");
+      const res = await this.$axios.$get("/auth");
       commit("setMe", res.data);
       return null;
     } catch (err) {
@@ -32,6 +32,7 @@ export const actions = {
   async refresh({ state, commit }) {
     try {
       // access token이 만료되었을 때,
+      // header에 접근하기 위해 $post 미사용.
       const res = await this.$axios.post(
         "/auth/refresh",
         {},
@@ -53,7 +54,7 @@ export const actions = {
 
   async signup({ commit }, { email, nickname, password }) {
     try {
-      const res = await this.$axios.post(
+      const res = await this.$axios.$post(
         "/users",
         {
           email,
@@ -76,7 +77,7 @@ export const actions = {
   async login({ state, commit }, { email, password }) {
     try {
       commit("setServerRes", null);
-      const res = await this.$axios.post(
+      const res = await this.$axios.$post(
         "/auth/login",
         {
           email,
@@ -99,7 +100,7 @@ export const actions = {
 
   async logout({ commit }) {
     try {
-      await this.$axios.post(
+      await this.$axios.$post(
         "/auth/logout",
         {},
         {

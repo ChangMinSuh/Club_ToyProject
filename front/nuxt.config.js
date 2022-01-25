@@ -79,11 +79,8 @@ export default {
     ],
   },
   server: {
-    port: 3000,
+    port: 4000,
   },
-
-  serverMiddleware: ["~/server-middleware/cors.js"],
-
   router: {
     middleware: ["loadUser"],
   },
