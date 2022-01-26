@@ -1,6 +1,7 @@
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken, getRepositoryToken } from '@nestjs/typeorm';
+import { Cache } from 'cache-manager';
 import { Connection, Repository } from 'typeorm';
 import { ClubAppAnswers } from '../club-app-answers/entities/club-app-answers.entity';
 import { ClubMembersService } from './club-members.service';
@@ -14,12 +15,16 @@ const mockRepository = () => ({
 const mockConnection = () => ({
   transaction: jest.fn(),
 });
-
+const mockCacheManager = () => ({
+  get: jest.fn(),
+  set: jest.fn(),
+});
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 type MockConnection = Partial<Record<keyof Connection, jest.Mock>>;
-
+type MockCache = Partial<Record<keyof Cache, jest.Mock>>;
 describe('ClubMembersService', () => {
   let service: ClubMembersService;
+  let redisManager: MockCache;
   let connection: MockConnection;
   let clubMembersRepository: MockRepository<ClubMembers>;
   let clubAppAnswersRepository: MockRepository<ClubAppAnswers>;
@@ -39,10 +44,14 @@ describe('ClubMembersService', () => {
           provide: getRepositoryToken(ClubAppAnswers),
           useValue: mockRepository(),
         },
+        {
+          provide: 'CACHE_MANAGER',
+          useValue: mockCacheManager(),
+        },
       ],
     }).compile();
-
     service = module.get<ClubMembersService>(ClubMembersService);
+    redisManager = module.get('CACHE_MANAGER');
     connection = module.get(getConnectionToken());
     clubMembersRepository = module.get(getRepositoryToken(ClubMembers));
     clubAppAnswersRepository = module.get(getRepositoryToken(ClubAppAnswers));
@@ -120,8 +129,14 @@ describe('ClubMembersService', () => {
       clubAppAnswersRepository.findOne.mockResolvedValue({
         status: 'waiting',
       });
+
       connection.transaction.mockImplementation((cb) => {
         cb(mockedManager);
+      });
+
+      redisManager.get.mockResolvedValue({
+        id: 1,
+        ClubMembers: [{ name: 'tim' }],
       });
 
       await service.createMemberAndUpdateAppAnswer(
@@ -148,6 +163,9 @@ describe('ClubMembersService', () => {
 
       expect(connection.transaction).toHaveBeenCalled();
       expect(mockedManager.getRepository().save).toHaveBeenCalledTimes(2);
+
+      expect(redisManager.get).toHaveBeenCalled();
+      expect(redisManager.set).toHaveBeenCalled();
     });
   });
 

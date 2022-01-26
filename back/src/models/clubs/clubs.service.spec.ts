@@ -1,6 +1,7 @@
 import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken, getRepositoryToken } from '@nestjs/typeorm';
+import { Cache } from 'cache-manager';
 import { Clubs } from 'src/models/clubs/entities/clubs.entity';
 import { Users } from 'src/models/users/entities/users.entity';
 import { Connection, Repository } from 'typeorm';
@@ -27,12 +28,18 @@ const mockRepository = () => ({
 const mockConnection = () => ({
   transaction: jest.fn(),
 });
+const mockCacheManager = () => ({
+  get: jest.fn(),
+  set: jest.fn(),
+});
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 type MockConnection = Partial<Record<keyof Connection, jest.Mock>>;
+type MockCache = Partial<Record<keyof Cache, jest.Mock>>;
 
 describe('ClubsService', () => {
   let service: ClubsService;
+  let redisManager: MockCache;
   let connection: MockConnection;
   let clubsRepository: MockRepository<Clubs>;
   let usersRepository: MockRepository<Users>;
@@ -59,10 +66,15 @@ describe('ClubsService', () => {
           provide: getRepositoryToken(ClubAppAnswers),
           useValue: mockRepository(),
         },
+        {
+          provide: 'CACHE_MANAGER',
+          useValue: mockCacheManager(),
+        },
       ],
     }).compile();
 
     service = module.get<ClubsService>(ClubsService);
+    redisManager = module.get('CACHE_MANAGER');
     connection = module.get(getConnectionToken());
     clubsRepository = module.get(getRepositoryToken(Clubs));
     usersRepository = module.get(getRepositoryToken(Users));
@@ -154,6 +166,10 @@ describe('ClubsService', () => {
       connection.transaction.mockImplementation((cb) => {
         cb(mockedManager);
       });
+      redisManager.get.mockResolvedValue({
+        id: 1,
+        ClubMembers: [{ name: 'tim' }],
+      });
 
       await service.createClub(createClubArgs.userId, createClubArgs.body);
 
@@ -169,6 +185,9 @@ describe('ClubsService', () => {
 
       expect(connection.transaction).toHaveBeenCalled();
       expect(mockedManager.getRepository).toHaveBeenCalledTimes(2);
+
+      expect(redisManager.get).toHaveBeenCalled();
+      expect(redisManager.set).toHaveBeenCalled();
     });
   });
 
