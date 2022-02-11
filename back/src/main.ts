@@ -12,24 +12,26 @@ declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
-  app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.use(cookieParser(process.env.COOKIE_SECRET));
-
   if (process.env.NODE_ENV === 'production') {
     app.enableCors({
       //origin: ['https://sleact.nodebird.com'],
       credentials: true,
     });
+    console.log('hello');
     app.use(helmet());
     app.use(csurf());
   } else {
     app.enableCors({
-      origin: ['http://localhost:3000', 'ws://localhost:80/'],
+      origin: ['http://localhost:8080', 'ws://localhost:80/'],
       credentials: true,
     });
   }
+
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.setGlobalPrefix('api');
+  app.use(cookieParser(process.env.COOKIE_SECRET));
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('SweetIPO API')
     .setDescription('SweetIPO 개발을 위한 API 문서입니다.')
@@ -37,7 +39,7 @@ async function bootstrap() {
     .addCookieAuth('connect.sid')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('swagger', app, document);
 
   const port = process.env.PORT || 8000;
   await app.listen(port);

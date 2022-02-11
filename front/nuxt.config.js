@@ -2,10 +2,23 @@ export default {
   ssr: true,
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: "EasyStock",
-    title: "main",
+    titleTemplate: "SweetClub",
+    title: "SweetClub",
     link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-    meta: [{ charset: "utf-8" }],
+    meta: [
+      { charset: "utf-8" },
+      { name: "viewport" },
+      { "http-equiv": "X-UA-Compatible", content: "IE=edge" },
+      { name: "description", content: "동아리 전용 사이트" },
+      { hid: "ogtitle", name: "og:title", content: "SweetClub" },
+      {
+        hid: "ogdescription",
+        name: "og:description",
+        content: "동아리 전용 사이트",
+      },
+      { hid: "ogtype", name: "og:type", content: "website" },
+      { hid: "ogurl", name: "og:url", content: "http:" },
+    ],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -21,6 +34,7 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
     "@nuxtjs/vuetify",
+    "@nuxtjs/moment",
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -37,6 +51,10 @@ export default {
     theme: {},
   },
 
+  moment: {
+    locales: ["ko"],
+  },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     // Add exception
@@ -44,20 +62,33 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {
-      // ...
+    analyze: false,
+    extend(config, { isClient, isServer }) {
+      if (isServer && config.mode === "production") {
+        config.devtools = "hidden-source-map";
+      }
+      // console.log("webpack", config, isServer, isClient);
     },
   },
 
   axios: {
-    proxy: true,
+    browserBaseURL:
+      process.env.NODE_ENV === "production"
+        ? "https://api.nodebird.com/api"
+        : "http://localhost:8080/api",
+    baseURL:
+      process.env.NODE_ENV === "production"
+        ? "https://api.nodebird.com/api"
+        : "http://nginx:80/api",
+    https: false,
+    credentials: true,
   },
 
-  proxy: {
-    "/auth": { target: "http://localhost:8000", changeOrigin: true },
-    "/clubs": { target: "http://localhost:8000", changeOrigin: true },
-    "/users": { target: "http://localhost:8000", changeOrigin: true },
-  },
+  /*proxy: {
+    "/auth": { target: "http://back:8000/api", changeOrigin: true },
+    "/clubs": { target: "http://back:8000/api", changeOrigin: true },
+    "/users": { target: "http://back:8000/api", changeOrigin: true },
+  },*/
 
   io: {
     sockets: [
@@ -65,7 +96,7 @@ export default {
       {
         // At least one entry is required
         name: "home",
-        url: "ws://localhost:80",
+        url: "http://localhost:8080",
         default: true,
         vuex: {
           /* see section below */
@@ -79,9 +110,16 @@ export default {
     ],
   },
   server: {
-    port: 4000,
+    host: process.env.NUXT_HOST || "0.0.0.0",
+    port: process.env.NUXT_PORT || 4000,
   },
   router: {
     middleware: ["loadUser"],
+  },
+
+  watchers: {
+    webpack: {
+      poll: true,
+    },
   },
 };

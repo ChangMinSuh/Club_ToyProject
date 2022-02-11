@@ -109,7 +109,7 @@ export default {
     });
 
     this.socket.on("chat", (data, cb) => {
-      console.log("socket.on chat", data, cb);
+      // console.log("socket.on chat", data, cb);
       this.$store.dispatch("clubChats/addClubChats", data);
     });
   },

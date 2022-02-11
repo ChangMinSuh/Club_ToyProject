@@ -13,7 +13,6 @@ export class JwtRefreshGuard extends AuthGuard('jwt-refresh-token') {
   }
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    console.log(req.headers);
     const { Authentication: accessToken, Refresh: refreshToken } = req.cookies;
     if (!accessToken) throw new UnauthorizedException('no access token');
     if (!refreshToken) throw new UnauthorizedException('no refresh token');

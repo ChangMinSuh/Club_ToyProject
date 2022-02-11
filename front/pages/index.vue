@@ -8,7 +8,7 @@
           </v-col>
           <v-col cols="6">
             <v-card rounded="lg" height="600"><MainMyClub /></v-card>
-          </v-col>  
+          </v-col>
         </v-row>
         <v-row>
           <v-col cols="4">
@@ -28,7 +28,7 @@
 
 <script>
 export default {
-  async asyncData({ store, app, req }) {
+  async asyncData({ store, app, req, $axios }) {
     await store.dispatch("clubs/loadAllClubs");
     if (store.state.users.me) {
       await store.dispatch("clubs/loadMyClubs");

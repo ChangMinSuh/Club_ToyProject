@@ -21,7 +21,7 @@
               </v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12">g</v-col>
+                  <v-col cols="12">gg</v-col>
                   <v-col cols="6">g</v-col>
                   <v-col cols="6">g</v-col>
                 </v-row>

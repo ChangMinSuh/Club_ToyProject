@@ -14,10 +14,10 @@ import { JwtAccessWsGuard } from 'src/auth/guards/jwt-access-ws.guard';
 import { ClubChatsService } from './club-chats.service';
 import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 
-@WebSocketGateway(80, {
+@WebSocketGateway({
   namespace: /\/clubChat-.+/,
   cors: {
-    origin: 'http://localhost:4000',
+    origin: true,
     credentials: true,
   },
 })

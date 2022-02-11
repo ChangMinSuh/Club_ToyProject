@@ -47,7 +47,7 @@
                                 </v-col>
                                 <v-col cols="1">
                                   <small>{{
-                                    post.createdAt.slice(2, 10)
+                                    $moment(post.createdAt).fromNow()
                                   }}</small>
                                 </v-col>
                               </v-row>

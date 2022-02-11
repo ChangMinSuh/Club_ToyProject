@@ -15,7 +15,8 @@ export class ClubRolesGuard implements CanActivate {
     if (!requiredRoles) return true;
 
     const { user, url } = context.switchToHttp().getRequest();
-    const clubId = Number(url.split('/')[2]);
+    const clubId = Number(url.split('/')[3]);
+    console.log(user, url);
 
     if (isNaN(clubId)) return false;
 
@@ -23,7 +24,6 @@ export class ClubRolesGuard implements CanActivate {
       (clubMember) => clubMember.ClubId === clubId,
     );
     const userRole = clubMember?.role;
-
     return requiredRoles.some((role) => role === userRole);
   }
 }

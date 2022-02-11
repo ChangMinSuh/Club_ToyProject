@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+  nginx:
+    restart: always
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - front
+      - back
+      - mysql
+    networks:
+      - some_net
+
+  mysql:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    volumes:
+      - ./mysql/mysql_data/:/var/lib/mysql
+      - ./mysql/sqls/:/docker-entrypoint-initdb.d/
+    environment:
+      MYSQL_ROOT_PASSWORD: skqldi12
+      MYSQL_DATABASE: sweet_club
+    networks:
+      - some_net
+
+  back:
+    build:
+      context: ./back
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./back:/app
+    environment:
+      DB_HOST: mysql
+    networks:
+      - some_net
+
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./front:/app
+    environment:
+      NUXT_HOST: 0.0.0.0
+      NUXT_PORT: 4000
+    networks:
+      - some_net
+
+networks:
+  some_net:
+    driver: bridge

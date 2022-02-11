@@ -27,7 +27,6 @@ export class JwtAccessWsGuard implements CanActivate {
       secret: process.env.JWT_ACCESS_SECRET,
     });
     const user = await this.authService.getUserInDb(userId);
-    console.log('user', user);
     context.switchToWs().getData().user = user;
     return Boolean(user);
   }

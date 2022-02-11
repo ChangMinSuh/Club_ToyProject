@@ -34,7 +34,6 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Is not correct');
     }
-    console.log(user);
     const isPasswordComplete = await bcrypt.compare(password, user.password);
     if (!isPasswordComplete) {
       throw new UnauthorizedException('Is not correct');

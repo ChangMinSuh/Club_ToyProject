@@ -20,9 +20,7 @@ export class JwtAccessStrategy extends PassportStrategy(
   }
 
   async validate(user): Promise<Users> {
-    console.log('access-token의 payload:', user.id);
     const result = await this.authService.getUserInDb(user.id);
-    console.log('redis의 user:', result);
     return result;
   }
 }

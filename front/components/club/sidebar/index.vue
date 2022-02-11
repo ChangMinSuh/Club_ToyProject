@@ -46,7 +46,7 @@ export default {
     },
     isManager() {
       return (
-        this.me?.ClubMembers.find(({ ClubId }) => ClubId === this.clubId)
+        this.me?.ClubMembers?.find(({ ClubId }) => ClubId === this.clubId)
           .role === "manager"
       );
     },
