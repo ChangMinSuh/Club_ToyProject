@@ -1,6 +1,7 @@
-FROM node:16
+FROM node:16 AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY ./ ./
-CMD ["npm", "run", "dev"]
+RUN npm run build
+CMD ["npm", "run", "start"]

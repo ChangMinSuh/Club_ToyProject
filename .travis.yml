@@ -1,0 +1,50 @@
+language: generic
+
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker build -t timssuh/SweetClub-back-test -f ./back/Dockerfile.dev ./back
+
+script:
+  - docker run -e CI=true timssuh/SweetClub-back-test npm run start
+
+after_success:
+  - zip -r SweetClub
+  - mkdir -p deploy
+  - mv SweetClub.zip deploy/SweetClub.zip
+  - docker build -t timssuh/SweetClub-front ./front
+  - docker build -t timssuh/SweetClub-back ./back
+  - docker build -t timssuh/SweetClub-nginx ./nginx
+
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+
+  - docker push timssuh/SweetClub-front
+  - docker push timssuh/SweetClub-back
+  - docker push timssuh/SweetClub-nginx
+
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: sweetclub
+    region: ap-northeast-2
+    skip_cleanup: true
+    local_dir: deploy
+    wait_until_deployed: true
+    on:
+      branch: main
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    bucket: sweetclub
+    key: SweetClub.zip
+    bundle_type: zip
+    application: SweetClub-CodeDeploy
+    deployment_group: SweetClub-CodeDeploy-group
+    region: ap-northeast-2
+    wait-until-deployed: true
+    on:
+      branch: main
