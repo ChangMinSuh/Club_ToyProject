@@ -6,24 +6,24 @@ services:
   - docker
 
 before_install:
-  - docker build -t timssuh/SweetClub-back-test -f ./back/Dockerfile.dev ./back
+  - docker build -t timssuh/sweetclub-back-test -f ./back/Dockerfile.dev ./back
 
 script:
-  - docker run -e CI=true timssuh/SweetClub-back-test npm run start
+  - docker run -e CI=true timssuh/sweetclub-back-test npm run start
 
 after_success:
-  - zip -r SweetClub
+  - zip -r sweetclub
   - mkdir -p deploy
-  - mv SweetClub.zip deploy/SweetClub.zip
-  - docker build -t timssuh/SweetClub-front ./front
-  - docker build -t timssuh/SweetClub-back ./back
-  - docker build -t timssuh/SweetClub-nginx ./nginx
+  - mv sweetclub.zip deploy/sweetclub.zip
+  - docker build -t timssuh/sweetclub-front ./front
+  - docker build -t timssuh/sweetclub-back ./back
+  - docker build -t timssuh/sweetclub-nginx ./nginx
 
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
 
-  - docker push timssuh/SweetClub-front
-  - docker push timssuh/SweetClub-back
-  - docker push timssuh/SweetClub-nginx
+  - docker push timssuh/sweetclub-front
+  - docker push timssuh/sweetclub-back
+  - docker push timssuh/sweetclub-nginx
 
 deploy:
   - provider: s3
@@ -40,7 +40,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     bucket: sweetclub
-    key: SweetClub.zip
+    key: sweetclub.zip
     bundle_type: zip
     application: SweetClub-CodeDeploy
     deployment_group: SweetClub-CodeDeploy-group
