@@ -9,7 +9,7 @@ before_install:
   - docker build -t timssuh/sweetclub-back-test -f ./back/Dockerfile.dev ./back
 
 script:
-  - docker run -e CI=true timssuh/sweetclub-back-test npm run start
+  - docker run -e CI=true timssuh/sweetclub-back-test npm run test
 
 after_success:
   - zip -r sweetclub
