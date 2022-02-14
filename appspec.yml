@@ -1,0 +1,9 @@
+version: 0.0
+os: linux
+file:
+  - source: /
+    destination: /app/deploy/SweetClub
+hooks:
+  AfterInstall:
+    - location: deploy.sh
+      timeout: 200
