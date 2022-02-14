@@ -12,9 +12,6 @@ script:
   - docker run -e CI=true timssuh/sweetclub-back-test npm run test
 
 after_success:
-  - zip -r sweetclub
-  - mkdir -p deploy
-  - mv sweetclub.zip deploy/sweetclub.zip
   - docker build -t timssuh/sweetclub-front ./front
   - docker build -t timssuh/sweetclub-back ./back
   - docker build -t timssuh/sweetclub-nginx ./nginx
@@ -24,6 +21,11 @@ after_success:
   - docker push timssuh/sweetclub-front
   - docker push timssuh/sweetclub-back
   - docker push timssuh/sweetclub-nginx
+
+before_deploy:
+  - zip -r sweetclub *
+  - mkdir -p deploy
+  - mv sweetclub.zip deploy/sweetclub.zip
 
 deploy:
   - provider: s3
