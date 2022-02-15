@@ -15,7 +15,7 @@ services:
   front:
     image: timssuh/SweetClub-front
     build:
-      context: ./
+      context: ./front
       dockerfile: Dockerfile
     restart: always
     volumes:

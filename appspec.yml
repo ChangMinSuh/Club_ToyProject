@@ -2,7 +2,12 @@ version: 0.0
 os: linux
 file:
   - source: /
-    destination: /home/ubuntu/deploy/SweetClub
+    destination: /home/ubuntu/deploy/SweetClub/
+permissions:
+  - object: /home/ubuntu/deploy/SweetClub/
+    owner: ubuntu
+    group: ubuntu
+
 hooks:
   AfterInstall:
     - location: deploy.sh
