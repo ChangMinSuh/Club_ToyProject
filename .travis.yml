@@ -18,9 +18,9 @@ after_success:
 
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
 
-  - docker push timssuh/sweetclub-front
   - docker push timssuh/sweetclub-back
   - docker push timssuh/sweetclub-nginx
+  - docker push timssuh/sweetclub-front
 
 before_deploy:
   - zip -r sweetclub *

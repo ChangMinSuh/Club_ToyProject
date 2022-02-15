@@ -3,5 +3,5 @@
 # docker pull timssuh/sweetclub-nginx
 
 cd /home/ubuntu/deploy/SweetClub
-docker-compose -f /deploy/docker-compose.yml up
+docker-compose up
 # 여기 수정
