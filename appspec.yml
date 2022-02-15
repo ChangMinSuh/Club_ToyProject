@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 file:
   - source: /
-    destination: /app/deploy/SweetClub
+    destination: /home/ubuntu/SweetClub
 hooks:
   AfterInstall:
     - location: deploy.sh
