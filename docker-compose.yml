@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   nginx:
-    image: timssuh/SweetClub-nginx
+    image: timssuh/sweetclub-nginx
     restart: always
     build:
       context: ./nginx
@@ -13,7 +13,7 @@ services:
       - back
 
   front:
-    image: timssuh/SweetClub-front
+    image: timssuh/sweetclub-front
     build:
       context: ./front
       dockerfile: Dockerfile
@@ -26,26 +26,26 @@ services:
       NUXT_PORT: 4000
 
   back:
+    image: timssuh/sweetclub-back
     build:
-      image: timssuh/SweetClub-back
       context: ./back
       dockerfile: Dockerfile
     restart: always
     volumes:
       - /app/node_modules
       - ./back:/app
-    environment:
-      BACK_PORT: $BACK_PORT
-      COOKIE_SECRET: $COOKIE_SECRET
-      DB_USERNAME: $DB_USERNAME
-      DB_PASSWORD: $DB_PASSWORD
-      DB_DATABASE: $DB_DATABASE
-      DB_PORT: $DB_PORT
-      DB_HOST: $DB_HOST
-      JWT_ACCESS_SECRET: $JWT_ACCESS_SECRET
-      JWT_ACCESS_EXPIRY_TIME: $JWT_ACCESS_EXPIRY_TIME
-      JWT_REFRESH_SECRET: $JWT_REFRESH_SECRET
-      JWT_REFRESH_EXPIRY_TIME: $JWT_REFRESH_EXPIRY_TIME
-      REDIS_HOST: $REDIS_HOST
-      REDIS_PORT: $REDIS_PORT
-      REDIS_PASSWORD: $REDIS_PASSWORD
+    # environment:
+    #   BACK_PORT: $BACK_PORT
+    #   COOKIE_SECRET: $COOKIE_SECRET
+    #   DB_USERNAME: $DB_USERNAME
+    #   DB_PASSWORD: $DB_PASSWORD
+    #   DB_DATABASE: $DB_DATABASE
+    #   DB_PORT: $DB_PORT
+    #   DB_HOST: $DB_HOST
+    #   JWT_ACCESS_SECRET: $JWT_ACCESS_SECRET
+    #   JWT_ACCESS_EXPIRY_TIME: $JWT_ACCESS_EXPIRY_TIME
+    #   JWT_REFRESH_SECRET: $JWT_REFRESH_SECRET
+    #   JWT_REFRESH_EXPIRY_TIME: $JWT_REFRESH_EXPIRY_TIME
+    #   REDIS_HOST: $REDIS_HOST
+    #   REDIS_PORT: $REDIS_PORT
+    #   REDIS_PASSWORD: $REDIS_PASSWORD
