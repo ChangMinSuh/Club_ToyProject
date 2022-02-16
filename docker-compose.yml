@@ -25,6 +25,8 @@ services:
     volumes:
       - /app/node_modules
       - ./back:/app
+    env_file:
+      - ./back/.env
     # environment:
     #   BACK_PORT: $BACK_PORT
     #   COOKIE_SECRET: $COOKIE_SECRET
