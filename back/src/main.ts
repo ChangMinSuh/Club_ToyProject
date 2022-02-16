@@ -14,7 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   if (process.env.NODE_ENV === 'production') {
     app.enableCors({
-      //origin: ['https://sleact.nodebird.com'],
+      origin: [process.env.BACK_HOST],
       credentials: true,
     });
     console.log('hello');
