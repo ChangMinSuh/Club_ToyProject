@@ -65,7 +65,7 @@ export default {
     analyze: false,
     extend(config, { isClient, isServer }) {
       if (isServer && config.mode === "production") {
-        config.devtools = "hidden-source-map";
+        config.devtool = "hidden-source-map";
       }
       // console.log("webpack", config, isServer, isClient);
     },
