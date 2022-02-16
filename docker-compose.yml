@@ -3,9 +3,6 @@ services:
   nginx:
     image: timssuh/sweetclub-nginx
     restart: always
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
     ports:
       - "80:80"
     depends_on:
@@ -14,9 +11,6 @@ services:
 
   front:
     image: timssuh/sweetclub-front
-    build:
-      context: ./front
-      dockerfile: Dockerfile
     restart: always
     volumes:
       - /app/node_modules
@@ -27,9 +21,6 @@ services:
 
   back:
     image: timssuh/sweetclub-back
-    build:
-      context: ./back
-      dockerfile: Dockerfile
     restart: always
     volumes:
       - /app/node_modules
