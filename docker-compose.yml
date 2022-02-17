@@ -12,10 +12,8 @@ services:
   front:
     image: timssuh/sweetclub-front
     restart: always
-    environment:
-      NUXT_HOST: 0.0.0.0
-      NUXT_PORT: 4000
-
+    env_file:
+      - ./front/.env
   back:
     image: timssuh/sweetclub-back
     restart: always

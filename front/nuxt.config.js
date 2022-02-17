@@ -35,6 +35,7 @@ export default {
     // https://go.nuxtjs.dev/vuetify
     "@nuxtjs/vuetify",
     "@nuxtjs/moment",
+    "@nuxtjs/dotenv",
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -74,11 +75,11 @@ export default {
   axios: {
     browserBaseURL:
       process.env.NODE_ENV === "production"
-        ? "https://api.nodebird.com/api"
+        ? "http://3.36.57.228/api"
         : "http://localhost:8080/api",
     baseURL:
       process.env.NODE_ENV === "production"
-        ? "https://api.nodebird.com/api"
+        ? `http://${process.env.NGINX_AXIOS_URL}/api`
         : "http://nginx:80/api",
     https: false,
     credentials: true,
