@@ -1,10 +1,10 @@
 import { PickType } from '@nestjs/swagger';
-import { ClubChats } from '../entities/club-chats';
+import { ClubChats } from '../entities/club-chats.entity';
 
 export class SetClubChatsDataDto extends PickType(ClubChats, [
   'content',
-  'ClubId',
   'ClubMemberId',
+  'ClubChatRoomId',
 ]) {
   clubName: string;
 }

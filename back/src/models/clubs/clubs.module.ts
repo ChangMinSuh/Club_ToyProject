@@ -6,7 +6,7 @@ import { ClubMembers } from 'src/models/club-members/entities/club-members.entit
 import { Users } from 'src/models/users/entities/users.entity';
 import { ClubsController } from './clubs.controller';
 import { ClubsService } from './clubs.service';
-import { ClubChats } from '../club-chats/entities/club-chats';
+import { ClubChats } from '../club-chats/entities/club-chats.entity';
 import { ClubAppQuestions } from '../club-app-questions/entities/club-app-questions.entity';
 import { ClubAppAnswers } from '../club-app-answers/entities/club-app-answers.entity';
 import * as redisStore from 'cache-manager-ioredis';

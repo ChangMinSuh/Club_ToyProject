@@ -13,7 +13,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import { ClubsService } from './clubs.service';
 import { CreateClubBody } from './dtos/create-club.dto';
 import { Clubs } from './entities/clubs.entity';
-import { ClubChats } from '../club-chats/entities/club-chats';
+import { ClubChats } from '../club-chats/entities/club-chats.entity';
 import { Users } from '../users/entities/users.entity';
 import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
 import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
@@ -61,15 +61,5 @@ export class ClubsController {
   @Get(':clubId')
   findOneClub(@Param('clubId', ParseIntPipe) clubId: number): Promise<Clubs> {
     return this.clubsService.findOneClub(clubId);
-  }
-
-  @ApiOperation({ summary: '클럽 채팅 가져오기' })
-  @ClubRoles(ClubMembersRoleEnum.Manager, ClubMembersRoleEnum.User)
-  @UseGuards(JwtAccessGuard, ClubRolesGuard)
-  @Get(':clubId/chats')
-  getClubChat(
-    @Param('clubId', ParseIntPipe) clubId: number,
-  ): Promise<ClubChats[]> {
-    return this.clubsService.getClubChat(clubId);
   }
 }

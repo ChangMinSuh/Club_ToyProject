@@ -12,25 +12,24 @@ declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.setGlobalPrefix('api');
+  app.use(cookieParser(process.env.COOKIE_SECRET));
   if (process.env.NODE_ENV === 'production') {
+    console.log('production start');
     app.enableCors({
       origin: [`http://${process.env.BACK_HOST}`],
       credentials: true,
     });
-    console.log('hello');
     app.use(helmet());
-    app.use(csurf());
+    //app.use(csurf({ cookie: true, sessionKey: process.env.COOKIE_SECRET }));
   } else {
     app.enableCors({
       origin: ['http://localhost:8080', 'ws://localhost:80/'],
       credentials: true,
     });
   }
-
-  app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.setGlobalPrefix('api');
-  app.use(cookieParser(process.env.COOKIE_SECRET));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('SweetIPO API')
@@ -39,7 +38,7 @@ async function bootstrap() {
     .addCookieAuth('connect.sid')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('/api/swagger', app, document);
 
   const port = process.env.BACK_PORT || 8000;
   await app.listen(port);

@@ -14,16 +14,17 @@ export class ClubRolesGuard implements CanActivate {
 
     if (!requiredRoles) return true;
 
-    const { user, url } = context.switchToHttp().getRequest();
-    const clubId = Number(url.split('/')[3]);
-    console.log(user, url);
+    const request = context.switchToHttp().getRequest();
+    const clubId = Number(request.url.split('/')[3]);
+    console.log(request.user, request.url);
 
     if (isNaN(clubId)) return false;
 
-    const clubMember = user?.ClubMembers?.find(
+    const clubMember = request.user?.ClubMembers?.find(
       (clubMember) => clubMember.ClubId === clubId,
     );
     const userRole = clubMember?.role;
+    request.clubMember = clubMember;
     return requiredRoles.some((role) => role === userRole);
   }
 }

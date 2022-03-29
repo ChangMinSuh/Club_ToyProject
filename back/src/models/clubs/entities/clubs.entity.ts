@@ -1,11 +1,7 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  UpdateDateColumn,
-  CreateDateColumn,
   DeleteDateColumn,
-  ManyToMany,
   Index,
   ManyToOne,
   OneToMany,
@@ -18,9 +14,9 @@ import { ClubIntroduces } from '../../club-introduces/entities/club-introduces.e
 import { ClubMembers } from '../../club-members/entities/club-members.entity';
 import { ClubAppAnswers } from '../../club-app-answers/entities/club-app-answers.entity';
 import { ClubAppQuestions } from '../../club-app-questions/entities/club-app-questions.entity';
-import { ClubChats } from '../../club-chats/entities/club-chats';
 import { CoreEntity } from '../../../common/entities/core.entity';
 import { ClubPosts } from '../../club-posts/entities/club-posts.entity';
+import { ClubChatRooms } from '../../club-chats/entities/club-chat-rooms.entity';
 
 @Index('name', ['name'], { unique: true })
 @Entity({ name: 'clubs' })
@@ -44,9 +40,6 @@ export class Clubs extends CoreEntity {
   @OneToMany(() => ClubMembers, (clubMember) => clubMember.Club)
   ClubMembers: ClubMembers[];
 
-  @OneToMany(() => ClubChats, (clubchat) => clubchat.Club)
-  ClubChats: ClubChats[];
-
   @OneToMany(() => ClubAppQuestions, (clubAppQuestion) => clubAppQuestion.Club)
   ClubAppQuestions: ClubAppQuestions[];
 
@@ -55,6 +48,9 @@ export class Clubs extends CoreEntity {
 
   @OneToMany(() => ClubPosts, (clubPost) => clubPost.Club)
   ClubPosts: ClubPosts[];
+
+  @OneToMany(() => ClubChatRooms, (clubChatRoom) => clubChatRoom.Club)
+  ClubChatRooms: ClubChatRooms[];
 
   @ManyToOne(() => Users, (user) => user.OwnerClubs)
   Owner: Users;

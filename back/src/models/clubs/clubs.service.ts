@@ -11,7 +11,7 @@ import {
   ClubMembers,
   ClubMembersRoleEnum,
 } from 'src/models/club-members/entities/club-members.entity';
-import { ClubChats } from '../club-chats/entities/club-chats';
+import { ClubChats } from '../club-chats/entities/club-chats.entity';
 import { Users } from '../users/entities/users.entity';
 import { CreateClubBody } from './dtos/create-club.dto';
 import {

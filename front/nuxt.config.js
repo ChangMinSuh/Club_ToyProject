@@ -75,7 +75,7 @@ export default {
   axios: {
     browserBaseURL:
       process.env.NODE_ENV === "production"
-        ? "http://3.36.57.228/api"
+        ? "http://ec2-3-36-57-228.ap-northeast-2.compute.amazonaws.com/api"
         : "http://localhost:8080/api",
     baseURL:
       process.env.NODE_ENV === "production"

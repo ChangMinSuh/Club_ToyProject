@@ -6,7 +6,7 @@ import { Clubs } from 'src/models/clubs/entities/clubs.entity';
 import { Users } from 'src/models/users/entities/users.entity';
 import { Connection, Repository } from 'typeorm';
 import { ClubAppAnswers } from '../club-app-answers/entities/club-app-answers.entity';
-import { ClubChats } from '../club-chats/entities/club-chats';
+import { ClubChats } from '../club-chats/entities/club-chats.entity';
 import { ClubsService } from './clubs.service';
 
 const mockRepository = () => ({

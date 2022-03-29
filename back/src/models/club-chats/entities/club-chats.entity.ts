@@ -1,8 +1,8 @@
-import { Clubs } from '../../clubs/entities/clubs.entity';
 import { Entity, Column, ManyToOne } from 'typeorm';
 import { CoreEntity } from '../../../common/entities/core.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { ClubMembers } from '../../club-members/entities/club-members.entity';
+import { ClubChatRooms } from './club-chat-rooms.entity';
 
 @Entity({ name: 'club_chats' })
 export class ClubChats extends CoreEntity {
@@ -14,12 +14,12 @@ export class ClubChats extends CoreEntity {
   @Column('int', { name: 'clubMemberId', nullable: true })
   ClubMemberId: number | null;
 
-  @Column('int', { name: 'clubId', nullable: true })
-  ClubId: number | null;
+  @Column('int', { name: 'clubChatRoomId' })
+  ClubChatRoomId: number;
 
-  @ManyToOne(() => ClubMembers, (clubMember) => clubMember.ClubChats)
+  @ManyToOne(() => ClubMembers, (clubMembers) => clubMembers.ClubChats)
   ClubMember: ClubMembers;
 
-  @ManyToOne(() => Clubs, (club) => club.ClubChats)
-  Club: Clubs;
+  @ManyToOne(() => ClubChatRooms, (clubChatRoom) => clubChatRoom.ClubChats)
+  ClubChatRoom: ClubChatRooms;
 }
