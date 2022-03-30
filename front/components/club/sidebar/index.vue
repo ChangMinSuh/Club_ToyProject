@@ -42,7 +42,7 @@ export default {
       return [
         { name: "메인", link: `/club/ground/${this.clubId}` },
         { name: "전체 게시판", link: `/club/ground/${this.clubId}/post` },
-        { name: "채팅", link: `/club/ground/${this.clubId}/chatting` },
+        //{ name: "채팅", link: `/club/ground/${this.clubId}/chatting` },
       ];
     },
     isManager() {

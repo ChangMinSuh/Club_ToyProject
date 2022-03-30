@@ -11,6 +11,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtAccessWsGuard } from 'src/auth/guards/jwt-access-ws.guard';
+import { ClubMember } from 'src/common/decorators/club-member.decorator';
+import { ClubMembers } from '../club-members/entities/club-members.entity';
 import { ClubChatsService } from './club-chats.service';
 import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 
@@ -34,19 +36,29 @@ export class ClubChatsGateway
     console.log('test', data);
   }
 
-  @SubscribeMessage('loginChat')
+  @SubscribeMessage('login')
   @UseGuards(JwtAccessWsGuard)
   async loginRoom(
-    @MessageBody() data: { clubChatRooms },
+    @MessageBody() { clubMember },
     @ConnectedSocket() socket: Socket,
   ) {
     const namespaceName = socket.nsp.name;
-    // 내 채팅들 집합
 
-    data.clubChatRooms.forEach((item) => {
-      console.log(namespaceName, item.id);
-      socket.join(`${namespaceName}-${item.id}`);
+    // 내 채팅 목록
+    const myClubChatRoomMembers =
+      await this.clubChatService.findMyClubChatRoomMembersWithRooms(
+        clubMember.ClubId,
+        clubMember.id,
+      );
+
+    // 내 채팅들 집합
+    myClubChatRoomMembers.forEach((item) => {
+      console.log(namespaceName, item?.ClubChatRoomId);
+      socket.join(`${namespaceName}-${item?.ClubChatRoomId}`);
     });
+    this.server
+      .to(socket.id)
+      .emit('myClubChatRoomMembers', { myClubChatRoomMembers });
   }
 
   @SubscribeMessage('chat')

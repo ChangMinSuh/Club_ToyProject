@@ -48,23 +48,6 @@ export const mutations = {
 };
 
 export const actions = {
-  async loadClubChatRooms({ state, commit, dispatch }, { clubId, memberId }) {
-    try {
-      const res = await this.$axios.$get(`/clubs/${clubId}/chatrooms/members`, {
-        withCredentials: true,
-      });
-
-      const clubChatRooms = res.data?.map((item) => {
-        const result = item.ClubChatRoom;
-        result.loggedInAt = item.loggedInAt;
-        result.unreadCnt = 0;
-        return result;
-      });
-      commit("setClubChatRooms", clubChatRooms);
-    } catch (err) {
-      console.error(err);
-    }
-  },
   async loadClubChats({ state, commit, dispatch }, { clubId, roomId }) {
     try {
       const res = await this.$axios.$get(
@@ -112,5 +95,16 @@ export const actions = {
 
   async setClubChatRoomsLoggedInAt({ commit }, { roomId, loggedInAt }) {
     commit("setClubChatRoomsLoggedInAt", { roomId, loggedInAt });
+  },
+
+  loadClubChatRooms({ state, commit, dispatch }, { myClubChatRoomMembers }) {
+    console.log(myClubChatRoomMembers)
+    const clubChatRooms = myClubChatRoomMembers?.map((item) => {
+      const result = item.ClubChatRoom;
+      result.loggedInAt = item.loggedInAt;
+      result.unreadCnt = 0;
+      return result;
+    });
+    commit("setClubChatRooms", clubChatRooms);
   },
 };

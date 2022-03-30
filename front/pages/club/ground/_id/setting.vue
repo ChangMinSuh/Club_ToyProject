@@ -49,13 +49,14 @@ export default {
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
-    await store.dispatch("clubChats/loadClubChatRooms", { clubId });
-    await store.dispatch("clubSettings/loadClubAppQuestions", { clubId });
-    await store.dispatch("clubSettings/findAllMembers", { clubId });
-    await store.dispatch("clubSettings/findAllAppAnswers", {
-      clubId,
-      status: "waiting",
-    });
+    await Promise.all([
+      store.dispatch("clubSettings/loadClubAppQuestions", { clubId }),
+      store.dispatch("clubSettings/findAllMembers", { clubId }),
+      store.dispatch("clubSettings/findAllAppAnswers", {
+        clubId,
+        status: "waiting",
+      }),
+    ]);
     return {
       mainUrl: `/club/ground/${clubId}`,
     };

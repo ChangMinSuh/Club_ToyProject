@@ -44,7 +44,16 @@ export default {
     "@nuxtjs/proxy",
     "nuxt-socket-io",
     "@nuxtjs/dayjs",
+    "@nuxtjs/markdownit",
   ],
+
+  markdownit: {
+    preset: "default",
+    linkify: true,
+    breaks: true,
+    use: ["markdown-it-div", "markdown-it-attrs"],
+    runtime: true,
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
@@ -58,6 +67,8 @@ export default {
     defaultTimeZone: "Asia/Korea",
     plugins: ["utc", "timezone", "relativeTime", "advancedFormat"],
   },
+
+  content: {},
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {

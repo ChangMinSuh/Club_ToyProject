@@ -22,7 +22,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
         (req) => req?.cookies?.Refresh,
       ]),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_REFRESH_SECRET'),
+      secretOrKey: process.env.JWT_REFRESH_SECRET,
       passReqToCallback: true,
     });
   }
@@ -34,6 +34,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (typeof decodedAccessToken === 'string' || decodedAccessToken === null)
       throw new UnauthorizedException('access token error');
 
+    console.log(refreshToken, decodedAccessToken);
     const user = await this.authService.getUserIfRefreshTokenMatches({
       refreshToken,
       decodedAccessToken,

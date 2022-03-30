@@ -48,6 +48,7 @@
                             />
                           </validation-provider>
                         </v-col>
+                        <v-col cols="12" v-html="$md.render(content)"></v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -88,10 +89,7 @@ export default {
   async asyncData({ store, params, redirect }) {
     const clubId = Number(params.id);
     const postId = Number(params.postId);
-    await Promise.all([
-      store.dispatch("clubChats/loadClubChatRooms", { clubId }),
-      store.dispatch("clubPosts/loadOnePost", { clubId, postId }),
-    ]);
+    await store.dispatch("clubPosts/loadOnePost", { clubId, postId });
     const isPostWriter =
       store.state.clubs?.myClubMember?.id ===
       store.state.clubPosts?.onePost?.ClubMember?.id;

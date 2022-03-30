@@ -22,6 +22,10 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
+                        <v-spacer></v-spacer>
+                        <v-btn type="submit" :disabled="invalid">
+                          완료하기
+                        </v-btn>
                         <v-col cols="12">
                           <validation-provider
                             rules="required|max:50"
@@ -35,7 +39,9 @@
                             />
                           </validation-provider>
                         </v-col>
-                        <v-btn>사진</v-btn>
+
+                        <v-btn>사진 추가</v-btn>
+
                         <v-col cols="12">
                           <validation-provider
                             rules="required"
@@ -48,19 +54,13 @@
                             />
                           </validation-provider>
                         </v-col>
+                        <v-col v-html="$md.render(content)"> </v-col>
                       </v-row>
                     </v-container>
                   </v-card-text>
                   <v-card-actions>
                     <v-container>
-                      <v-row>
-                        <v-col cols="12">
-                          <v-spacer></v-spacer>
-                          <v-btn type="submit" :disabled="invalid">
-                            완료하기
-                          </v-btn>
-                        </v-col>
-                      </v-row>
+                      <v-row> </v-row>
                     </v-container>
                   </v-card-actions>
                 </v-card>
@@ -84,12 +84,6 @@ const usersHelper = createNamespacedHelpers("users");
 
 export default {
   middleware: ["isClubMember"],
-
-  async asyncData({ store, params }) {
-    const clubId = Number(params.id);
-    await store.dispatch("clubChats/loadClubChatRooms", { clubId });
-    console.log(store.state.users.me?.ClubMembers);
-  },
   computed: {
     ...clubsHelper.mapState(["onlineClub"]),
     ...usersHelper.mapState(["me"]),

@@ -49,9 +49,7 @@ export class AuthService {
   async getCookieWithAccessToken(payload: any): Promise<CookieTokenDto> {
     const token = await this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
-      expiresIn: Number(
-        this.configService.get<number>('JWT_ACCESS_EXPIRY_TIME'),
-      ),
+      expiresIn: Number(this.configService.get('JWT_ACCESS_EXPIRY_TIME')),
     });
     return {
       token: token,
@@ -65,9 +63,7 @@ export class AuthService {
     const payload = {};
     const token = await this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: Number(
-        this.configService.get<number>('JWT_REFRESH_EXPIRY_TIME'),
-      ),
+      expiresIn: Number(this.configService.get('JWT_REFRESH_EXPIRY_TIME')),
     });
     return {
       token: token,
@@ -80,7 +76,7 @@ export class AuthService {
   async setRefreshTokenInDb(refreshToken, userId: number): Promise<void> {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.redisManager.set(`user:refresh:${userId}`, hashRefreshToken, {
-      ttl: Number(this.configService.get<number>('JWT_REFRESH_EXPIRY_TIME')),
+      ttl: Number(this.configService.get('JWT_REFRESH_EXPIRY_TIME')),
     });
   }
 
@@ -90,7 +86,7 @@ export class AuthService {
 
   async setUserInDb(user: Users): Promise<void> {
     await this.redisManager.set(`user:${user.id}`, user, {
-      ttl: Number(this.configService.get<number>('JWT_REFRESH_EXPIRY_TIME')),
+      ttl: Number(this.configService.get('JWT_REFRESH_EXPIRY_TIME')),
     });
   }
 
@@ -107,10 +103,12 @@ export class AuthService {
     refreshToken,
     decodedAccessToken,
   }): Promise<Users> {
+    console.log(refreshToken, decodedAccessToken);
     const { id } = decodedAccessToken;
     const currentHashedRefreshToken = await this.redisManager.get(
       `user:refresh:${id}`,
     );
+    console.log(currentHashedRefreshToken);
     if (currentHashedRefreshToken === null)
       throw new UnauthorizedException('refresh token is not in db');
 
@@ -122,7 +120,7 @@ export class AuthService {
       throw new UnauthorizedException('refresh token is not compare');
 
     const result = await this.redisManager.get<Users>(`user:${id}`);
-
+    console.log(result);
     return result;
   }
 }

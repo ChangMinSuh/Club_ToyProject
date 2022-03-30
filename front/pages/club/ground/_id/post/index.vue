@@ -28,7 +28,7 @@
                       <template v-for="(post, index) in allPosts">
                         <v-divider :key="index"></v-divider>
 
-                        <v-list-item :key="index">
+                        <v-list-item :key="post.id">
                           <v-list-item-content>
                             <v-list-item-title>
                               <v-row>
@@ -85,12 +85,8 @@ export default {
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
-    await Promise.all([
-      store.dispatch("clubChats/loadClubChatRooms", { clubId }),
-      store.dispatch("clubPosts/loadAllPosts", { clubId }),
-    ]);
-
-    console.log(store.state.users.me?.ClubMembers);
+    await store.dispatch("clubPosts/loadAllPosts", { clubId }),
+      console.log(store.state.users.me?.ClubMembers);
   },
   computed: {
     ...clubsHelper.mapState(["onlineClub"]),

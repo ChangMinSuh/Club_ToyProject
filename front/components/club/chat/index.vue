@@ -206,8 +206,13 @@ export default {
       reconnection: false,
     });
 
-    this.socket.emit("loginChat", {
-      clubChatRooms: this.clubChatRooms,
+    this.socket.emit("login", {
+      clubMember: this.myClubMember,
+    });
+
+    this.socket.on("myClubChatRoomMembers", (data) => {
+      console.log(data);
+      this.$store.dispatch("clubChats/loadClubChatRooms", data);
     });
 
     this.socket.on("chat", (data, cb) => {

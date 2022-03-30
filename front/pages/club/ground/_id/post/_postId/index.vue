@@ -28,7 +28,7 @@
                   {{ onePost.ClubMember.nickname }}
                 </v-row>
               </v-card-text>
-              <v-card-text v-html="postContent"> </v-card-text>
+              <v-card-text v-html="$md.render(onePost.content)"> </v-card-text>
 
               <v-card-actions>
                 <v-btn small color="primary" @click="back">이전</v-btn>
@@ -72,19 +72,12 @@ export default {
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
     const postId = Number(params.postId);
-    await Promise.all([
-      store.dispatch("clubChats/loadClubChatRooms", { clubId }),
-      store.dispatch("clubPosts/loadOnePost", { clubId, postId }),
-    ]);
+    await store.dispatch("clubPosts/loadOnePost", { clubId, postId });
 
     return {
       isPostWriter:
         store.state.clubs?.myClubMember?.id ===
         store.state.clubPosts?.onePost?.ClubMember?.id,
-      postContent: store.state.clubPosts?.onePost.content.replace(
-        /(?:\r\n|\r|\n)/g,
-        "<br />"
-      ),
     };
   },
   computed: {

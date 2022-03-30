@@ -10,7 +10,8 @@ export default function ({ $axios, app, store, redirect }) {
 
   $axios.onResponseError(async (err) => {
     const originalRequest = err.config;
-    // console.log("(axios)Making response error ");
+    console.log("(axios)Making response error ");
+    // console.log(err.response);
     if (
       err.response?.status === 401 &&
       err.response?.data?.error?.accessTokenExpired === true
