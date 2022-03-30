@@ -89,7 +89,7 @@ export default {
     const clubId = Number(params.id);
     const postId = Number(params.postId);
     await Promise.all([
-      store.dispatch("clubChats/loadClubChats", { clubId }),
+      store.dispatch("clubChats/loadClubChatRooms", { clubId }),
       store.dispatch("clubPosts/loadOnePost", { clubId, postId }),
     ]);
     const isPostWriter =

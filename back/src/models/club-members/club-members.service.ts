@@ -5,6 +5,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
 import { Connection, Repository } from 'typeorm';
@@ -25,6 +26,7 @@ export class ClubMembersService {
     @InjectRepository(ClubAppAnswers)
     private readonly clubAppAnswersRepository: Repository<ClubAppAnswers>,
     private readonly connection: Connection,
+    private readonly configService: ConfigService,
   ) {}
 
   async createMemberAndUpdateAppAnswer(
@@ -62,7 +64,7 @@ export class ClubMembersService {
     const userInRedis = await this.redisManager.get<Users>(`user:${userId}`);
     userInRedis.ClubMembers.push(clubMembers);
     await this.redisManager.set(`user:${userId}`, userInRedis, {
-      ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
+      ttl: Number(this.configService.get('JWT_REFRESH_EXPIRY_TIME')),
     });
     return;
   }

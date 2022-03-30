@@ -45,9 +45,9 @@
                                 <v-col cols="1">
                                   <small>{{ post.ClubMember.nickname }}</small>
                                 </v-col>
-                                <v-col cols="1">
+                                <v-col cols="2">
                                   <small>{{
-                                    $moment(post.createdAt).fromNow()
+                                    $dayjs(post.createdAt).fromNow()
                                   }}</small>
                                 </v-col>
                               </v-row>
@@ -86,7 +86,7 @@ export default {
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
     await Promise.all([
-      store.dispatch("clubChats/loadClubChats", { clubId }),
+      store.dispatch("clubChats/loadClubChatRooms", { clubId }),
       store.dispatch("clubPosts/loadAllPosts", { clubId }),
     ]);
 

@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { AuthService } from '../auth.service';
 import { Users } from 'src/models/users/entities/users.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -14,13 +15,14 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
+    private readonly configService: ConfigService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req) => req?.cookies?.Refresh,
       ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_REFRESH_SECRET,
+      secretOrKey: configService.get('JWT_REFRESH_SECRET'),
       passReqToCallback: true,
     });
   }

@@ -5,25 +5,31 @@ import { HttpExceptionFilter } from 'http-exception.filter';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
-import * as csurf from 'csurf';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger:
+      process.env.NODE_ENV === 'production'
+        ? ['error', 'warn', 'log']
+        : ['error', 'log', 'warn', 'debug', 'verbose'],
+  });
+  const configService = app.get(ConfigService);
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.setGlobalPrefix('api');
-  app.use(cookieParser(process.env.COOKIE_SECRET));
-  if (process.env.NODE_ENV === 'production') {
+  app.use(cookieParser(configService.get<string>('COOKIE_SECRET')));
+  if (configService.get<string>('NODE_ENV') === 'production') {
     console.log('production start');
     app.enableCors({
-      origin: [`http://${process.env.BACK_HOST}`],
+      origin: [`http://${configService.get<string>('BACK_HOST')}`],
       credentials: true,
     });
     app.use(helmet());
-    //app.use(csurf({ cookie: true, sessionKey: process.env.COOKIE_SECRET }));
+    //app.use(csurf({ cookie: true, sessionKey: COOKIE_SECRET }));
   } else {
     app.enableCors({
       origin: ['http://localhost:8080', 'ws://localhost:80/'],
@@ -40,7 +46,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('/api/swagger', app, document);
 
-  const port = process.env.BACK_PORT || 8000;
+  const port = configService.get<number>('BACK_PORT', 8000);
   await app.listen(port);
   console.log(`listening on port ${port}`);
 

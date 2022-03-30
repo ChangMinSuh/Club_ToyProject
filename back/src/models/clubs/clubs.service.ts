@@ -19,6 +19,7 @@ import {
   ClubAppAnswerStatusEnum,
 } from '../club-app-answers/entities/club-app-answers.entity';
 import { Cache } from 'cache-manager';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ClubsService {
@@ -34,6 +35,7 @@ export class ClubsService {
     @InjectRepository(ClubAppAnswers)
     private readonly clubAppAnswersRepository: Repository<ClubAppAnswers>,
     private readonly connection: Connection,
+    private readonly configService: ConfigService,
   ) {}
 
   async createClub(
@@ -69,7 +71,7 @@ export class ClubsService {
     const userInRedis = await this.redisManager.get<Users>(`user:${userId}`);
     userInRedis.ClubMembers.push(clubMembers);
     await this.redisManager.set(`user:${userId}`, userInRedis, {
-      ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
+      ttl: Number(this.configService.get('JWT_REFRESH_EXPIRY_TIME')),
     });
     return;
   }

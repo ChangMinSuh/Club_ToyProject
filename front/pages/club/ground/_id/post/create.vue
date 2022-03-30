@@ -87,7 +87,7 @@ export default {
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
-    await store.dispatch("clubChats/loadClubChats", { clubId });
+    await store.dispatch("clubChats/loadClubChatRooms", { clubId });
     console.log(store.state.users.me?.ClubMembers);
   },
   computed: {

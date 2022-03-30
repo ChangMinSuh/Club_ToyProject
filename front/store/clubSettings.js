@@ -25,7 +25,7 @@ export const mutations = {
     const removeIndex = state.clubAppQuestions.findIndex(
       (clubAppQuestion) => clubAppQuestion.id === payload.clubAppQuestionId
     );
-    console.log(removeIndex);
+    //console.log(removeIndex);
     if (removeIndex > 0) state.clubAppQuestions.splice(removeIndex, 1);
   },
 
@@ -112,7 +112,7 @@ export const actions = {
 
   async pushClubAppAnswers({ commit }, payload) {
     try {
-      console.log(payload);
+      //console.log(payload);
       await this.$axios.$post(`/clubs/${payload.clubId}/app/answers`, {
         clubAppAnswerItems: payload.clubAppAnswerItems,
         nickname: payload.nickname,

@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CookieTokenDto } from './dto/cookie-token.dto';
 import { Cache } from 'cache-manager';
 import { ValidateUserReturn } from './dto/validate-user.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser({ email, password }): Promise<ValidateUserReturn> {
@@ -46,8 +48,10 @@ export class AuthService {
 
   async getCookieWithAccessToken(payload: any): Promise<CookieTokenDto> {
     const token = await this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: Number(process.env.JWT_ACCESS_EXPIRY_TIME),
+      secret: this.configService.get('JWT_ACCESS_SECRET'),
+      expiresIn: Number(
+        this.configService.get<number>('JWT_ACCESS_EXPIRY_TIME'),
+      ),
     });
     return {
       token: token,
@@ -60,8 +64,10 @@ export class AuthService {
   async getCookieWithRefreshToken(): Promise<CookieTokenDto> {
     const payload = {};
     const token = await this.jwtService.sign(payload, {
-      secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
+      secret: this.configService.get('JWT_REFRESH_SECRET'),
+      expiresIn: Number(
+        this.configService.get<number>('JWT_REFRESH_EXPIRY_TIME'),
+      ),
     });
     return {
       token: token,
@@ -74,7 +80,7 @@ export class AuthService {
   async setRefreshTokenInDb(refreshToken, userId: number): Promise<void> {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.redisManager.set(`user:refresh:${userId}`, hashRefreshToken, {
-      ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
+      ttl: Number(this.configService.get<number>('JWT_REFRESH_EXPIRY_TIME')),
     });
   }
 
@@ -84,7 +90,7 @@ export class AuthService {
 
   async setUserInDb(user: Users): Promise<void> {
     await this.redisManager.set(`user:${user.id}`, user, {
-      ttl: Number(process.env.JWT_REFRESH_EXPIRY_TIME),
+      ttl: Number(this.configService.get<number>('JWT_REFRESH_EXPIRY_TIME')),
     });
   }
 

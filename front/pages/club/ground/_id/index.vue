@@ -19,13 +19,6 @@
               <v-card-text>
                 {{ onlineClub.name }}
               </v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">gg</v-col>
-                  <v-col cols="6">g</v-col>
-                  <v-col cols="6">g</v-col>
-                </v-row>
-              </v-container>
             </v-card>
           </v-col>
         </v-row>
@@ -46,8 +39,7 @@ export default {
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
-    await store.dispatch("clubChats/loadClubChats", { clubId });
-    console.log(store.state.users.me?.ClubMembers);
+    await store.dispatch("clubChats/loadClubChatRooms", { clubId });
   },
   computed: {
     ...clubsHelper.mapState(["onlineClub"]),

@@ -1,5 +1,5 @@
 import { CacheModule, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,15 +17,25 @@ import { JwtAccessWsGuard } from './guards/jwt-access-ws.guard';
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([Users]),
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_ACCESS_SECRET,
-      signOptions: { expiresIn: process.env.JWT_ACCESS_EXPIRY_TIME },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('JWT_ACCESS_SECRET'),
+        signOptions: {
+          expiresIn: configService.get('JWT_ACCESS_EXPIRY_TIME'),
+        },
+      }),
+      inject: [ConfigService],
     }),
     CacheModule.register({
-      store: redisStore,
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT,
-      password: process.env.REDIS_PASSWORD,
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('REDIS_HOST'),
+        port: configService.get('REDIS_PORT'),
+        password: configService.get('REDIS_PASSWORD'),
+      }),
+      inject: [ConfigService],
     }),
   ],
   providers: [

@@ -34,7 +34,6 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/vuetify
     "@nuxtjs/vuetify",
-    "@nuxtjs/moment",
     "@nuxtjs/dotenv",
   ],
 
@@ -44,6 +43,7 @@ export default {
     "cookie-universal-nuxt",
     "@nuxtjs/proxy",
     "nuxt-socket-io",
+    "@nuxtjs/dayjs",
   ],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -52,8 +52,11 @@ export default {
     theme: {},
   },
 
-  moment: {
+  dayjs: {
     locales: ["ko"],
+    defaultLocale: "ko",
+    defaultTimeZone: "Asia/Korea",
+    plugins: ["utc", "timezone", "relativeTime", "advancedFormat"],
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
