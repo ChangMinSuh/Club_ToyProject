@@ -1,30 +1,8 @@
 <template>
   <v-app>
-    <v-main class="grey lighten-3">
-      <v-container>
-        <v-row>
-          <v-col>
-            {{ onlineClub.name }}
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="2">
-            <v-card rounded="lg">
-              <ClubSidebar />
-            </v-card>
-          </v-col>
-
-          <v-col>
-            <v-card min-height="70vh" rounded="lg">
-              <v-card-text>
-                {{ onlineClub.name }}
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-      <ClubChat />
-    </v-main>
+    <v-card-text>
+      {{ onlineClub.name }}
+    </v-card-text>
   </v-app>
 </template>
 
@@ -35,7 +13,7 @@ const clubsHelper = createNamespacedHelpers("clubs");
 const usersHelper = createNamespacedHelpers("users");
 
 export default {
-  middleware: ["isClubMember"],
+  layout: "ClubLayout",
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);

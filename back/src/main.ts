@@ -7,6 +7,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
 
 declare const module: any;
 
@@ -36,7 +37,11 @@ async function bootstrap() {
       credentials: true,
     });
   }
-
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
+  console.log(__dirname);
+  console.log(join(__dirname, '..', 'uploads'));
   const swaggerConfig = new DocumentBuilder()
     .setTitle('SweetIPO API')
     .setDescription('SweetIPO 개발을 위한 API 문서입니다.')

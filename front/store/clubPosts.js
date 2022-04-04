@@ -5,7 +5,10 @@ export const state = () => ({
 });
 
 // 저장소의 계산된 속성
-export const getters = {};
+export const getters = {
+  allPostsPart: (state) => (page, MaxPostInPage) =>
+    state.allPosts.slice((page - 1) * MaxPostInPage, page * MaxPostInPage),
+};
 
 export const mutations = {
   setAllPosts(state, payload) {
@@ -44,6 +47,19 @@ export const actions = {
         title: payload.title,
         content: payload.content,
       });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  async pushPostImages({ commit }, { clubId, images }) {
+    try {
+      console.log(images);
+      const res = await this.$axios.$post(
+        `clubs/${clubId}/posts/images`,
+        images
+      );
+      return res.data;
     } catch (err) {
       console.error(err);
     }

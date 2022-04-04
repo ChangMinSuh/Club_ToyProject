@@ -1,75 +1,64 @@
 <template>
   <v-app>
-    <v-main class="grey lighten-3">
-      <v-container>
-        <v-row>
-          <v-col>
-            {{ onlineClub.name }}
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="2">
-            <v-card rounded="lg">
-              <ClubSidebar />
-            </v-card>
-          </v-col>
+    <v-card-title> 전체 게시판 </v-card-title>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn nuxt to="create" append>새 문서</v-btn>
+    </v-card-actions>
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          {{ page }}
+          {{ allPostsPart(page, MaxPostInPage).map((post) => post.id) }}
+          <v-list three-line>
+            <template
+              v-for="(post, index) in allPostsPart(page, MaxPostInPage)"
+            >
+              <v-divider :key="index"></v-divider>
 
-          <v-col>
-            <v-card min-height="70vh" rounded="lg">
-              <v-card-title> 전체 게시판 </v-card-title>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn nuxt to="create" append>새 문서</v-btn>
-              </v-card-actions>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-list three-line>
-                      <template v-for="(post, index) in allPosts">
-                        <v-divider :key="index"></v-divider>
-
-                        <v-list-item :key="post.id">
-                          <v-list-item-content>
-                            <v-list-item-title>
-                              <v-row>
-                                <v-col>
-                                  <nuxt-link
-                                    style="text-decoration: none; color: black"
-                                    :to="`${post.id}`"
-                                    append
-                                  >
-                                    {{ post.title }}
-                                  </nuxt-link>
-                                </v-col>
-                                <v-spacer></v-spacer>
-                                <v-col cols="1">
-                                  <small>{{ post.ClubMember.nickname }}</small>
-                                </v-col>
-                                <v-col cols="2">
-                                  <small>{{
-                                    $dayjs(post.createdAt).fromNow()
-                                  }}</small>
-                                </v-col>
-                              </v-row>
-                            </v-list-item-title>
-                            <v-list-item-subtitle> </v-list-item-subtitle>
-                            <v-list-item-subtitle
-                              v-html="post.content"
-                            ></v-list-item-subtitle>
-                          </v-list-item-content>
-                        </v-list-item>
-                      </template>
-                    </v-list>
-                    <v-divider></v-divider>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-      <ClubChat />
-    </v-main>
+              <v-list-item :key="index" dense>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    <v-row>
+                      <v-col>
+                        <nuxt-link
+                          style="text-decoration: none; color: black"
+                          :to="`${post.id}`"
+                          append
+                        >
+                          {{ post.title }}
+                        </nuxt-link>
+                      </v-col>
+                      <v-spacer></v-spacer>
+                      <v-col cols="1">
+                        <small>{{ post.ClubMember.nickname }}</small>
+                      </v-col>
+                      <v-col cols="2">
+                        <small>{{ $dayjs(post.createdAt).fromNow() }}</small>
+                      </v-col>
+                    </v-row>
+                  </v-list-item-title>
+                  <v-list-item-subtitle> </v-list-item-subtitle>
+                  <v-list-item-subtitle
+                    v-html="$md.render(post.content)"
+                  ></v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-col>
+        <v-col>
+          <template>
+            <div class="text-center">
+              <v-pagination
+                v-model="page"
+                :length="Math.ceil(allPosts.length / MaxPostInPage)"
+              ></v-pagination>
+            </div>
+          </template>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-app>
 </template>
 
@@ -81,7 +70,7 @@ const clubPostsHelper = createNamespacedHelpers("clubPosts");
 const usersHelper = createNamespacedHelpers("users");
 
 export default {
-  middleware: ["isClubMember"],
+  layout: "ClubLayout",
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
@@ -92,9 +81,14 @@ export default {
     ...clubsHelper.mapState(["onlineClub"]),
     ...clubPostsHelper.mapState(["allPosts"]),
     ...usersHelper.mapState(["me"]),
+
+    ...clubPostsHelper.mapGetters(["allPostsPart"]),
   },
 
-  data: () => ({}),
+  data: () => ({
+    page: 1,
+    MaxPostInPage: 5,
+  }),
 };
 </script>
 

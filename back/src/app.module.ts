@@ -16,6 +16,8 @@ import { UsersModule } from './models/users/users.module';
 import { ClubMembersModule } from './models/club-members/club-members.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -45,5 +47,7 @@ import { SuccessResponseInterceptor } from './common/interceptors/success-respon
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
+    console.log(__dirname);
+    console.log(join(__dirname, '..', 'uploads'));
   }
 }

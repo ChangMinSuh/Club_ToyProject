@@ -51,6 +51,7 @@ export default {
     preset: "default",
     linkify: true,
     breaks: true,
+    html: true,
     use: ["markdown-it-div", "markdown-it-attrs"],
     runtime: true,
   },

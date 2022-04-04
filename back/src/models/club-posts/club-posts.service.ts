@@ -30,6 +30,9 @@ export class ClubPostsService {
     const result = await this.clubPostsRepository.find({
       where: { ClubId: clubId },
       relations: ['ClubMember'],
+      order: {
+        createdAt: 'DESC',
+      },
     });
     return result;
   }

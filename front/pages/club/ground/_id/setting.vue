@@ -1,40 +1,26 @@
 <template>
   <v-app>
-    <v-main class="grey lighten-3">
-      <v-container>
-        <v-row>
-          <v-col>
-            {{ onlineClub.name }}
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="2">
-            <v-card rounded="lg">
-              <v-list color="transparent">
-                <v-list-item nuxt :to="mainUrl" link>
-                  <v-list-item-content>
-                    <v-list-item-title> 메인 </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider />
-                <v-list-item link>
-                  <v-list-item-content>
-                    <v-list-item-title>회원관리</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </v-card>
-          </v-col>
+    <v-container>
+      <v-row>
+        <v-col cols="2">
+          <v-card rounded="lg">
+            <v-list color="transparent">
+              <v-list-item link>
+                <v-list-item-content>
+                  <v-list-item-title>회원관리</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
 
-          <v-col>
-            <v-card min-height="70vh" rounded="lg">
-              <ClubBoardSettingUsers />
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-      <ClubChat />
-    </v-main>
+        <v-col>
+          <v-card min-height="70vh" rounded="lg">
+            <ClubBoardSettingUsers />
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-app>
 </template>
 
@@ -45,7 +31,8 @@ const clubsHelper = createNamespacedHelpers("clubs");
 const usersHelper = createNamespacedHelpers("users");
 
 export default {
-  middleware: ["isClubMember", "isClubManager"],
+  layout: "ClubLayout",
+  middleware: ["isClubManager"],
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);

@@ -1,61 +1,28 @@
 <template>
   <v-app>
-    <v-main class="grey lighten-3">
-      <v-container>
-        <v-row>
-          <v-col>
-            {{ onlineClub.name }}
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="2">
-            <v-card rounded="lg">
-              <ClubSidebar />
-            </v-card>
-          </v-col>
+    <v-card-title primary-title>
+      {{ onePost.title }}
+    </v-card-title>
 
-          <v-col>
-            <v-card>
-              <v-card-title primary-title>
-                {{ onePost.title }}
-              </v-card-title>
+    <v-card-text>
+      <v-row>
+        <v-spacer></v-spacer>
+        등급:
+        {{ onePost.ClubMember.grade }}
+        {{ onePost.ClubMember.nickname }}
+      </v-row>
+    </v-card-text>
+    <v-card-text v-html="$md.render(onePost.content)"> </v-card-text>
 
-              <v-card-text>
-                <v-row>
-                  <v-spacer></v-spacer>
-                  등급:
-                  {{ onePost.ClubMember.grade }}
-                  {{ onePost.ClubMember.nickname }}
-                </v-row>
-              </v-card-text>
-              <v-card-text v-html="$md.render(onePost.content)"> </v-card-text>
-
-              <v-card-actions>
-                <v-btn small color="primary" @click="back">이전</v-btn>
-                <v-btn
-                  v-if="isPostWriter"
-                  small
-                  color="primary"
-                  nuxt
-                  to="update"
-                  append
-                >
-                  수정
-                </v-btn>
-                <v-btn
-                  v-if="isPostWriter"
-                  small
-                  color="primary"
-                  @click="deletePost"
-                  >삭제</v-btn
-                >
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-      <ClubChat />
-    </v-main>
+    <v-card-actions>
+      <v-btn small color="primary" @click="back">이전</v-btn>
+      <v-btn v-if="isPostWriter" small color="primary" nuxt to="update" append>
+        수정
+      </v-btn>
+      <v-btn v-if="isPostWriter" small color="primary" @click="deletePost"
+        >삭제</v-btn
+      >
+    </v-card-actions>
   </v-app>
 </template>
 
@@ -67,7 +34,7 @@ const clubPostsHelper = createNamespacedHelpers("clubPosts");
 const usersHelper = createNamespacedHelpers("users");
 
 export default {
-  middleware: ["isClubMember"],
+  layout: "ClubLayout",
 
   async asyncData({ store, params }) {
     const clubId = Number(params.id);
