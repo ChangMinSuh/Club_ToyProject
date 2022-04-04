@@ -14,6 +14,7 @@ export class JwtAccessGuard extends AuthGuard('jwt-access-token') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const accessToken = req.cookies?.Authentication;
+    console.log('accessToken', accessToken);
     if (!accessToken) throw new UnauthorizedException('no access token');
     return this.activate(context);
   }

@@ -23,9 +23,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       ClubAppQuestions,
       ClubAppAnswers,
     ]),
-    CacheModule.register({
+    CacheModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         store: redisStore,
         host: configService.get('REDIS_HOST'),
         port: configService.get('REDIS_PORT'),

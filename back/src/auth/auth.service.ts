@@ -103,12 +103,10 @@ export class AuthService {
     refreshToken,
     decodedAccessToken,
   }): Promise<Users> {
-    console.log(refreshToken, decodedAccessToken);
     const { id } = decodedAccessToken;
     const currentHashedRefreshToken = await this.redisManager.get(
       `user:refresh:${id}`,
     );
-    console.log(currentHashedRefreshToken);
     if (currentHashedRefreshToken === null)
       throw new UnauthorizedException('refresh token is not in db');
 
@@ -120,7 +118,6 @@ export class AuthService {
       throw new UnauthorizedException('refresh token is not compare');
 
     const result = await this.redisManager.get<Users>(`user:${id}`);
-    console.log(result);
     return result;
   }
 }
