@@ -22,6 +22,7 @@ jobs:
           file: ./back/Dockerfile.dev
           push: false
           tags: sweetclub-back-test
+          load: true
           
       - name: back test
         run: docker run sweetclub-back-test npm run test
