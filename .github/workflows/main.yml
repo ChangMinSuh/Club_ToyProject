@@ -19,7 +19,7 @@ jobs:
         uses: docker/build-push-action@v2.10.0
         with:
           context: ./back
-          file: Dockerfile.dev
+          file: ./back/Dockerfile.dev
           push: false
           tags: sweetclub-back-test
           
