@@ -24,7 +24,7 @@ jobs:
           tags: sweetclub-back-test
           
       - name: back test
-        run: docker run sweetclub-back-test -f ./back/Dockerfile.dev ./back
+        run: docker run sweetclub-back-test npm run test
           
       - name: Docker Login
         uses: docker/login-action@v1.14.1
