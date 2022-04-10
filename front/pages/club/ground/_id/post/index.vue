@@ -8,8 +8,6 @@
     <v-container>
       <v-row>
         <v-col cols="12">
-          {{ page }}
-          {{ allPostsPart(page, MaxPostInPage).map((post) => post.id) }}
           <v-list three-line>
             <template
               v-for="(post, index) in allPostsPart(page, MaxPostInPage)"
