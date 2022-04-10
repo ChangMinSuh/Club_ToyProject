@@ -1,4 +1,5 @@
 import { ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
@@ -32,7 +33,9 @@ const mockCacheManager = () => ({
   get: jest.fn(),
   set: jest.fn(),
 });
-
+const mockConfigService = () => ({
+  get: jest.fn(() => '123'),
+});
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 type MockConnection = Partial<Record<keyof Connection, jest.Mock>>;
 type MockCache = Partial<Record<keyof Cache, jest.Mock>>;
@@ -69,6 +72,10 @@ describe('ClubsService', () => {
         {
           provide: 'CACHE_MANAGER',
           useValue: mockCacheManager(),
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService(),
         },
       ],
     }).compile();

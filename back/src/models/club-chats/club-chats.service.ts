@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, MoreThan, Repository } from 'typeorm';
 import { Clubs } from '../clubs/entities/clubs.entity';
@@ -63,21 +67,20 @@ export class ClubChatsService {
     newClubChatRoom.ClubId = clubId;
 
     await this.connection.transaction(async (manager) => {
-      const newRoom = await manager.getRepository(Clubs).save(newClubChatRoom);
+      const newRoom = await manager
+        .getRepository(ClubChatRooms)
+        .save(newClubChatRoom);
       await manager.getRepository(ClubChatRoomMembers).save({
         ClubChatRoomId: newRoom.id,
         ClubMemberId: body.clubMemberId,
       });
     });
-
     return;
   }
 
   async findClubChatRoomsToSameClubId(
     clubId: number,
-    memberId: number,
   ): Promise<ClubChatRooms[]> {
-    console.log('clubId:', clubId);
     return this.clubChatRoomsRepository.find({
       relations: ['ClubChatRoomMembers', 'ClubChatRoomMembers.ClubMember'],
       where: {
@@ -97,6 +100,10 @@ export class ClubChatsService {
       where: { id: roomId },
     });
 
+    if (!beforeClubChatRoom) {
+      throw new ConflictException('존재하지 않는 채팅방입니다.');
+    }
+
     beforeClubChatRoom.name = body.name;
     beforeClubChatRoom.explanation = body.explanation;
 
@@ -111,7 +118,7 @@ export class ClubChatsService {
     });
 
     if (!ClubChatRoom) {
-      throw new ConflictException('채팅창이 존재하지 않습니다.');
+      throw new ConflictException('존재하지 않는 채팅방입니다.');
     }
 
     this.clubChatRoomsRepository.remove(ClubChatRoom);
@@ -124,7 +131,7 @@ export class ClubChatsService {
     clubId: number,
     clubMemberId: number,
   ) {
-    return await this.clubChatRoomMembersRepository.find({
+    return this.clubChatRoomMembersRepository.find({
       relations: ['ClubChatRoom'],
       where: {
         ClubMemberId: clubMemberId,

@@ -73,10 +73,6 @@ describe('ClubPostsService', () => {
       const result = await service.findAllPosts(findAllPostsArgs.clubId);
 
       expect(clubPostsRepository.find).toHaveBeenCalled();
-      expect(clubPostsRepository.find).toHaveBeenCalledWith({
-        where: { ClubId: findAllPostsArgs.clubId },
-        relations: ['ClubMember'],
-      });
 
       expect(result).toEqual([clubPostTmp]);
     });

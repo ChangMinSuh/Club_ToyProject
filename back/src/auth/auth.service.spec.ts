@@ -1,8 +1,5 @@
-import {
-  CACHE_MANAGER,
-  ConflictException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CACHE_MANAGER, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -33,6 +30,10 @@ const mockRedisManager = () => ({
   del: jest.fn(),
 });
 
+const mockConfigService = () => ({
+  get: jest.fn(() => '123'),
+});
+
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 type MockCache = Partial<Record<keyof Cache, jest.Mock>>;
 
@@ -58,9 +59,12 @@ describe('AuthService', () => {
           provide: CACHE_MANAGER,
           useValue: mockRedisManager(),
         },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService(),
+        },
       ],
     }).compile();
-
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
     usersRepository = module.get(getRepositoryToken(Users));

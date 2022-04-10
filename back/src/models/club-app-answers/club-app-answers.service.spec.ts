@@ -9,6 +9,8 @@ import {
 
 const mockRepository = () => ({
   find: jest.fn(),
+  save: jest.fn(),
+  findOne: jest.fn(),
 });
 const mockConnection = () => ({
   transaction: jest.fn(),
@@ -108,6 +110,24 @@ describe('ClubAppAnswersService', () => {
       expect(clubAppAnswersRepository.find).toHaveBeenCalled();
 
       expect(result).toEqual(clubAppAnswersTmp);
+    });
+  });
+
+  describe('updateAppAnswerStatus', () => {
+    const updateAppAnswerStatusArgs = {
+      clubAppAnswerId: 1,
+      body: {
+        status: ClubAppAnswerStatusEnum.Passed,
+      },
+    };
+    it('should be update app answer to status', async () => {
+      clubAppAnswersRepository.findOne.mockResolvedValue(clubAppAnswersTmp);
+      await service.updateAppAnswerStatus(
+        updateAppAnswerStatusArgs.clubAppAnswerId,
+        updateAppAnswerStatusArgs.body,
+      );
+
+      expect(clubAppAnswersRepository.save).toHaveBeenCalled();
     });
   });
 });
