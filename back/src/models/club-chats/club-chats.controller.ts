@@ -95,10 +95,7 @@ export class ClubChatsController {
     @ClubMember() clubMember: ClubMembers,
   ): Promise<ClubChatRooms[]> {
     console.log(clubId);
-    return this.clubChatsService.findClubChatRoomsToSameClubId(
-      clubId,
-      clubMember.id,
-    );
+    return this.clubChatsService.findClubChatRoomsToSameClubId(clubId);
   }
 
   @ApiOperation({ summary: '채팅방 정보 수정' })
