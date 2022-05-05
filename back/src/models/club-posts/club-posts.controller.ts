@@ -8,12 +8,9 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
-  UseInterceptors,
-  UploadedFiles,
-  UnsupportedMediaTypeException,
+  Query,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtAccessGuard } from 'src/auth/guards/jwt-access.guard';
 import { ClubMember } from 'src/common/decorators/club-member.decorator';
 import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';
@@ -25,12 +22,12 @@ import {
 import { ClubPostsService } from './club-posts.service';
 import { CreatePostBody } from './dto/create-post.dto';
 import { UpdatePostBody } from './dto/update-post.dto';
-import { ClubPosts } from './entities/club-posts.entity';
-import { Express } from 'express';
+import {
+  ClubPosts,
+  ClubPostShowStatusEnum,
+} from './entities/club-posts.entity';
 import { ConfigService } from '@nestjs/config';
-import { basename, extname } from 'path';
 import { mkdirSync, readdirSync } from 'fs';
-import { diskStorage } from 'multer';
 if (process.env.NODE_ENV !== 'production') {
   try {
     readdirSync('uploads/club-posts');
@@ -59,49 +56,12 @@ export class ClubPostsController {
     return this.clubPostsService.createPost(clubId, clubMember.id, body);
   }
 
-  @ApiOperation({ summary: '클럽 게시판 사진 업로드' })
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      // // 이미지 파일인지
-      fileFilter: (req, file, cb) => {
-        if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-          cb(null, true);
-        } else {
-          cb(
-            new UnsupportedMediaTypeException(
-              '이미지파일이 아닙니다. jpg|jpeg|png|gif',
-            ),
-            false,
-          );
-        }
-      },
-      // 경로 저장
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          cb(null, 'uploads/club-posts');
-        },
-        filename: (req, file, cb) => {
-          const ext = extname(file.originalname);
-          const baseName = basename(file.originalname, ext);
-          cb(null, `${baseName}-${Date.now() + ''}${ext}`);
-        },
-      }),
-      limits: { fileSize: 5 * 1024 * 1024 },
-    }),
-  )
-  @Post('images')
-  savePostImage(@UploadedFiles() files: Express.Multer.File[]) {
-    console.log(files);
-    return this.configService.get<string>('NODE_ENV') !== 'production'
-      ? files.map((file) => `/uploads/club-posts/${file.filename}`)
-      : [];
-  }
-
   @Get()
   findAllPosts(
     @Param('clubId', ParseIntPipe) clubId: number,
+    @Query('showStatus') showStatus: string,
   ): Promise<ClubPosts[]> {
-    return this.clubPostsService.findAllPosts(clubId);
+    return this.clubPostsService.findAllPosts(clubId, showStatus);
   }
 
   @Get(':postId')

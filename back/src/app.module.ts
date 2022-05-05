@@ -6,7 +6,7 @@ import { LoggerMiddleware } from 'src/middleware/logger.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ClubChatsModule } from './models/club-chats/club-chats.module';
-import * as ormconfig from 'ormconfig';
+import * as ormconfig from '../ormconfig';
 import { ClubsModule } from './models/clubs/clubs.module';
 import { ClubPostsModule } from './models/club-posts/club-posts.module';
 import { ClubAppAnswersModule } from './models/club-app-answers/club-app-answers.module';
@@ -16,8 +16,8 @@ import { UsersModule } from './models/users/users.module';
 import { ClubMembersModule } from './models/club-members/club-members.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ClubMemberFilesModule } from './models/club-files/club-files.module';
 
 @Module({
   imports: [
@@ -34,6 +34,7 @@ import { join } from 'path';
     ClubAppQuestionsModule,
     ClubIntroducesModule,
     ClubMembersModule,
+    ClubMemberFilesModule,
   ],
   controllers: [AppController],
   providers: [

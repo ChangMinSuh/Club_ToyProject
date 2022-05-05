@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, MoreThan, Repository } from 'typeorm';
+import { ClubMembers } from '../club-members/entities/club-members.entity';
 import { Clubs } from '../clubs/entities/clubs.entity';
+import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 import { ClubChatRoomMembers } from './entities/club-chat-room-members.entity';
 import { ClubChatRooms } from './entities/club-chat-rooms.entity';
 import { ClubChats } from './entities/club-chats.entity';
@@ -19,29 +21,24 @@ export class ClubChatsService {
     private readonly clubChatRoomsRepository: Repository<ClubChatRooms>,
     @InjectRepository(ClubChatRoomMembers)
     private readonly clubChatRoomMembersRepository: Repository<ClubChatRoomMembers>,
+    @InjectRepository(ClubMembers)
+    private readonly clubMembersRepository: Repository<ClubMembers>,
     private readonly connection: Connection,
   ) {}
 
   // club_chats
 
-  async setClubChat(data): Promise<ClubChats> {
+  async setClubChat(data: SetClubChatsDataDto): Promise<ClubChats> {
     const clubChat = new ClubChats();
     clubChat.content = data.content;
     clubChat.ClubChatRoomId = data.ClubChatRoomId;
     clubChat.ClubMember = data.ClubMember;
+    clubChat.isNotice = data.isNotice;
     const result = this.clubChatsRepository.save(clubChat);
     return result;
   }
 
-  async findClubChatToSameRoomId(roomId: number): Promise<ClubChats[]> {
-    return this.clubChatsRepository.find({
-      where: { ClubChatRoomId: roomId },
-      relations: ['ClubMember', 'ClubMember.ClubChatRoomMembers'],
-    });
-  }
-
   async findUnreadClubChat(ClubChatRoomId: number, loggedInAt: string) {
-    console.log(loggedInAt);
     return this.clubChatsRepository.count({
       where: {
         ClubChatRoomId: ClubChatRoomId,
@@ -55,12 +52,12 @@ export class ClubChatsService {
   // 채팅방 생성, 생성자를 채팅 멤버로 추가
   async createClubChatRoom(
     clubId: number,
+    clubMemberId: number,
     body: {
       name: string;
       explanation: string;
-      clubMemberId: number;
     },
-  ): Promise<void> {
+  ): Promise<ClubChatRooms> {
     const newClubChatRoom = new ClubChatRooms();
     newClubChatRoom.name = body.name;
     newClubChatRoom.explanation = body.explanation;
@@ -72,10 +69,24 @@ export class ClubChatsService {
         .save(newClubChatRoom);
       await manager.getRepository(ClubChatRoomMembers).save({
         ClubChatRoomId: newRoom.id,
-        ClubMemberId: body.clubMemberId,
+        ClubMemberId: clubMemberId,
       });
     });
-    return;
+    return newClubChatRoom;
+  }
+
+  async findClubChatRoom(roomId: number): Promise<ClubChatRooms> {
+    return this.clubChatRoomsRepository
+      .createQueryBuilder('clubChatRooms')
+      .leftJoinAndSelect(
+        'clubChatRooms.ClubChatRoomMembers',
+        'clubChatRoomMembers',
+      )
+      .leftJoinAndSelect('clubChatRooms.ClubChats', 'clubChats')
+      .leftJoinAndSelect('clubChats.ClubMember', 'ClubMember')
+      .where('clubChatRooms.Id = :roomId', { roomId })
+      .orderBy('ClubChats.createdAt', 'ASC')
+      .getOne();
   }
 
   async findClubChatRoomsToSameClubId(
@@ -142,15 +153,23 @@ export class ClubChatsService {
     });
   }
 
-  async createClubChatRoomMember(
+  async createClubChatRoomMembers(
     roomId: number,
-    clubMemberId: number,
-  ): Promise<void> {
-    await this.clubChatRoomMembersRepository.save({
-      ClubChatRoomId: roomId,
-      ClubMemberId: clubMemberId,
+    clubMembersId: number[],
+  ): Promise<ClubChatRoomMembers[]> {
+    const clubMembers = await this.clubMembersRepository.find({
+      where: {
+        id: clubMembersId,
+      },
     });
-    return;
+    const newClubChatRoomMembers = clubMembers.map((clubMember) => {
+      const newClubChatRoomMember = new ClubChatRoomMembers();
+      newClubChatRoomMember.ClubChatRoomId = roomId;
+      newClubChatRoomMember.ClubMember = clubMember;
+      return newClubChatRoomMember;
+    });
+
+    return this.clubChatRoomMembersRepository.save(newClubChatRoomMembers);
   }
 
   async updateTimeOfClubChatRoomMember(
@@ -158,7 +177,6 @@ export class ClubChatsService {
     clubMemberId: number,
     loggedInAt: Date,
   ) {
-    console.log(roomId, clubMemberId);
     const beforeClubCharRoomMember =
       await this.clubChatRoomMembersRepository.findOne({
         ClubChatRoomId: roomId,
@@ -168,7 +186,6 @@ export class ClubChatsService {
     const result = await this.clubChatRoomMembersRepository.save(
       beforeClubCharRoomMember,
     );
-    console.log(result);
     return result;
   }
 }

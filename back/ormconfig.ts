@@ -11,6 +11,7 @@ import { Users } from './src/models/users/entities/users.entity';
 import * as dotenv from 'dotenv';
 import { ClubChatRooms } from './src/models/club-chats/entities/club-chat-rooms.entity';
 import { ClubChatRoomMembers } from './src/models/club-chats/entities/club-chat-room-members.entity';
+import { ClubFiles } from './src/models/club-files/entities/club-files.entity';
 
 dotenv.config();
 const config: TypeOrmModuleOptions = {
@@ -32,6 +33,7 @@ const config: TypeOrmModuleOptions = {
     ClubPosts,
     ClubChatRooms,
     ClubChatRoomMembers,
+    ClubFiles,
   ],
   migrations: [__dirname + '/src/migrations/*.ts'],
   cli: { migrationsDir: 'src/migrations' },
@@ -40,5 +42,5 @@ const config: TypeOrmModuleOptions = {
   logging: process.env.NODE_ENV !== 'production',
   keepConnectionAlive: true,
 };
-
+console.log(__dirname);
 export = config;

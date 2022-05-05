@@ -9,9 +9,10 @@ import { Clubs } from '../../clubs/entities/clubs.entity';
 import { Users } from '../../users/entities/users.entity';
 import { IsNotEmpty, IsString, IsNumber, MaxLength } from 'class-validator';
 import { CoreEntity } from '../../../common/entities/core.entity';
-import { ClubChats } from '../../club-chats/entities/club-chats.entity';
 import { ClubPosts } from '../../club-posts/entities/club-posts.entity';
 import { ClubChatRoomMembers } from '../../club-chats/entities/club-chat-room-members.entity';
+import { ClubFiles } from '../../club-files/entities/club-files.entity';
+import { ClubChats } from '../../club-chats/entities/club-chats.entity';
 
 export enum ClubMembersRoleEnum {
   User = 'user',
@@ -60,6 +61,9 @@ export class ClubMembers extends CoreEntity {
     (clubChatRoomMember) => clubChatRoomMember.ClubMember,
   )
   ClubChatRoomMembers: ClubChatRoomMembers[];
+
+  @OneToMany(() => ClubFiles, (clubFiles) => clubFiles.ClubMember)
+  ClubFiles: ClubFiles[];
 
   @ManyToOne(() => Users, (user) => user.ClubMembers)
   User: Users;

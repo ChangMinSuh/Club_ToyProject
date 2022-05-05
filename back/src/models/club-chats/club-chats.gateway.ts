@@ -11,8 +11,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtAccessWsGuard } from 'src/auth/guards/jwt-access-ws.guard';
-import { ClubMember } from 'src/common/decorators/club-member.decorator';
-import { ClubMembers } from '../club-members/entities/club-members.entity';
 import { ClubChatsService } from './club-chats.service';
 import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 
@@ -26,7 +24,7 @@ import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 export class ClubChatsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly clubChatService: ClubChatsService) {}
+  constructor(private readonly clubChatsService: ClubChatsService) {}
 
   @WebSocketServer()
   server: Server;
@@ -46,14 +44,13 @@ export class ClubChatsGateway
 
     // 내 채팅 목록
     const myClubChatRoomMembers =
-      await this.clubChatService.findMyClubChatRoomMembersWithRooms(
+      await this.clubChatsService.findMyClubChatRoomMembersWithRooms(
         clubMember.ClubId,
         clubMember.id,
       );
 
     // 내 채팅들 집합
     myClubChatRoomMembers.forEach((item) => {
-      console.log(namespaceName, item?.ClubChatRoomId);
       socket.join(`${namespaceName}-${item?.ClubChatRoomId}`);
     });
     this.server
@@ -68,7 +65,7 @@ export class ClubChatsGateway
     @ConnectedSocket() socket: Socket,
   ) {
     const namespaceName = socket.nsp.name;
-    const chatData = await this.clubChatService.setClubChat(data);
+    const chatData = await this.clubChatsService.setClubChat(data);
     this.server
       .to(`${namespaceName}-${data.ClubChatRoomId}`)
       .emit('chat', chatData);
@@ -86,11 +83,45 @@ export class ClubChatsGateway
     @ConnectedSocket() socket: Socket,
   ) {
     console.log(data);
-    await this.clubChatService.updateTimeOfClubChatRoomMember(
+    await this.clubChatsService.updateTimeOfClubChatRoomMember(
       data.ClubChatRoomId,
       data.ClubMemberId,
       data.loggedInAt,
     );
+  }
+
+  @SubscribeMessage('inviteMember')
+  async inviteMember(
+    @MessageBody()
+    data: {
+      roomId: number;
+      body: {
+        clubMembersId: number[];
+      };
+    },
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const namespaceName = socket.nsp.name;
+    const newClubChatRoomMembers =
+      await this.clubChatsService.createClubChatRoomMembers(
+        data.roomId,
+        data.body.clubMembersId,
+      );
+    const newClubChatRoomMembersNames = newClubChatRoomMembers.map(
+      (member) => member.ClubMember.nickname,
+    );
+    const chatData = await this.clubChatsService.setClubChat({
+      content: `${newClubChatRoomMembersNames.join()}이 추가되었습니다.`,
+      ClubChatRoomId: data.roomId,
+      isNotice: true,
+      ClubMember: null,
+    });
+    this.server
+      .to(`${namespaceName}-${data.roomId}`)
+      .emit('newClubChatRoomMembers', {
+        newClubChatRoomMembers,
+        chatData,
+      });
   }
 
   afterInit(server: Server) {
@@ -102,6 +133,7 @@ export class ClubChatsGateway
   }
 
   handleDisconnect(@ConnectedSocket() socket: Socket) {
+    console.log(socket);
     console.log('disconnected', socket.nsp.name);
   }
 }

@@ -14,6 +14,9 @@ export class ClubChats extends CoreEntity {
   @Column('int', { name: 'clubMemberId', nullable: true })
   ClubMemberId: number | null;
 
+  @Column('boolean', { default: false })
+  isNotice: boolean;
+
   @Column('int', { name: 'clubChatRoomId' })
   ClubChatRoomId: number;
 

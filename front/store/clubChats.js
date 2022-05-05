@@ -1,10 +1,16 @@
 export const state = () => ({
   clubChats: [],
+  myClubChatRoom: null,
   clubChatRooms: [],
   serverRes: null,
 });
 
-export const getters = {};
+export const getters = {
+  membersIdInMyClubChatRoom: (state) =>
+    state.myClubChatRoom?.ClubChatRoomMembers?.map(
+      (clubChatRoomMember) => clubChatRoomMember.ClubMemberId
+    ),
+};
 
 export const mutations = {
   setClubChats(state, payload) {
@@ -38,12 +44,19 @@ export const mutations = {
     );
     state.clubChatRooms[index].loggedInAt = loggedInAt;
   },
+  setMyClubChatRoom(state, payload) {
+    state.myClubChatRoom = payload;
+  },
 
   addClubChats(state, payload) {
     state.clubChats.push(payload);
   },
   addClubChatRooms(state, payload) {
     state.clubChatRooms.push(payload);
+  },
+  addClubChatRoomMembersInMyClubChatRoom(state, payload) {
+    state.myClubChatRoom.ClubChatRoomMembers =
+      state.myClubChatRoom?.ClubChatRoomMembers.concat(payload);
   },
 };
 
@@ -56,12 +69,27 @@ export const actions = {
           withCredentials: true,
         }
       );
-      commit("setClubChats", res.data);
+      const { ClubChats, ...myClubChatRoom } = res.data;
+      commit("setClubChats", res.data.ClubChats);
+      commit("setMyClubChatRoom", myClubChatRoom);
     } catch (err) {
       console.error(err);
     }
   },
 
+  async loadClubChatRooms(
+    { state, commit, dispatch },
+    { myClubChatRoomMembers }
+  ) {
+    console.log(myClubChatRoomMembers);
+    const clubChatRooms = await myClubChatRoomMembers?.map((item) => {
+      const result = item.ClubChatRoom;
+      result.loggedInAt = item.loggedInAt;
+      result.unreadCnt = 0;
+      return result;
+    });
+    commit("setClubChatRooms", clubChatRooms);
+  },
   async loadUnreadClubChats({ state, commit }, { clubId }) {
     try {
       const unreadCnts = [];
@@ -80,6 +108,15 @@ export const actions = {
     }
   },
 
+  async createClubChatRoom({ commit }, { clubId, body }) {
+    const res = await this.$axios.$post(`/clubs/${clubId}/chatrooms`, body);
+    commit("addClubChatRooms", res.data);
+  },
+
+  async addClubChatRoomMembersInMyClubChatRoom({ commit }, payload) {
+    commit("addClubChatRoomMembersInMyClubChatRoom", payload);
+  },
+
   addClubChats({ commit }, payload) {
     commit("addClubChats", payload);
   },
@@ -95,16 +132,5 @@ export const actions = {
 
   async setClubChatRoomsLoggedInAt({ commit }, { roomId, loggedInAt }) {
     commit("setClubChatRoomsLoggedInAt", { roomId, loggedInAt });
-  },
-
-  loadClubChatRooms({ state, commit, dispatch }, { myClubChatRoomMembers }) {
-    console.log(myClubChatRoomMembers)
-    const clubChatRooms = myClubChatRoomMembers?.map((item) => {
-      const result = item.ClubChatRoom;
-      result.loggedInAt = item.loggedInAt;
-      result.unreadCnt = 0;
-      return result;
-    });
-    commit("setClubChatRooms", clubChatRooms);
   },
 };

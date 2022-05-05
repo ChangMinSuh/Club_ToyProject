@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <v-card-title> 전체 게시판 </v-card-title>
+    <v-card-title> 임시 저장 </v-card-title>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn nuxt to="temp" append>임시 문서</v-btn>
-      <v-btn nuxt to="create" append>새 문서</v-btn>
+      <v-btn nuxt to=".." append>이전 게시판</v-btn>
+      <v-btn nuxt to="../create" append>새 문서</v-btn>
     </v-card-actions>
     <v-container>
       <v-row>
@@ -15,23 +15,20 @@
             >
               <v-divider :key="index"></v-divider>
 
-              <v-list-item :key="index + 'l'" dense>
+              <v-list-item :key="index" dense>
                 <v-list-item-content>
                   <v-list-item-title>
                     <v-row>
                       <v-col>
                         <nuxt-link
                           style="text-decoration: none; color: black"
-                          :to="`${post.id}`"
+                          :to="`../${post.id}/update`"
                           append
                         >
                           {{ post.title }}
                         </nuxt-link>
                       </v-col>
                       <v-spacer></v-spacer>
-                      <v-col cols="1">
-                        <small>{{ post.ClubMember.nickname }}</small>
-                      </v-col>
                       <v-col cols="2">
                         <small>{{ $dayjs(post.createdAt).fromNow() }}</small>
                       </v-col>
@@ -75,7 +72,7 @@ export default {
     const clubId = Number(params.id);
     await store.dispatch("clubPosts/loadAllPosts", {
       clubId,
-      showStatus: "notice,normal",
+      showStatus: "temp",
     }),
       console.log(store.state.users.me?.ClubMembers);
   },

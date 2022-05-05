@@ -6,10 +6,27 @@
 
     <v-card-text>
       <v-row>
+        <v-col>
+          등급:
+          {{ onePost.ClubMember.grade }}
+          {{ onePost.ClubMember.nickname }}
+        </v-col>
         <v-spacer></v-spacer>
-        등급:
-        {{ onePost.ClubMember.grade }}
-        {{ onePost.ClubMember.nickname }}
+        <small
+          class="grey--text"
+          v-if="onePost.updatedAt !== onePost.createdAt"
+        >
+          (수정됨)
+          {{ $dayjs(onePost.updatedAt).format("YYYY.MM.DD HH:mm:ss") }}
+        </small>
+        &nbsp;
+        <small>
+          작성일:
+          {{ $dayjs(onePost.createdAt).format("YYYY.MM.DD HH:mm:ss") }}
+        </small>
+      </v-row>
+      <v-row>
+        <v-spacer> </v-spacer>
       </v-row>
     </v-card-text>
     <v-card-text v-html="$md.render(onePost.content)"> </v-card-text>
@@ -19,9 +36,9 @@
       <v-btn v-if="isPostWriter" small color="primary" nuxt to="update" append>
         수정
       </v-btn>
-      <v-btn v-if="isPostWriter" small color="primary" @click="deletePost"
-        >삭제</v-btn
-      >
+      <v-btn v-if="isPostWriter" small color="primary" @click="deletePost">
+        삭제
+      </v-btn>
     </v-card-actions>
   </v-app>
 </template>

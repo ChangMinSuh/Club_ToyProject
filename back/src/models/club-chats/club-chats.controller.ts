@@ -20,6 +20,7 @@ import {
   ClubMembersRoleEnum,
 } from '../club-members/entities/club-members.entity';
 import { ClubChatsService } from './club-chats.service';
+import { ClubChatRoomMembers } from './entities/club-chat-room-members.entity';
 import { ClubChatRooms } from './entities/club-chat-rooms.entity';
 
 @ApiTags('club_chats')
@@ -42,27 +43,22 @@ export class ClubChatsController {
     );
   }
 
-  @ApiOperation({ summary: '채팅방 멤버 추가' })
+  @ApiOperation({ summary: '채팅방 멤버 여러명 추가 추가' })
   @Post(':roomId/members')
-  async createClubChatRoomMember(
+  async createClubChatRoomMembers(
     @Param('roomId', ParseIntPipe) roomId: number,
     @Body()
     body: {
-      clubMemberId: number;
+      clubMembersId: number[];
     },
-  ): Promise<void> {
-    return this.clubChatsService.createClubChatRoomMember(
+  ): Promise<ClubChatRoomMembers[]> {
+    return this.clubChatsService.createClubChatRoomMembers(
       roomId,
-      body.clubMemberId,
+      body.clubMembersId,
     );
   }
 
   // club_chat
-  @ApiOperation({ summary: '채팅방 채팅 가져오기' })
-  @Get(':roomId')
-  findClubChatToSameRoomId(@Param('roomId', ParseIntPipe) roomId) {
-    return this.clubChatsService.findClubChatToSameRoomId(roomId);
-  }
 
   @ApiOperation({ summary: '읽지 않은 채팅수 가져오기 ' })
   @Get(':roomId/unread')
@@ -78,14 +74,25 @@ export class ClubChatsController {
   @Post()
   async createClubChatRoom(
     @Param('clubId', ParseIntPipe) clubId: number,
+    @ClubMember() clubMember: ClubMembers,
     @Body()
     body: {
       name: string;
       explanation: string;
-      clubMemberId: number;
     },
-  ): Promise<void> {
-    return await this.clubChatsService.createClubChatRoom(clubId, body);
+  ): Promise<ClubChatRooms> {
+    console.log(body);
+    return await this.clubChatsService.createClubChatRoom(
+      clubId,
+      clubMember.id,
+      body,
+    );
+  }
+
+  @ApiOperation({ summary: '채팅방  가져오기' })
+  @Get(':roomId')
+  findClubChatRoom(@Param('roomId', ParseIntPipe) roomId) {
+    return this.clubChatsService.findClubChatRoom(roomId);
   }
 
   @ApiOperation({ summary: '전체 채팅방 목록 가져오기' })

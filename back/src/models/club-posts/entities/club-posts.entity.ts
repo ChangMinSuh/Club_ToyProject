@@ -1,8 +1,14 @@
 import { CoreEntity } from '../../../common/entities/core.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsNumber } from 'class-validator';
 import { Clubs } from '../../clubs/entities/clubs.entity';
 import { ClubMembers } from '../../club-members/entities/club-members.entity';
+
+export enum ClubPostShowStatusEnum {
+  Temp = 'temp',
+  Notice = 'notice',
+  Normal = 'normal',
+}
 
 @Entity({ name: 'club_posts' })
 export class ClubPosts extends CoreEntity {
@@ -17,8 +23,15 @@ export class ClubPosts extends CoreEntity {
   @Column('text')
   content: string;
 
+  @IsNumber()
   @Column('int', { name: 'clubMemberId' })
   ClubMemberId: number;
+
+  @Column('enum', {
+    enum: ClubPostShowStatusEnum,
+    default: ClubPostShowStatusEnum.Normal,
+  })
+  showStatus: ClubPostShowStatusEnum;
 
   @Column('int', { name: 'clubId' })
   ClubId: number;

@@ -11,6 +11,9 @@ export class ClubChatRoomMembers {
   @Column('int', { primary: true, name: 'clubMemberId' })
   ClubMemberId: number;
 
+  @Column('boolean', { default: false })
+  isManager: boolean;
+
   @Column('datetime', { nullable: true })
   loggedInAt?: Date | null;
 

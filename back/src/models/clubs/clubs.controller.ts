@@ -13,7 +13,6 @@ import { User } from 'src/common/decorators/user.decorator';
 import { ClubsService } from './clubs.service';
 import { CreateClubBody } from './dtos/create-club.dto';
 import { Clubs } from './entities/clubs.entity';
-import { ClubChats } from '../club-chats/entities/club-chats.entity';
 import { Users } from '../users/entities/users.entity';
 import { ClubRolesGuard } from 'src/common/guards/club-roles.guard';
 import { ClubRoles } from 'src/common/decorators/clubs-roles.decorator';

@@ -102,7 +102,7 @@ export class ClubsService {
   async findOneClub(clubId: number): Promise<Clubs> {
     const result = this.clubsRepository.findOne({
       where: { id: clubId },
-      relations: ['Owner'],
+      relations: ['Owner', 'ClubMembers'],
     });
     return result;
   }
