@@ -2,6 +2,7 @@ import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
+import { ClubMembers } from '../club-members/entities/club-members.entity';
 import { ClubChatsService } from './club-chats.service';
 import { ClubChatRoomMembers } from './entities/club-chat-room-members.entity';
 import { ClubChatRooms } from './entities/club-chat-rooms.entity';
@@ -13,6 +14,13 @@ const mockRepository = () => ({
   count: jest.fn(),
   findOne: jest.fn(),
   remove: jest.fn(),
+  createQueryBuilder: jest.fn().mockReturnValue({
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    from: jest.fn().mockReturnThis(),
+    getOne: jest.fn(),
+  }),
 });
 const mockConnection = () => ({
   transaction: jest.fn(),
@@ -24,6 +32,7 @@ type MockConnection = Partial<Record<keyof Connection, jest.Mock>>;
 describe('ClubChatsService', () => {
   let service: ClubChatsService;
   let connection: MockConnection;
+  let clubMembersRepository: MockRepository<ClubMembers>;
   let clubChatsRepository: MockRepository<ClubChats>;
   let clubChatRoomsRepository: MockRepository<ClubChatRooms>;
   let clubChatRoomMembersRepository: MockRepository<ClubChatRoomMembers>;
@@ -40,6 +49,10 @@ describe('ClubChatsService', () => {
           useValue: mockRepository(),
         },
         {
+          provide: getRepositoryToken(ClubMembers),
+          useValue: mockRepository(),
+        },
+        {
           provide: getRepositoryToken(ClubChatRooms),
           useValue: mockRepository(),
         },
@@ -52,6 +65,7 @@ describe('ClubChatsService', () => {
     service = module.get<ClubChatsService>(ClubChatsService);
     connection = module.get(getConnectionToken());
     clubChatsRepository = module.get(getRepositoryToken(ClubChats));
+    clubMembersRepository = module.get(getRepositoryToken(ClubMembers));
     clubChatRoomsRepository = module.get(getRepositoryToken(ClubChatRooms));
     clubChatRoomMembersRepository = module.get(
       getRepositoryToken(ClubChatRoomMembers),
@@ -91,7 +105,7 @@ describe('ClubChatsService', () => {
   const ClubChatRoomMemberTmp = {
     ClubChatRoomId: 1,
     ClubMemberId: 1,
-    loggedInAt: null,
+    loggedInAt: new Date(),
   };
 
   it('should be defined', () => {
@@ -101,43 +115,25 @@ describe('ClubChatsService', () => {
   describe('setClubChat', () => {
     const setClubChatArgs = {
       content: '하이',
-      UserId: 7,
-      ClubId: 2,
-      clubName: '축구하자',
+      ClubMember: new ClubMembers(),
+      ClubChatRoomId: 1,
+      isNotice: true,
     };
 
     it('should be return', async () => {
-      const saveArgs = {
-        id: 1,
-        content: setClubChatArgs.content,
-        UserId: setClubChatArgs.UserId,
-        createAt: Date.now(),
-      };
-      clubChatsRepository.save.mockResolvedValue(saveArgs);
+      const clubChat = new ClubChats();
+      clubChat.content = setClubChatArgs.content;
+      clubChat.ClubChatRoomId = setClubChatArgs.ClubChatRoomId;
+      clubChat.ClubMember = setClubChatArgs.ClubMember;
+      clubChat.isNotice = setClubChatArgs.isNotice;
+      clubChatsRepository.save.mockResolvedValue(clubChat);
 
       const result = await service.setClubChat(setClubChatArgs);
 
       expect(clubChatsRepository.save).toHaveBeenCalledTimes(1);
       expect(clubChatsRepository.save).toHaveBeenCalledWith(expect.any(Object));
 
-      expect(result).toEqual(saveArgs);
-    });
-  });
-
-  describe('findClubChatToSameRoomId', () => {
-    const findClubChatToSameRoomIdArgs = {
-      roomId: 1,
-    };
-    it('should be return', async () => {
-      clubChatsRepository.find.mockResolvedValue(clubChatsTmp);
-
-      const result = await service.findClubChatToSameRoomId(
-        findClubChatToSameRoomIdArgs.roomId,
-      );
-
-      expect(clubChatsRepository.find).toHaveBeenCalled();
-
-      expect(result).toEqual(clubChatsTmp);
+      expect(result).toEqual(clubChat);
     });
   });
 
@@ -163,10 +159,10 @@ describe('ClubChatsService', () => {
   describe('createClubChatRoom', () => {
     const createClubChatRoomArgs = {
       clubId: 1,
+      clubMemberId: 1,
       body: {
         name: 'room_name',
         explanation: 'room_explanation',
-        clubMemberId: 1,
       },
     };
 
@@ -183,12 +179,37 @@ describe('ClubChatsService', () => {
 
       await service.createClubChatRoom(
         createClubChatRoomArgs.clubId,
+        createClubChatRoomArgs.clubMemberId,
         createClubChatRoomArgs.body,
       );
 
       expect(connection.transaction).toHaveBeenCalled();
 
       expect(mockedManager.getRepository().save).toHaveBeenCalled();
+    });
+  });
+
+  describe('findClubChatRoom', () => {
+    const findClubChatRoomArgs = {
+      roomId: 1,
+    };
+
+    it('should be return', async () => {
+      const mockGetOne = clubChatRoomsRepository
+        .createQueryBuilder()
+        .leftJoinAndSelect()
+        .leftJoinAndSelect()
+        .leftJoinAndSelect()
+        .where()
+        .orderBy().getOne;
+      mockGetOne.mockResolvedValue(clubChatRoomTmp);
+      const result = await service.findClubChatRoom(
+        findClubChatRoomArgs.roomId,
+      );
+
+      expect(mockGetOne).toHaveBeenCalledTimes(1);
+
+      expect(result).toEqual(clubChatRoomTmp);
     });
   });
 
@@ -274,6 +295,7 @@ describe('ClubChatsService', () => {
       expect(clubChatRoomsRepository.remove).toHaveBeenCalledTimes(1);
     });
   });
+
   describe('findMyClubChatRoomMembersWithRooms', () => {
     const findMyClubChatRoomMembersWithRoomsArgs = {
       roomId: 1,
@@ -294,17 +316,23 @@ describe('ClubChatsService', () => {
       expect(result).toEqual(ClubChatRoomMemberTmp);
     });
   });
-  describe('createClubChatRoomMember', () => {
+
+  describe('createClubChatRoomMembers', () => {
     const createClubChatRoomMemberArgs = {
       roomId: 1,
-      clubMemberId: 1,
+      clubMemberId: [1],
     };
 
     it('should be return', async () => {
-      await service.createClubChatRoomMember(
+      const ClubMember = new ClubMembers();
+      clubMembersRepository.find.mockResolvedValue([ClubMember]);
+
+      const result = await service.createClubChatRoomMembers(
         createClubChatRoomMemberArgs.roomId,
         createClubChatRoomMemberArgs.clubMemberId,
       );
+
+      expect(clubMembersRepository.find).toHaveBeenCalledTimes(1);
 
       expect(clubChatRoomMembersRepository.save).toHaveBeenCalledTimes(1);
     });

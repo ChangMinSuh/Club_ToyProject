@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getConnectionToken, getRepositoryToken } from '@nestjs/typeorm';
 import { Connection, Repository } from 'typeorm';
 import { ClubAppAnswersService } from './club-app-answers.service';
+import { ClubAppAnswerItems } from './entities/club-app-answers-item.entity';
 import {
   ClubAppAnswers,
   ClubAppAnswerStatusEnum,
@@ -50,7 +51,7 @@ describe('ClubAppAnswersService', () => {
     UserId: 2,
     nickname: '대머리',
     status: 'passed',
-    ClubAppAnswerItems: [],
+    ClubAppAnswerItems: [{ id: 1 }],
     User: {
       id: 2,
       createdAt: '2022-01-04T07:24:23.207Z',
@@ -70,7 +71,7 @@ describe('ClubAppAnswersService', () => {
       userId: 1,
       body: {
         nickname: '생각생각',
-        clubAppAnswerItems: [],
+        clubAppAnswerItems: [new ClubAppAnswerItems()],
       },
     };
     it('should be create app answer', async () => {

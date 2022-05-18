@@ -90,7 +90,10 @@ describe('AuthService', () => {
         .where().getOne;
       mockGetOne.mockResolvedValue(undefined);
       try {
-        await service.validateUser(validateUserArgs);
+        await service.validateUser(
+          validateUserArgs.email,
+          validateUserArgs.password,
+        );
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
         expect(error.message).toBe('Is not correct');
@@ -109,7 +112,10 @@ describe('AuthService', () => {
         .where().getOne;
       mockGetOne.mockResolvedValue(user);
       try {
-        await service.validateUser(validateUserArgs);
+        await service.validateUser(
+          validateUserArgs.email,
+          validateUserArgs.password,
+        );
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
         expect(error.message).toBe('Is not correct');
@@ -132,7 +138,10 @@ describe('AuthService', () => {
         .where().getOne;
       mockGetOne.mockResolvedValue(user);
 
-      const result = await service.validateUser(validateUserArgs);
+      const result = await service.validateUser(
+        validateUserArgs.email,
+        validateUserArgs.password,
+      );
 
       expect(result).toEqual({
         id: user.id,
@@ -274,7 +283,8 @@ describe('AuthService', () => {
       redisManager.get.mockResolvedValue(null);
       try {
         await service.getUserIfRefreshTokenMatches(
-          getUserIfRefreshTokenMatchesArgs,
+          getUserIfRefreshTokenMatchesArgs.refreshToken,
+          getUserIfRefreshTokenMatchesArgs.decodedAccessToken,
         );
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
@@ -286,7 +296,8 @@ describe('AuthService', () => {
       redisManager.get.mockResolvedValue('wrong_token');
       try {
         await service.getUserIfRefreshTokenMatches(
-          getUserIfRefreshTokenMatchesArgs,
+          getUserIfRefreshTokenMatchesArgs.refreshToken,
+          getUserIfRefreshTokenMatchesArgs.decodedAccessToken,
         );
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
@@ -300,7 +311,8 @@ describe('AuthService', () => {
       );
 
       await service.getUserIfRefreshTokenMatches(
-        getUserIfRefreshTokenMatchesArgs,
+        getUserIfRefreshTokenMatchesArgs.refreshToken,
+        getUserIfRefreshTokenMatchesArgs.decodedAccessToken,
       );
 
       expect(redisManager.get).toHaveBeenCalledTimes(2);

@@ -37,9 +37,17 @@ export class ClubChatsGateway
   @SubscribeMessage('login')
   @UseGuards(JwtAccessWsGuard)
   async loginRoom(
-    @MessageBody() { clubMember },
+    @MessageBody()
+    {
+      clubMember,
+    }: {
+      clubMember: {
+        ClubId: number;
+        id: number;
+      };
+    },
     @ConnectedSocket() socket: Socket,
-  ) {
+  ): Promise<void> {
     const namespaceName = socket.nsp.name;
 
     // 내 채팅 목록
@@ -63,7 +71,7 @@ export class ClubChatsGateway
   async sendChat(
     @MessageBody() data: SetClubChatsDataDto,
     @ConnectedSocket() socket: Socket,
-  ) {
+  ): Promise<SetClubChatsDataDto> {
     const namespaceName = socket.nsp.name;
     const chatData = await this.clubChatsService.setClubChat(data);
     this.server
@@ -81,7 +89,7 @@ export class ClubChatsGateway
       loggedInAt: Date;
     },
     @ConnectedSocket() socket: Socket,
-  ) {
+  ): Promise<void> {
     console.log(data);
     await this.clubChatsService.updateTimeOfClubChatRoomMember(
       data.ClubChatRoomId,
@@ -100,7 +108,7 @@ export class ClubChatsGateway
       };
     },
     @ConnectedSocket() socket: Socket,
-  ) {
+  ): Promise<void> {
     const namespaceName = socket.nsp.name;
     const newClubChatRoomMembers =
       await this.clubChatsService.createClubChatRoomMembers(

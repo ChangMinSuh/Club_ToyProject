@@ -34,10 +34,10 @@ export class JwtRefreshStrategy extends PassportStrategy(
     if (typeof decodedAccessToken === 'string' || decodedAccessToken === null)
       throw new UnauthorizedException('access token error');
 
-    const user = await this.authService.getUserIfRefreshTokenMatches({
+    const user = await this.authService.getUserIfRefreshTokenMatches(
       refreshToken,
       decodedAccessToken,
-    });
+    );
     return user;
   }
 }

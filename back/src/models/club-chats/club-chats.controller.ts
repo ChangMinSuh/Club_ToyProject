@@ -36,7 +36,7 @@ export class ClubChatsController {
   async findMyClubChatRoomMembersWithRooms(
     @Param('clubId', ParseIntPipe) clubId: number,
     @ClubMember() clubMember: ClubMembers,
-  ) {
+  ): Promise<ClubChatRoomMembers[]> {
     return this.clubChatsService.findMyClubChatRoomMembersWithRooms(
       clubId,
       clubMember.id,
@@ -65,7 +65,7 @@ export class ClubChatsController {
   findUnreadClubChat(
     @Param('roomId', ParseIntPipe) roomId: number,
     @Query('loggedInAt') loggedInAt: string,
-  ) {
+  ): Promise<number> {
     return this.clubChatsService.findUnreadClubChat(roomId, loggedInAt);
   }
 
@@ -91,7 +91,9 @@ export class ClubChatsController {
 
   @ApiOperation({ summary: '채팅방  가져오기' })
   @Get(':roomId')
-  findClubChatRoom(@Param('roomId', ParseIntPipe) roomId) {
+  findClubChatRoom(
+    @Param('roomId', ParseIntPipe) roomId: number,
+  ): Promise<ClubChatRooms> {
     return this.clubChatsService.findClubChatRoom(roomId);
   }
 

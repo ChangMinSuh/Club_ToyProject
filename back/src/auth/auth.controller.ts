@@ -55,7 +55,10 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAccessGuard)
-  async logout(@User() user: Users, @Res({ passthrough: true }) res: Response) {
+  async logout(
+    @User() user: Users,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
     await Promise.all([
       this.authService.deleteRefreshTokenInDb(user.id),
       this.authService.deleteUserInDb(user.id),

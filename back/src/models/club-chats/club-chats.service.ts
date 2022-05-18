@@ -6,7 +6,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, MoreThan, Repository } from 'typeorm';
 import { ClubMembers } from '../club-members/entities/club-members.entity';
-import { Clubs } from '../clubs/entities/clubs.entity';
 import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 import { ClubChatRoomMembers } from './entities/club-chat-room-members.entity';
 import { ClubChatRooms } from './entities/club-chat-rooms.entity';
@@ -38,7 +37,10 @@ export class ClubChatsService {
     return result;
   }
 
-  async findUnreadClubChat(ClubChatRoomId: number, loggedInAt: string) {
+  async findUnreadClubChat(
+    ClubChatRoomId: number,
+    loggedInAt: string,
+  ): Promise<number> {
     return this.clubChatsRepository.count({
       where: {
         ClubChatRoomId: ClubChatRoomId,
@@ -141,7 +143,7 @@ export class ClubChatsService {
   async findMyClubChatRoomMembersWithRooms(
     clubId: number,
     clubMemberId: number,
-  ) {
+  ): Promise<ClubChatRoomMembers[]> {
     return this.clubChatRoomMembersRepository.find({
       relations: ['ClubChatRoom'],
       where: {
@@ -176,7 +178,7 @@ export class ClubChatsService {
     roomId: number,
     clubMemberId: number,
     loggedInAt: Date,
-  ) {
+  ): Promise<ClubChatRoomMembers> {
     const beforeClubCharRoomMember =
       await this.clubChatRoomMembersRepository.findOne({
         ClubChatRoomId: roomId,

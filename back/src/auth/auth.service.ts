@@ -25,7 +25,10 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async validateUser({ email, password }): Promise<ValidateUserReturn> {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<ValidateUserReturn> {
     const user = await this.usersRepository
       .createQueryBuilder('users')
       .select('users')
@@ -73,7 +76,10 @@ export class AuthService {
     };
   }
 
-  async setRefreshTokenInDb(refreshToken, userId: number): Promise<void> {
+  async setRefreshTokenInDb(
+    refreshToken: string,
+    userId: number,
+  ): Promise<void> {
     const hashRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.redisManager.set(`user:refresh:${userId}`, hashRefreshToken, {
       ttl: Number(this.configService.get('JWT_REFRESH_EXPIRY_TIME')),
@@ -99,12 +105,14 @@ export class AuthService {
     await this.redisManager.del(`user:${userId}`);
   }
 
-  async getUserIfRefreshTokenMatches({
-    refreshToken,
-    decodedAccessToken,
-  }): Promise<Users> {
+  async getUserIfRefreshTokenMatches(
+    refreshToken: string,
+    decodedAccessToken: {
+      [key: string]: any;
+    },
+  ): Promise<Users> {
     const { id } = decodedAccessToken;
-    const currentHashedRefreshToken = await this.redisManager.get(
+    const currentHashedRefreshToken = await this.redisManager.get<string>(
       `user:refresh:${id}`,
     );
     if (currentHashedRefreshToken === null)

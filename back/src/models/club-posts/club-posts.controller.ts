@@ -22,10 +22,7 @@ import {
 import { ClubPostsService } from './club-posts.service';
 import { CreatePostBody } from './dto/create-post.dto';
 import { UpdatePostBody } from './dto/update-post.dto';
-import {
-  ClubPosts,
-  ClubPostShowStatusEnum,
-} from './entities/club-posts.entity';
+import { ClubPosts } from './entities/club-posts.entity';
 import { ConfigService } from '@nestjs/config';
 import { mkdirSync, readdirSync } from 'fs';
 if (process.env.NODE_ENV !== 'production') {

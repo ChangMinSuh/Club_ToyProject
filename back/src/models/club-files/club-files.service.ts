@@ -9,13 +9,13 @@ export class ClubFilesService {
     @InjectRepository(ClubFiles)
     private readonly clubFilesRepository: Repository<ClubFiles>,
   ) {}
+
   async uploadFiles(
     clubId: number,
     clubMemberId: number,
     files: Express.MulterS3.File[],
-  ) {
-    console.log(files);
-    const uploadFiles = [];
+  ): Promise<ClubFiles[]> {
+    const uploadFiles: ClubFiles[] = [];
     await files.forEach((file) => {
       const clubFile = new ClubFiles();
       clubFile.ClubId = clubId;
@@ -24,10 +24,10 @@ export class ClubFilesService {
       clubFile.url = file.location;
       uploadFiles.push(clubFile);
     });
-    return await this.clubFilesRepository.save(uploadFiles);
+    return this.clubFilesRepository.save(uploadFiles);
   }
 
-  async findClubMemberImages(clubMemberId: number) {
+  async findClubMemberImages(clubMemberId: number): Promise<ClubFiles[]> {
     return this.clubFilesRepository.find({
       where: { ClubMemberId: clubMemberId },
       order: {
@@ -36,7 +36,10 @@ export class ClubFilesService {
     });
   }
 
-  async updateFile(fileId: number, body: { isShow: boolean }) {
+  async updateFile(
+    fileId: number,
+    body: { isShow: boolean },
+  ): Promise<ClubFiles> {
     const beforeClubFile = await this.clubFilesRepository.findOne({
       where: { id: fileId },
     });
@@ -48,7 +51,7 @@ export class ClubFilesService {
     return afterClubFile;
   }
 
-  async deleteFile(fileId: number) {
+  async deleteFile(fileId: number): Promise<void> {
     const clubFile = await this.clubFilesRepository.findOne({
       where: { id: fileId },
     });
