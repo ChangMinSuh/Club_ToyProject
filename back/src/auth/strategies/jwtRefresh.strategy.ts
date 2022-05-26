@@ -15,11 +15,10 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        (req) => req?.cookies?.Refresh,
+        (req) => req?.body?.refresh_token?.slice(7),
       ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_REFRESH_SECRET,
@@ -28,14 +27,14 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(req: Request, payload: any): Promise<Users> {
-    const { Authentication: accessToken, Refresh: refreshToken } = req.cookies;
-
-    const decodedAccessToken = this.jwtService.decode(accessToken);
+    const access_token = req?.headers['authorization']?.slice(7);
+    const refresh_token = req.body?.refresh_token?.slice(7);
+    const decodedAccessToken = this.jwtService.decode(access_token);
     if (typeof decodedAccessToken === 'string' || decodedAccessToken === null)
       throw new UnauthorizedException('access token error');
 
     const user = await this.authService.getUserIfRefreshTokenMatches(
-      refreshToken,
+      refresh_token,
       decodedAccessToken,
     );
     return user;

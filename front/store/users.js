@@ -1,6 +1,8 @@
 export const state = () => ({
   me: null,
   serverRes: null,
+  access_token: "",
+  refresh_token: "",
 });
 
 // 저장소의 계산된 속성
@@ -15,14 +17,36 @@ export const mutations = {
   setServerRes(state, payload) {
     state.serverRes = payload;
   },
+  setAccessToken(state, payload) {
+    state.access_token = payload;
+    console.log("state.access_token update", state.access_token);
+  },
+  setRefreshToken(state, payload) {
+    state.refresh_token = payload;
+  },
 };
 
 export const actions = {
   async loadUser({ state, commit, dispatch }) {
     try {
+      // ssr일때 vuex에 저장.
+      if (process.server) {
+        const authStrategy = this.$cookies.get("auth.strategy");
+        if (!authStrategy) return;
+        console.log(`auth.access_token.${authStrategy}`);
+        const access_token = this.$cookies.get(
+          `auth.access_token.${authStrategy}`
+        );
+        const refresh_token = this.$cookies.get(
+          `auth.refresh_token.${authStrategy}`
+        );
+        console.log(authStrategy, access_token);
+        commit("setAccessToken", access_token);
+        commit("setRefreshToken", refresh_token);
+        console.log("process.server success");
+      }
       const res = await this.$axios.$get("/auth");
       commit("setMe", res.data);
-      return null;
     } catch (err) {
       // accessToken 만료
       console.error(err);
@@ -30,41 +54,23 @@ export const actions = {
   },
 
   async refresh({ state, commit }) {
-    try {
-      // access token이 만료되었을 때,
-      // header에 접근하기 위해 $post 미사용.
-      const res = await this.$axios.post(
-        "/auth/refresh",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-      commit("setMe", res.data);
-      console.log(res.headers);
-      const cookies = res?.headers["set-cookie"];
-      return cookies;
-    } catch (err) {
-      commit("setServerRes", {
-        message: err.response?.data?.message,
-        status: err.response?.status,
-      });
-    }
+    // access token이 만료되었을 때,
+    // header에 접근하기 위해 $post 미사용.
+    const refresh_token = `Bearer ${state.refresh_token}`;
+    const res = await this.$axios.$post("/auth/refresh", { refresh_token });
+    const { access_token, user } = res.data;
+    console.log(access_token, user);
+    commit("setMe", user);
+    commit("setAccessToken", access_token);
   },
 
   async signup({ commit }, { email, nickname, password }) {
     try {
-      const res = await this.$axios.$post(
-        "/users",
-        {
-          email,
-          nickname,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await this.$axios.$post("/users", {
+        email,
+        nickname,
+        password,
+      });
       commit("setMe", res.data);
     } catch (err) {
       commit("setServerRes", {
@@ -77,20 +83,16 @@ export const actions = {
   async login({ state, commit }, { email, password }) {
     try {
       commit("setServerRes", null);
-      const res = await this.$axios.$post(
-        "/auth/login",
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await this.$axios.$post("/auth/login", {
+        email,
+        password,
+      });
+      const { access_token, refresh_token, user } = res.data;
       console.log(res);
-      commit("setMe", res.data);
+      commit("setMe", user);
+      commit("setAccessToken", access_token);
+      commit("setRefreshToken", refresh_token);
     } catch (err) {
-      console.log(err.response);
       commit("setServerRes", {
         message: err.response.data.error.message,
         status: err.response.status,

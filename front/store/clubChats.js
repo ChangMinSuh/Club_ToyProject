@@ -110,6 +110,7 @@ export const actions = {
 
   async createClubChatRoom({ commit }, { clubId, body }) {
     const res = await this.$axios.$post(`/clubs/${clubId}/chatrooms`, body);
+    console.log("addClubChatRoom", res.data);
     commit("addClubChatRooms", res.data);
   },
 

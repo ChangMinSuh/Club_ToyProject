@@ -106,7 +106,7 @@ export class AuthService {
   }
 
   async getUserIfRefreshTokenMatches(
-    refreshToken: string,
+    refresh_token: string,
     decodedAccessToken: {
       [key: string]: any;
     },
@@ -119,7 +119,7 @@ export class AuthService {
       throw new UnauthorizedException('refresh token is not in db');
 
     const isRefreshTokenCorrect = await bcrypt.compare(
-      refreshToken,
+      refresh_token,
       currentHashedRefreshToken,
     );
     if (!isRefreshTokenCorrect)

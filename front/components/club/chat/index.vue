@@ -340,7 +340,7 @@ export default {
   }),
 
   computed: {
-    ...usersHelper.mapState(["me"]),
+    ...usersHelper.mapState(["me", "access_token"]),
     ...clubsHelper.mapState(["onlineClub", "myClubMember"]),
     ...clubChatsHelper.mapState(["clubChatRooms", "clubChats"]),
 
@@ -364,6 +364,9 @@ export default {
       // socket.io-client opts:
       withCredentials: true,
       reconnection: false,
+      auth: {
+        access_token: `${this.access_token}`,
+      },
     });
 
     this.socket.emit("login", {
@@ -379,6 +382,7 @@ export default {
     });
 
     function addClubChat(data, that) {
+      console.log("addClubChat:", data, that);
       if (that.roomId === data.ClubChatRoomId)
         that.$store.dispatch("clubChats/addClubChats", data);
       else {
@@ -400,8 +404,26 @@ export default {
     this.socket.on("chat", (data, cb) => {
       addClubChat(data, this);
     });
+
+    this.socket.on("refreshEmit", (data, cb) => {
+      this.refresh();
+      this.socket.auth["access_token"] = this.access_token;
+      console.log("front access_token:", this.socket.auth["access_token"]);
+      this.socket.disconnect().connect();
+      this.socket.emit(
+        "login",
+        {
+          clubMember: this.myClubMember,
+        },
+        () => {
+          this.socket.emit("chat", data);
+        }
+      );
+    });
   },
   methods: {
+    ...usersHelper.mapActions(["refresh"]),
+
     ...clubChatsHelper.mapActions([
       "setClubChats",
       "loadClubChats",
@@ -439,12 +461,42 @@ export default {
         return;
       }
       if (!this.inputChat.trim()) return;
-      await this.socket.emit("chat", {
-        content: this.inputChat.trim(),
-        ClubChatRoomId: this.roomId,
-        ClubMember: this.myClubMember,
-      });
-      this.inputChat = "";
+
+      this.socket.emit(
+        "chat",
+        {
+          content: this.inputChat.trim(),
+          ClubChatRoomId: this.roomId,
+          ClubMember: this.myClubMember,
+        },
+        // (res) => {
+        //   if (!res.content) {
+        //     this.refresh();
+        //     this.socket.auth["access_token"] = this.access_token;
+        //     console.log(
+        //       "front access_token:",
+        //       this.socket.auth["access_token"]
+        //     );
+        //     this.socket.disconnect().connect();
+        //     this.socket.emit(
+        //       "login",
+        //       {
+        //         clubMember: this.myClubMember,
+        //       },
+        //       () => {
+        //         this.socket.emit("chat", {
+        //           content: this.inputChat.trim(),
+        //           ClubChatRoomId: this.roomId,
+        //           ClubMember: this.myClubMember,
+        //         });
+        //       }
+        //     );
+        //   }
+        // }
+        () => {
+          this.inputChat = "";
+        }
+      );
     },
 
     loggedInAtUpdate() {

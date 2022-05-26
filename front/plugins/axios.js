@@ -1,6 +1,7 @@
-export default function ({ $axios, app, store, redirect }) {
+export default function ({ $cookies, $axios, app, store, redirect }) {
   $axios.onRequest((config) => {
     // console.log("(axios)Making request to " + config.url);
+    $axios.setToken(store.state.users.access_token, "Bearer");
   });
 
   $axios.onResponse((response) => {
@@ -11,25 +12,22 @@ export default function ({ $axios, app, store, redirect }) {
   $axios.onResponseError(async (err) => {
     const originalRequest = err.config;
     console.log("(axios)Making response error ");
-    // console.log(err.response);
+    console.log(err.response.config);
     if (
+      err.response?.config?.url !== "/auth/refresh" &&
       err.response?.status === 401 &&
       err.response?.data?.error?.accessTokenExpired === true
     ) {
       // console.log("(axios)accessTokenExpired");
       try {
-        const cookies = await store.dispatch("users/refresh");
-        // console.log("(axios)users/refresh cookies:", cookies);
-        if (process.server) {
-          cookies.forEach((cookie) => {
-            app.$cookies.set(cookie);
-            $axios.setHeader("cookie", cookie);
-          });
-        }
-        // console.log("(axios)cookies success");
-        $axios(originalRequest);
+        await store.dispatch("users/refresh");
+        originalRequest.headers[
+          "Authorization"
+        ] = `Bearer ${store.state.users.access_token}`;
+        console.log("users/refresh after");
+        return $axios(originalRequest);
       } catch (err) {
-        Promise.reject(err);
+        return Promise.reject(err);
       }
     }
     return Promise.reject(err);

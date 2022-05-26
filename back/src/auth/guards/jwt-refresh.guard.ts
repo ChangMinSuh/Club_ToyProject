@@ -13,12 +13,13 @@ export class JwtRefreshGuard extends AuthGuard('jwt-refresh-token') {
   }
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const { Authentication: accessToken, Refresh: refreshToken } = req.cookies;
-    if (!accessToken) throw new UnauthorizedException('no access token');
-    if (!refreshToken) throw new UnauthorizedException('no refresh token');
+    const access_token = req?.headers['authorization']?.slice(7);
+    const refresh_token = req.body?.refresh_token;
+    if (!access_token) throw new UnauthorizedException('no access token');
+    if (!refresh_token) throw new UnauthorizedException('no refresh token');
     // 변조되지 않은 accessToken인지 check
     try {
-      await this.jwtService.verifyAsync(accessToken);
+      await this.jwtService.verifyAsync(access_token);
     } catch (err) {
       if (err.message !== 'jwt expired')
         throw new UnauthorizedException(err.message);

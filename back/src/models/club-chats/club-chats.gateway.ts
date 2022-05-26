@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -11,6 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtAccessWsGuard } from 'src/auth/guards/jwt-access-ws.guard';
+import { WsExceptionFilter } from 'ws-exception.filter';
 import { ClubChatsService } from './club-chats.service';
 import { SetClubChatsDataDto } from './dto/set-clubchats-data.dto';
 
@@ -66,18 +67,20 @@ export class ClubChatsGateway
       .emit('myClubChatRoomMembers', { myClubChatRoomMembers });
   }
 
+  @UseFilters(new WsExceptionFilter())
   @SubscribeMessage('chat')
   @UseGuards(JwtAccessWsGuard)
   async sendChat(
     @MessageBody() data: SetClubChatsDataDto,
     @ConnectedSocket() socket: Socket,
   ): Promise<SetClubChatsDataDto> {
+    console.log('socket push chat');
     const namespaceName = socket.nsp.name;
     const chatData = await this.clubChatsService.setClubChat(data);
     this.server
       .to(`${namespaceName}-${data.ClubChatRoomId}`)
       .emit('chat', chatData);
-    return data;
+    return chatData;
   }
 
   @SubscribeMessage('exitRoom')

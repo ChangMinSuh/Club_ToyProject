@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClubPostsService } from './club-posts.service';
-import { ClubPosts } from './entities/club-posts.entity';
+import {
+  ClubPosts,
+  ClubPostShowStatusEnum,
+} from './entities/club-posts.entity';
 
 const mockRepository = () => ({
   findOne: jest.fn(),
@@ -49,6 +52,7 @@ describe('ClubPostsService', () => {
       body: {
         title: '안녕하세요',
         content: '안녕',
+        showStatus: ClubPostShowStatusEnum.Notice,
       },
     };
 
@@ -66,11 +70,15 @@ describe('ClubPostsService', () => {
   describe('findAllPosts', () => {
     const findAllPostsArgs = {
       clubId: 2,
+      showStatus: ClubPostShowStatusEnum.Notice,
     };
 
     it('should find all posts', async () => {
       clubPostsRepository.find.mockResolvedValue([clubPostTmp]);
-      const result = await service.findAllPosts(findAllPostsArgs.clubId);
+      const result = await service.findAllPosts(
+        findAllPostsArgs.clubId,
+        findAllPostsArgs.showStatus,
+      );
 
       expect(clubPostsRepository.find).toHaveBeenCalled();
 
@@ -103,6 +111,9 @@ describe('ClubPostsService', () => {
       body: {
         title: '안녕하세요???',
         content: '하하하',
+        showStatus: ClubPostShowStatusEnum.Notice,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     };
 
