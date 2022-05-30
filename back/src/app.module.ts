@@ -25,7 +25,7 @@ import { configuration } from './config/configuration';
     ConfigModule.forRoot({
       isGlobal: true,
       ignoreEnvFile: process.env.NODE_ENV === 'production',
-      //load: process.env.NODE_ENV === 'production' ? [configuration] : [],
+      load: process.env.NODE_ENV === 'production' ? [configuration] : [],
       //load: [configuration],
     }),
     TypeOrmModule.forRoot(ormconfig),
