@@ -5,7 +5,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { AuthService } from '../auth.service';
 import { Users } from 'src/models/users/entities/users.entity';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -26,7 +25,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(req: Request, payload: any): Promise<Users> {
+  async validate(req: Request): Promise<Users> {
     const access_token = req?.headers['authorization']?.slice(7);
     const refresh_token = req.body?.refresh_token?.slice(7);
     const decodedAccessToken = this.jwtService.decode(access_token);

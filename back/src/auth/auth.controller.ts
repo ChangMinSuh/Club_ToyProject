@@ -54,7 +54,6 @@ export class AuthController {
     const { token: access_token, ...access_token_option } =
       await this.authService.getCookieWithAccessToken({ id: user.id });
     res.cookie('auth.access_token.local', access_token, access_token_option);
-    console.log('refresh access_token'access_token);
     return { access_token, user };
   }
 

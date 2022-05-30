@@ -31,7 +31,11 @@ export class JwtRefreshGuard extends AuthGuard('jwt-refresh-token') {
     return super.canActivate(context) as Promise<boolean>;
   }
 
-  handleRequest(err, user, info) {
+  handleRequest<TUser = any>(
+    err: Error,
+    user: any,
+    info: string | Error,
+  ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException(info);
     }

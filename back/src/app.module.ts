@@ -18,11 +18,15 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
 import { join } from 'path';
 import { ClubMemberFilesModule } from './models/club-files/club-files.module';
+import { configuration } from './config/configuration';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      //load: process.env.NODE_ENV === 'production' ? [configuration] : [],
+      //load: [configuration],
     }),
     TypeOrmModule.forRoot(ormconfig),
     AuthModule,

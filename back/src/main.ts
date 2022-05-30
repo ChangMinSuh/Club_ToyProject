@@ -30,7 +30,6 @@ async function bootstrap() {
       credentials: true,
     });
     app.use(helmet());
-    //app.use(csurf({ cookie: true, sessionKey: COOKIE_SECRET }));
   } else {
     app.enableCors({
       origin: ['http://localhost:8080', 'ws://localhost:80/'],

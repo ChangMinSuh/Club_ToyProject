@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { WsException } from '@nestjs/websockets';
@@ -19,10 +14,8 @@ export class JwtAccessWsGuard implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const reqWs = context.switchToWs();
-    console.log(reqWs.getClient());
     const access_token: string =
       reqWs.getClient().handshake.auth['access_token'];
-    console.log('socket io access_token:', access_token);
 
     if (!access_token) throw new WsException('no access token');
     try {
@@ -33,7 +26,7 @@ export class JwtAccessWsGuard implements CanActivate {
       context.switchToWs().getData().user = user;
       return Boolean(user);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       throw new WsException(err.message);
     }
   }

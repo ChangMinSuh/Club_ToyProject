@@ -17,9 +17,9 @@ services:
   back:
     image: timssuh/sweetclub-back
     restart: always
-    env_file:
-      - ./back/.env
-    # environment:
+    volumes:
+      - ~/.aws/:/root/.aws:ro
+    #   environment:
     #   BACK_PORT: $BACK_PORT
     #   COOKIE_SECRET: $COOKIE_SECRET
     #   DB_USERNAME: $DB_USERNAME

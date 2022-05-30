@@ -14,7 +14,6 @@ export class JwtAccessGuard extends AuthGuard('jwt-access-token') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const access_token = req?.headers['authorization']?.slice(7);
-    console.log('accessToken', access_token);
     if (!access_token) throw new UnauthorizedException('no access token');
     return this.activate(context);
   }
@@ -23,7 +22,11 @@ export class JwtAccessGuard extends AuthGuard('jwt-access-token') {
     return super.canActivate(context) as Promise<boolean>;
   }
 
-  handleRequest(err, user, info) {
+  handleRequest<TUser = any>(
+    err: Error,
+    user: any,
+    info: string | Error,
+  ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException(info);
     }

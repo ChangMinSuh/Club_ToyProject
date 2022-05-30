@@ -81,7 +81,6 @@ export class ClubChatsController {
       explanation: string;
     },
   ): Promise<ClubChatRooms> {
-    console.log(body);
     return await this.clubChatsService.createClubChatRoom(
       clubId,
       clubMember.id,
@@ -101,9 +100,7 @@ export class ClubChatsController {
   @Get()
   findClubChatRoomsToSameClubId(
     @Param('clubId', ParseIntPipe) clubId: number,
-    @ClubMember() clubMember: ClubMembers,
   ): Promise<ClubChatRooms[]> {
-    console.log(clubId);
     return this.clubChatsService.findClubChatRoomsToSameClubId(clubId);
   }
 

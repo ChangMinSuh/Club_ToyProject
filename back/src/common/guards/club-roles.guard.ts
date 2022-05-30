@@ -1,6 +1,9 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ClubMembersRoleEnum } from 'src/models/club-members/entities/club-members.entity';
+import {
+  ClubMembers,
+  ClubMembersRoleEnum,
+} from 'src/models/club-members/entities/club-members.entity';
 import { CLUB_ROLES_KEY } from '../decorators/clubs-roles.decorator';
 
 @Injectable()
@@ -21,7 +24,7 @@ export class ClubRolesGuard implements CanActivate {
     if (isNaN(clubId)) return false;
 
     const clubMember = request.user?.ClubMembers?.find(
-      (clubMember) => clubMember.ClubId === clubId,
+      (clubMember: ClubMembers) => clubMember.ClubId === clubId,
     );
     const userRole = clubMember?.role;
     request.clubMember = clubMember;

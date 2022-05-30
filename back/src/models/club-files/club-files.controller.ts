@@ -27,7 +27,6 @@ import { ClubFilesService } from './club-files.service';
 import * as multerS3 from 'multer-s3';
 import * as AWS from 'aws-sdk';
 import { ClubMember } from 'src/common/decorators/club-member.decorator';
-import { ClubFiles } from './entities/club-files.entity';
 
 const s3 = new AWS.S3();
 AWS.config.update({
