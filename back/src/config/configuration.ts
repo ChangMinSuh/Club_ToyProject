@@ -1,13 +1,12 @@
 import { getParametersByPathSync } from 'aws-param-store';
+const envData: { [key: string]: string } = {};
+const path = '/sweetclub/env';
+const region = 'ap-northeast-2';
 
-export const configuration = async () => {
-  const envData: { [key: string]: string } = {};
-  const path = '/sweetclub/env';
-  const parameters = getParametersByPathSync(path);
+const parameters = getParametersByPathSync(path, { region });
 
-  parameters.forEach((parameter) => {
-    envData[parameter.Name] = parameter.Value;
-  });
+parameters.forEach((parameter) => {
+  envData[parameter.Name.split('/')[3]] = parameter.Value;
+});
 
-  return envData;
-};
+export const configuration = () => envData;

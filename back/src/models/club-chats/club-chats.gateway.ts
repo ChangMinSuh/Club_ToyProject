@@ -93,7 +93,6 @@ export class ClubChatsGateway
     },
     @ConnectedSocket() socket: Socket,
   ): Promise<void> {
-    console.log(data);
     await this.clubChatsService.updateTimeOfClubChatRoomMember(
       data.ClubChatRoomId,
       data.ClubMemberId,
@@ -144,7 +143,6 @@ export class ClubChatsGateway
   }
 
   handleDisconnect(@ConnectedSocket() socket: Socket) {
-    console.log(socket);
     console.log('disconnected', socket.nsp.name);
   }
 }

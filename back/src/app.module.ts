@@ -19,6 +19,8 @@ import { SuccessResponseInterceptor } from './common/interceptors/success-respon
 import { join } from 'path';
 import { ClubMemberFilesModule } from './models/club-files/club-files.module';
 import { configuration } from './config/configuration';
+import { MySqlConfigModule } from './config/mysql/config.module';
+import { MySqlConfigService } from './config/mysql/config.service';
 
 @Module({
   imports: [
@@ -26,9 +28,14 @@ import { configuration } from './config/configuration';
       isGlobal: true,
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       load: process.env.NODE_ENV === 'production' ? [configuration] : [],
-      //load: [configuration],
+      // ignoreEnvFile: true,
+      // load: [configuration],
     }),
-    TypeOrmModule.forRoot(ormconfig),
+    TypeOrmModule.forRootAsync({
+      imports: [MySqlConfigModule],
+      useClass: MySqlConfigService,
+      inject: [MySqlConfigService],
+    }),
     AuthModule,
     UsersModule,
     ClubsModule,
@@ -52,7 +59,5 @@ import { configuration } from './config/configuration';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
-    console.log(__dirname);
-    console.log(join(__dirname, '..', 'uploads'));
   }
 }
