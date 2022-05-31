@@ -14,12 +14,15 @@ services:
     restart: always
     environment:
       - NGINX_AXIOS_URL=172.31.8.22
+      - NODE_ENV=production
   back:
     image: timssuh/sweetclub-back
     restart: always
     volumes:
       - ~/.aws/:/root/.aws:ro
-    #   environment:
+    environment:
+      - NODE_ENV=production
+    #   environment:skqldi12@
     #   BACK_PORT: $BACK_PORT
     #   COOKIE_SECRET: $COOKIE_SECRET
     #   DB_USERNAME: $DB_USERNAME
