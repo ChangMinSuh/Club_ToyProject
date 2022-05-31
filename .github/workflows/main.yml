@@ -73,7 +73,7 @@ jobs:
       - name: code deploy
         run: |
           aws deploy create-deployment \
-          --application-name sweetclub \
+          --application-name sweetclub-deploy-app \
           --deployment-group-name sweetclub-deploy-app-group \
           --file-exists-behavior OVERWRITE \
           --s3-location bucket=deploySweetClub,bundleType=zip,key=deploySweetClub.zip \
