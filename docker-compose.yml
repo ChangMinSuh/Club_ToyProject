@@ -12,8 +12,8 @@ services:
   front:
     image: timssuh/sweetclub-front
     restart: always
-    env_file:
-      - ./front/.env
+    environment:
+      - NGINX_AXIOS_URL=172.31.8.22
   back:
     image: timssuh/sweetclub-back
     restart: always
