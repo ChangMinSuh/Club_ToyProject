@@ -76,5 +76,5 @@ jobs:
           --application-name sweetclub-deploy-app \
           --deployment-group-name sweetclub-deploy-app-group \
           --file-exists-behavior OVERWRITE \
-          --s3-location bucket=deploySweetClub,bundleType=zip,key=deploySweetClub.zip \
+          --s3-location bucket=sweetclub,bundleType=zip,key=deploySweetClub.zip \
           --region ap-northeast-2
