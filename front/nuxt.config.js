@@ -112,7 +112,7 @@ export default {
       {
         // At least one entry is required
         name: "home",
-        url: "http://localhost:8080",
+        url:  process.env.NODE_ENV === "production"? "http://ec2-3-36-57-228.ap-northeast-2.compute.amazonaws.com/api" : "http://localhost:8080",
         default: true,
         vuex: {
           /* see section below */
