@@ -19,7 +19,6 @@ export const mutations = {
   },
   setAccessToken(state, payload) {
     state.access_token = payload;
-    console.log("state.access_token update", state.access_token);
   },
   setRefreshToken(state, payload) {
     state.refresh_token = payload;
@@ -33,17 +32,14 @@ export const actions = {
       if (process.server) {
         const authStrategy = this.$cookies.get("auth.strategy");
         if (!authStrategy) return;
-        console.log(`auth.access_token.${authStrategy}`);
         const access_token = this.$cookies.get(
           `auth.access_token.${authStrategy}`
         );
         const refresh_token = this.$cookies.get(
           `auth.refresh_token.${authStrategy}`
         );
-        console.log(authStrategy, access_token);
         commit("setAccessToken", access_token);
         commit("setRefreshToken", refresh_token);
-        console.log("process.server success");
       }
       const res = await this.$axios.$get("/auth");
       commit("setMe", res.data);
@@ -59,7 +55,6 @@ export const actions = {
     const refresh_token = `Bearer ${state.refresh_token}`;
     const res = await this.$axios.$post("/auth/refresh", { refresh_token });
     const { access_token, user } = res.data;
-    console.log(access_token, user);
     commit("setMe", user);
     commit("setAccessToken", access_token);
   },
@@ -88,7 +83,6 @@ export const actions = {
         password,
       });
       const { access_token, refresh_token, user } = res.data;
-      console.log(res);
       commit("setMe", user);
       commit("setAccessToken", access_token);
       commit("setRefreshToken", refresh_token);

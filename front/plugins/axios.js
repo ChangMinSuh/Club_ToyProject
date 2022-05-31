@@ -12,7 +12,7 @@ export default function ({ $cookies, $axios, app, store, redirect }) {
   $axios.onResponseError(async (err) => {
     const originalRequest = err.config;
     console.log("(axios)Making response error ");
-    console.log(err.response.config);
+    //console.log(err.response.config);
     if (
       err.response?.config?.url !== "/auth/refresh" &&
       err.response?.status === 401 &&

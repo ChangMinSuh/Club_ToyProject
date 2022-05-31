@@ -87,7 +87,7 @@ export class ClubChatsService {
       .leftJoinAndSelect('clubChatRooms.ClubChats', 'clubChats')
       .leftJoinAndSelect('clubChats.ClubMember', 'ClubMember')
       .where('clubChatRooms.Id = :roomId', { roomId })
-      .orderBy('ClubChats.createdAt', 'ASC')
+      .orderBy('clubChats.createdAt', 'ASC')
       .getOne();
   }
 
