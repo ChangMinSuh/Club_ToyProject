@@ -56,7 +56,10 @@ export class AuthService {
     });
     return {
       token: token,
-      domain: 'localhost',
+      domain:
+        this.configService.get<string>('NODE_ENV') === 'production'
+          ? this.configService.get<string>('SITE_DOMAIN')
+          : 'localhost',
       httpOnly: true,
       path: '/',
     };
@@ -70,7 +73,10 @@ export class AuthService {
     });
     return {
       token: token,
-      domain: 'localhost',
+      domain:
+        this.configService.get<string>('NODE_ENV') === 'production'
+          ? this.configService.get<string>('SITE_DOMAIN')
+          : 'localhost',
       httpOnly: true,
       path: '/',
     };
