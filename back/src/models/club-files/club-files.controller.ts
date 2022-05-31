@@ -29,6 +29,9 @@ import * as AWS from 'aws-sdk';
 import { ClubMember } from 'src/common/decorators/club-member.decorator';
 
 const s3 = new AWS.S3();
+AWS.config.update({
+  region: 'ap-northeast-2',
+});
 
 @ClubRoles(ClubMembersRoleEnum.Manager, ClubMembersRoleEnum.User)
 @UseGuards(JwtAccessGuard, ClubRolesGuard)
@@ -58,7 +61,7 @@ export class ClubFilesController {
       // 경로 저장
       storage: multerS3({
         s3: s3,
-        bucket: `sweetclub/club-images`,
+        bucket: `${process.env.AWS_S3_BUCKET_NAME}/club-images`,
         acl: 'public-read',
         key: function (req, file, cb) {
           const ext = extname(file.originalname);
