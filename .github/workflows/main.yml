@@ -46,9 +46,6 @@ jobs:
           context: ./front
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/sweetclub-front
-        
-      - name: Make zip file
-        run: zip -r ./deploySweetClub.zip ./docker-compose.yml ./appspec.yml ./deploy.sh
       
       - name: Build and push nginx
         uses: docker/build-push-action@v2.10.0
@@ -56,6 +53,9 @@ jobs:
           context: ./nginx
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/sweetclub-nginx
+      
+      - name: Make zip file
+        run: zip -r ./deploySweetClub.zip ./docker-compose.yml ./appspec.yml ./deploy.sh
       
       - name: aws setting
         uses: aws-actions/configure-aws-credentials@v1
@@ -67,7 +67,7 @@ jobs:
       - name: S3 upload
         run: |
           aws s3 cp \
-          --region ap-northeast2 \
+          --region ap-northeast-2 \
           ./deploySweetClub.zip s3://sweetclub
           
       - name: code deploy
